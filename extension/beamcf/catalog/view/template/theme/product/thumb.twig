@@ -1,0 +1,47 @@
+<div class="product-thumb bcf-card">
+  <div class="image bcf-card-image">
+    {% if bcf_badges %}
+      <ul class="bcf-badges list-unstyled">
+        {% for badge in bcf_badges %}<li class="bcf-badge-tag {{ badge.class }}">{{ badge.text }}</li>{% endfor %}
+      </ul>
+    {% endif %}
+    <a href="{{ href }}"><img src="{{ thumb }}" alt="{{ name }}" title="{{ name }}" class="img-fluid" loading="lazy"{% if width %} width="{{ width }}" height="{{ height }}"{% endif %}/></a>
+  </div>
+  <div class="content bcf-card-body">
+    <div class="description">
+      {% if manufacturer %}<div class="bcf-card-brand">{{ manufacturer }}</div>{% endif %}
+      <h3 class="bcf-card-title"><a href="{{ href }}">{{ name }}</a></h3>
+      {% if review_status and rating %}
+        <div class="rating bcf-rating" role="img" aria-label="{{ rating }}/5">
+          {% for i in 1..5 %}
+            {% if rating < i %}
+              <span class="fa-stack"><i class="fa-regular fa-star fa-stack-1x"></i></span>
+            {% else %}
+              <span class="fa-stack"><i class="fa-solid fa-star fa-stack-1x"></i><i class="fa-regular fa-star fa-stack-1x"></i></span>
+            {% endif %}
+          {% endfor %}
+        </div>
+      {% endif %}
+      {% if price %}
+        <div class="price bcf-price">
+          {% if not special %}
+            <span class="price-new">{{ price }}</span>
+          {% else %}
+            <span class="price-new">{{ special }}</span> <span class="price-old">{{ price }}</span>
+          {% endif %}
+          {% if tax %}
+            <span class="price-tax">{{ text_tax }} {{ tax }}</span>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+    <form method="post" data-oc-toggle="ajax" data-oc-load="{{ cart }}" data-oc-target="#cart">
+      <div class="button bcf-card-actions">
+        <button type="submit" formaction="{{ cart_add }}" class="bcf-card-cart" title="{{ button_cart }}"><i class="fa-solid fa-shopping-cart" aria-hidden="true"></i> <span>{{ button_cart }}</span></button>
+        <button type="submit" formaction="{{ wishlist_add }}" class="bcf-card-icon" data-bs-toggle="tooltip" title="{{ button_wishlist }}" aria-label="{{ button_wishlist }}"><i class="fa-solid fa-heart" aria-hidden="true"></i></button>
+        <button type="submit" formaction="{{ compare_add }}" class="bcf-card-icon" data-bs-toggle="tooltip" title="{{ button_compare }}" aria-label="{{ button_compare }}"><i class="fa-solid fa-arrow-right-arrow-left" aria-hidden="true"></i></button>
+      </div>
+      <input type="hidden" name="product_id" value="{{ product_id }}"/> <input type="hidden" name="quantity" value="{{ minimum }}"/>
+    </form>
+  </div>
+</div>
