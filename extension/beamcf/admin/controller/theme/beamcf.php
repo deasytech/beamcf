@@ -97,7 +97,7 @@ class Beamcf extends \Opencart\System\Engine\Controller {
 			}
 		}
 
-		if (!empty($this->request->post['theme_beamcf_app_url']) && empty(trim((string)$this->request->post['theme_beamcf_app_text']))) {
+		if (!empty($this->request->post['theme_beamcf_app_url']) && empty(trim((string)($this->request->post['theme_beamcf_app_text'] ?? '')))) {
 			$json['error']['app_text'] = $this->language->get('error_app_text');
 		}
 

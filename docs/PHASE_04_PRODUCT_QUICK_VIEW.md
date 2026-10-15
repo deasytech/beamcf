@@ -58,6 +58,7 @@ Support the option types actually used by the store, including select, radio, ch
 
 - Use the actual OpenCart add-to-cart route and expected request parameters.
 - Include product identifier, quantity, and selected options correctly.
+- When the product has subscription plans, show a plan selector and submit the selected `subscription_plan_id`. OpenCart rejects a subscription product added without a valid plan, so display that error clearly.
 - Preserve required security tokens and session behavior.
 - Display success and error feedback.
 - Update the cart indicator and mini-cart using the existing project mechanism.

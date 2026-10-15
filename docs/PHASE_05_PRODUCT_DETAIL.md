@@ -63,6 +63,7 @@ Support the option types used by the store, including select, radio, checkbox, t
 
 - Add to Cart must use OpenCart's actual cart flow.
 - Quantity must be validated.
+- When the product has subscription plans, show a plan selector and submit the selected `subscription_plan_id`; OpenCart rejects a subscription product added without a valid plan.
 - Wishlist and compare must use existing behavior.
 - Buy Now, if included, must take the customer through a valid checkout route without bypassing required validation.
 - Display server errors and success notifications clearly.
