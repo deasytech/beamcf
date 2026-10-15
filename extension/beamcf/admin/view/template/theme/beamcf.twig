@@ -60,6 +60,7 @@
               </div>
             </div>
           {% endfor %}
+          <fieldset>
           <legend>{{ text_homepage }}</legend>
           {% for field, label in {'hero_banner_id': entry_hero_banner, 'promo_banner_id': entry_promo_banner, 'deals_banner_id': entry_deals_banner, 'campaign_banner_id': entry_campaign_banner} %}
             <div class="row mb-3">
@@ -79,6 +80,8 @@
             <label for="input-campaign_text" class="col-sm-2 col-form-label">{{ entry_campaign_text }}</label>
             <div class="col-sm-10"><textarea name="theme_beamcf_campaign_text" id="input-campaign_text" rows="2" class="form-control">{{ theme_beamcf_campaign_text }}</textarea></div>
           </div>
+          </fieldset>
+          <fieldset>
           <legend>{{ text_benefits }}</legend>
           <div class="form-text mb-3">{{ help_benefits }}</div>
           {% for i in 1..4 %}
@@ -89,6 +92,7 @@
               <div class="col-sm-5"><input type="text" name="theme_beamcf_benefit_{{ i }}_text" value="{{ attribute(_context, 'theme_beamcf_benefit_' ~ i ~ '_text') }}" id="input-benefit_{{ i }}_text" class="form-control"/></div>
             </div>
           {% endfor %}
+          </fieldset>
         </form>
       </div>
     </div>

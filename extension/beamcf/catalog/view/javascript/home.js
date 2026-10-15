@@ -1,9 +1,9 @@
 // BeamCF homepage: Deals of the Day countdown. The end time comes from the product special's real end date.
 (function () {
   document.querySelectorAll('.bcf-countdown').forEach(function (el) {
-    var end = parseInt(el.dataset.end, 10) * 1000;
+    var end = Number.parseInt(el.dataset.end, 10) * 1000;
     // Use the server clock as the reference so a wrong device clock does not change the remaining time.
-    var offset = parseInt(el.dataset.now, 10) * 1000 - Date.now();
+    var offset = Number.parseInt(el.dataset.now, 10) * 1000 - Date.now();
 
     var tick = function () {
       var left = Math.max(0, Math.floor((end - (Date.now() + offset)) / 1000));

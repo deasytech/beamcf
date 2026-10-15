@@ -166,7 +166,7 @@
                   <figure class="carousel-item{% if loop.first %} active{% endif %}">
                     <i class="fa-solid fa-quote-left bcf-quote" aria-hidden="true"></i>
                     <blockquote><p>{{ review.text }}</p></blockquote>
-                    <div class="bcf-rating" role="img" aria-label="{{ review.rating }}/5">{% for i in 1..5 %}<i class="fa-{{ review.rating < i ? 'regular' : 'solid' }} fa-star" aria-hidden="true"></i>{% endfor %}</div>
+                    <div class="bcf-rating"><span class="visually-hidden">{{ review.rating }}/5</span>{% for i in 1..5 %}<i class="fa-{{ review.rating < i ? 'regular' : 'solid' }} fa-star" aria-hidden="true"></i>{% endfor %}</div>
                     <figcaption><strong>{{ review.author }}</strong> <a href="{{ review.href }}">{{ review.product }}</a></figcaption>
                   </figure>
                 {% endfor %}

@@ -10,6 +10,8 @@ namespace Opencart\Catalog\Controller\Extension\Beamcf\Event;
  * @package Opencart\Catalog\Controller\Extension\Beamcf\Event
  */
 class Theme extends \Opencart\System\Engine\Controller {
+	private const ROUTE_HOME = 'common/home';
+
 	/**
 	 * View
 	 *
@@ -49,7 +51,7 @@ class Theme extends \Opencart\System\Engine\Controller {
 			case 'common/footer':
 				$this->footer($args);
 				break;
-			case 'common/home':
+			case self::ROUTE_HOME:
 				$this->home($args);
 				break;
 			case 'product/thumb':
@@ -106,7 +108,7 @@ class Theme extends \Opencart\System\Engine\Controller {
 	protected function menu(array &$args): void {
 		$language = 'language=' . $this->config->get('config_language');
 
-		$args['bcf_home_url'] = $this->url->link('common/home', $language);
+		$args['bcf_home_url'] = $this->url->link(self::ROUTE_HOME, $language);
 		$args['bcf_special_url'] = $this->url->link('product/special', $language);
 		$args['bcf_contact_url'] = $this->url->link('information/contact', $language);
 
@@ -114,7 +116,7 @@ class Theme extends \Opencart\System\Engine\Controller {
 
 		$args['bcf_blog_url'] = $this->model_cms_article->getTotalArticles() ? $this->url->link('cms/blog', $language) : '';
 
-		$args['bcf_route'] = $this->request->get['route'] ?? 'common/home';
+		$args['bcf_route'] = $this->request->get['route'] ?? self::ROUTE_HOME;
 	}
 
 	/**
@@ -163,7 +165,7 @@ class Theme extends \Opencart\System\Engine\Controller {
 		$args['bcf_script'] = 'extension/beamcf/catalog/view/javascript/beamcf.js';
 		$args['bcf_logo'] = $this->logo() ?: (is_file(DIR_IMAGE . $this->config->get('config_logo')) ? $this->config->get('config_url') . 'image/' . $this->config->get('config_logo') : '');
 		$args['bcf_name'] = $this->config->get('config_name');
-		$args['bcf_home_url'] = $this->url->link('common/home', $language);
+		$args['bcf_home_url'] = $this->url->link(self::ROUTE_HOME, $language);
 	}
 
 	/**
