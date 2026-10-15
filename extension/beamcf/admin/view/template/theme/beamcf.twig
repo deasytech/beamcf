@@ -1,0 +1,68 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="float-end">
+        <button type="submit" form="form-theme" data-bs-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa-solid fa-save"></i></button>
+        <a href="{{ back }}" data-bs-toggle="tooltip" title="{{ button_back }}" class="btn btn-light"><i class="fa-solid fa-reply"></i></a></div>
+      <h1>{{ heading_title }}</h1>
+      <ol class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+          <li class="breadcrumb-item"><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ol>
+    </div>
+  </div>
+  <div class="container-fluid">
+    <div class="card">
+      <div class="card-header"><i class="fa-solid fa-pencil"></i> {{ text_edit }}</div>
+      <div class="card-body">
+        <div class="alert alert-info">{{ text_help }}</div>
+        <form id="form-theme" action="{{ save }}" method="post" data-oc-toggle="ajax">
+          <div class="row mb-3">
+            <label class="col-sm-2 col-form-label">{{ entry_status }}</label>
+            <div class="col-sm-10">
+              <div class="form-check form-switch form-switch-lg">
+                <input type="hidden" name="theme_beamcf_status" value="0"/>
+                <input type="checkbox" name="theme_beamcf_status" value="1" id="input-status" class="form-check-input"{% if theme_beamcf_status %} checked{% endif %}/>
+              </div>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <label for="input-announcement" class="col-sm-2 col-form-label">{{ entry_announcement }}</label>
+            <div class="col-sm-10">
+              <input type="text" name="theme_beamcf_announcement" value="{{ theme_beamcf_announcement }}" id="input-announcement" class="form-control"/>
+              <div class="form-text">{{ help_announcement }}</div>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <label for="input-app-text" class="col-sm-2 col-form-label">{{ entry_app_text }}</label>
+            <div class="col-sm-10">
+              <input type="text" name="theme_beamcf_app_text" value="{{ theme_beamcf_app_text }}" id="input-app-text" class="form-control"/>
+              <div id="error-app_text" class="invalid-feedback"></div>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <label for="input-app-url" class="col-sm-2 col-form-label">{{ entry_app_url }}</label>
+            <div class="col-sm-10">
+              <input type="url" name="theme_beamcf_app_url" value="{{ theme_beamcf_app_url }}" id="input-app-url" class="form-control"/>
+              <div class="form-text">{{ help_app_url }}</div>
+              <div id="error-app_url" class="invalid-feedback"></div>
+            </div>
+          </div>
+          {% for key, label in {'facebook': entry_facebook, 'x': entry_x, 'instagram': entry_instagram, 'youtube': entry_youtube} %}
+            <div class="row mb-3">
+              <label for="input-{{ key }}" class="col-sm-2 col-form-label">{{ label }}</label>
+              <div class="col-sm-10">
+                <input type="url" name="theme_beamcf_{{ key }}" value="{{ attribute(_context, 'theme_beamcf_' ~ key) }}" id="input-{{ key }}" class="form-control"/>
+                <div class="form-text">{{ help_social }}</div>
+                <div id="error-{{ key }}" class="invalid-feedback"></div>
+              </div>
+            </div>
+          {% endfor %}
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{{ footer }}

@@ -1,0 +1,59 @@
+<nav class="bcf-nav" aria-label="{{ bcf_text_menu }}">
+  <button type="button" class="bcf-nav-toggle" data-bs-toggle="collapse" data-bs-target="#bcf-nav-list" aria-controls="bcf-nav-list" aria-expanded="false"><i class="fa-solid fa-bars" aria-hidden="true"></i> <span>{{ bcf_text_menu }}</span></button>
+  <ul id="bcf-nav-list" class="bcf-nav-list collapse">
+    <li><a href="{{ bcf_home_url }}" class="bcf-nav-link{% if bcf_route == 'common/home' %} active{% endif %}"{% if bcf_route == 'common/home' %} aria-current="page"{% endif %}>{{ bcf_text_home }}</a></li>
+    <li><a href="{{ bcf_special_url }}" class="bcf-nav-link{% if bcf_route == 'product/special' %} active{% endif %}"{% if bcf_route == 'product/special' %} aria-current="page"{% endif %}>{{ bcf_text_special }}</a></li>
+    {% if categories %}
+      <li class="dropdown bcf-mega-item">
+        <button type="button" class="bcf-nav-link dropdown-toggle{% if bcf_route starts with 'product/category' or bcf_route starts with 'product/product' %} active{% endif %}" data-bs-toggle="dropdown" aria-expanded="false">{{ bcf_text_products }}</button>
+        <div class="dropdown-menu bcf-mega">
+          <div class="bcf-mega-grid">
+            {% for category in categories %}
+              <div class="bcf-mega-col">
+                <a href="{{ category.href }}" class="bcf-mega-title">{{ category.name }}</a>
+                {% if category.children %}
+                  <ul class="list-unstyled">
+                    {% for child in category.children|slice(0, 8) %}
+                      <li><a href="{{ child.href }}" class="dropdown-item">{{ child.name }}</a></li>
+                    {% endfor %}
+                    {% if category.children|length > 8 %}
+                      <li><a href="{{ category.href }}" class="dropdown-item bcf-mega-all">{{ bcf_text_all }} {{ category.name }}</a></li>
+                    {% endif %}
+                  </ul>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </li>
+    {% endif %}
+    {% if bcf_blog_url %}
+      <li><a href="{{ bcf_blog_url }}" class="bcf-nav-link{% if bcf_route starts with 'cms/' %} active{% endif %}">{{ bcf_text_blog }}</a></li>
+    {% endif %}
+    <li><a href="{{ bcf_contact_url }}" class="bcf-nav-link{% if bcf_route == 'information/contact' %} active{% endif %}"{% if bcf_route == 'information/contact' %} aria-current="page"{% endif %}>{{ bcf_text_contact }}</a></li>
+  </ul>
+</nav>
+{% if categories %}
+  <div class="offcanvas offcanvas-start bcf-drawer" tabindex="-1" id="bcf-category-drawer" aria-labelledby="bcf-category-drawer-title">
+    <div class="offcanvas-header">
+      <h2 class="offcanvas-title" id="bcf-category-drawer-title">{{ bcf_text_categories }}</h2>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="{{ bcf_text_close }}"></button>
+    </div>
+    <div class="offcanvas-body">
+      <ul class="list-unstyled bcf-drawer-list">
+        {% for category in categories %}
+          <li>
+            <a href="{{ category.href }}" class="bcf-drawer-link">{{ category.name }}</a>
+            {% if category.children %}
+              <ul class="list-unstyled bcf-drawer-sub">
+                {% for child in category.children %}
+                  <li><a href="{{ child.href }}">{{ child.name }}</a></li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+{% endif %}

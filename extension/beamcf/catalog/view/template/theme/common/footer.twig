@@ -1,0 +1,79 @@
+</main>
+<footer class="bcf-footer">
+  <div class="container">
+    <div class="bcf-footer-grid">
+      <div class="bcf-footer-brand">
+        <a href="{{ bcf_home_url }}" class="bcf-footer-logo">{% if bcf_logo %}<img src="{{ bcf_logo }}" alt="{{ bcf_name }}" class="img-fluid"/>{% else %}{{ bcf_name }}{% endif %}</a>
+        {% if bcf_socials %}
+          <ul class="bcf-social list-unstyled" aria-label="{{ bcf_text_follow }}">
+            {% for social in bcf_socials %}
+              <li><a href="{{ social.url }}" rel="noopener" target="_blank" aria-label="{{ social.name }}"><i class="{{ social.icon }}" aria-hidden="true"></i></a></li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+        <dl class="bcf-contact">
+          {% if bcf_address %}<dt>{{ bcf_text_address }}</dt><dd>{{ bcf_address }}</dd>{% endif %}
+          {% if bcf_telephone %}<dt>{{ bcf_text_call_us }}</dt><dd><a href="tel:{{ bcf_telephone }}">{{ bcf_telephone }}</a></dd>{% endif %}
+          {% if bcf_email %}<dt>{{ bcf_text_email_us }}</dt><dd><a href="mailto:{{ bcf_email }}">{{ bcf_email }}</a></dd>{% endif %}
+        </dl>
+      </div>
+      <div class="bcf-footer-links">
+        <div class="bcf-footer-col">
+          <h2>{{ bcf_text_my_account }}</h2>
+          <ul class="list-unstyled">
+            <li><a href="{{ account }}">{{ text_account }}</a></li>
+            <li><a href="{{ order }}">{{ text_order }}</a></li>
+            <li><a href="{{ wishlist }}">{{ text_wishlist }}</a></li>
+            <li><a href="{{ bcf_compare_url }}">{{ bcf_text_compare }}</a></li>
+            <li><a href="{{ newsletter }}">{{ text_newsletter }}</a></li>
+          </ul>
+        </div>
+        <div class="bcf-footer-col">
+          <h2>{{ bcf_text_quick_links }}</h2>
+          <ul class="list-unstyled">
+            {% if blog %}<li><a href="{{ blog }}">{{ text_blog }}</a></li>{% endif %}
+            <li><a href="{{ manufacturer }}">{{ text_manufacturer }}</a></li>
+            <li><a href="{{ special }}">{{ text_special }}</a></li>
+            <li><a href="{{ contact }}">{{ text_contact }}</a></li>
+            <li><a href="{{ return }}">{{ text_return }}</a></li>
+            <li><a href="{{ sitemap }}">{{ text_sitemap }}</a></li>
+            {% if affiliate %}<li><a href="{{ affiliate }}">{{ text_affiliate }}</a></li>{% endif %}
+          </ul>
+        </div>
+        {% if informations or gdpr %}
+          <div class="bcf-footer-col">
+            <h2>{{ bcf_text_information }}</h2>
+            <ul class="list-unstyled">
+              {% for information in informations %}
+                <li><a href="{{ information.href }}">{{ information.title }}</a></li>
+              {% endfor %}
+              {% if gdpr %}<li><a href="{{ gdpr }}">{{ text_gdpr }}</a></li>{% endif %}
+            </ul>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+    {% if bcf_manufacturers %}
+      <div class="bcf-brands">
+        <strong>{{ bcf_text_brands }}:</strong>
+        <ul class="list-inline">
+          {% for brand in bcf_manufacturers %}
+            <li class="list-inline-item"><a href="{{ brand.href }}">{{ brand.name }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+  </div>
+  <div class="bcf-copyright">
+    <div class="container"><p>{{ powered }}</p></div>
+  </div>
+</footer>
+<button type="button" class="bcf-top" id="bcf-top" aria-label="{{ bcf_text_back_to_top }}" hidden><i class="fa-solid fa-chevron-up" aria-hidden="true"></i></button>
+</div>
+{{ cookie }}
+<script src="{{ bootstrap }}" type="text/javascript"></script>
+{% for script in scripts %}
+  <script src="{{ script.href }}" type="text/javascript"></script>
+{% endfor %}
+<script src="{{ bcf_script }}" type="text/javascript"></script>
+</body></html>
