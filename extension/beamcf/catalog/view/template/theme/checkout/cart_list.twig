@@ -12,20 +12,26 @@
     <div class="alert alert-info"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> {{ attention }} <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
   {% endif %}
   <h1 class="bcf-page-title">{{ heading_title }}{% if weight %} <small class="bcf-cart-weight">({{ weight }})</small>{% endif %}</h1>
-  <div class="bcf-cart-layout">
-    <div class="bcf-cart-main">
-      <div id="output-cart" class="bcf-cart-table">
-        <div class="bcf-cart-head" aria-hidden="true">
-          <span>{{ column_name }}</span><span>{{ column_quantity }}</span><span class="text-end">{{ column_price }}</span><span class="text-end">{{ column_total }}</span>
-        </div>
+  <div id="output-cart" class="bcf-cart-tablewrap">
+    <table class="bcf-cart-grid">
+      <thead>
+        <tr>
+          <th class="text-center">{{ column_image }}</th>
+          <th>{{ column_name }}</th>
+          <th>{{ text_model }}</th>
+          <th>{{ column_quantity }}</th>
+          <th class="text-end">{{ column_price }}</th>
+          <th class="text-end">{{ column_total }}</th>
+        </tr>
+      </thead>
+      <tbody>
         {% for product in products %}
-          <div class="bcf-cart-row">
-            <div class="bcf-cart-product">
-              <div class="bcf-cart-row-thumb">{% if product.thumb %}<a href="{{ product.href }}"><img src="{{ product.thumb }}" alt="{{ product.name }}" width="96" height="96"/></a>{% endif %}</div>
-              <div class="bcf-cart-row-info">
-                <a href="{{ product.href }}" class="bcf-cart-row-name">{{ product.name }}</a>{% if not product.stock %} <span class="text-danger" title="{{ error_stock }}">***</span>{% endif %}
+          <tr>
+            <td class="bcf-cart-img">{% if product.thumb %}<a href="{{ product.href }}"><img src="{{ product.thumb }}" alt="{{ product.name }}" width="76" height="94"/></a>{% endif %}</td>
+            <td class="bcf-cart-name-cell" data-label="{{ column_name }}">
+              <a href="{{ product.href }}">{{ product.name }}</a>{% if not product.stock %} <span class="text-danger" title="{{ error_stock }}">***</span>{% endif %}
+              {% if product.option or product.subscription or product.reward %}
                 <ul class="list-unstyled bcf-cart-row-meta">
-                  <li>{{ text_model }}: {{ product.model }}</li>
                   {% for option in product.option %}
                     <li>{{ option.name }}: {{ option.value }}</li>
                   {% endfor %}
@@ -36,27 +42,32 @@
                     <li>{{ text_points }}: {{ product.reward }}</li>
                   {% endif %}
                 </ul>
-              </div>
-            </div>
-            <div class="bcf-cart-row-qty" data-label="{{ column_quantity }}">
+              {% endif %}
+            </td>
+            <td data-label="{{ text_model }}">{{ product.model }}</td>
+            <td class="bcf-cart-qty-cell" data-label="{{ column_quantity }}">
               <form method="post" data-oc-target="#shopping-cart">
                 <div class="input-group">
                   <input type="text" name="quantity" value="{{ product.quantity }}" size="2" inputmode="numeric" aria-label="{{ column_quantity }}: {{ product.name }}" class="form-control{% if product.minimum %} is-invalid{% endif %}"/>
                   <input type="hidden" name="key" value="{{ product.cart_id }}"/>
-                  <button type="submit" formaction="{{ edit }}" title="{{ button_update }}" aria-label="{{ button_update }}: {{ product.name }}" class="btn btn-primary"><i class="fa-solid fa-rotate" aria-hidden="true"></i></button>
+                  <button type="submit" formaction="{{ edit }}" title="{{ button_update }}" aria-label="{{ button_update }}: {{ product.name }}" class="bcf-cart-update"><i class="fa-solid fa-rotate" aria-hidden="true"></i></button>
+                  <a href="{{ product.remove }}" title="{{ button_remove }}" aria-label="{{ button_remove }}: {{ product.name }}" class="bcf-cart-row-remove"><i class="fa-solid fa-circle-xmark" aria-hidden="true"></i></a>
                 </div>
               </form>
               {% if product.minimum %}
                 <small class="invalid-feedback d-block">{{ product.minimum }}</small>
               {% endif %}
-              <a href="{{ product.remove }}" class="bcf-cart-row-remove"><i class="fa-solid fa-trash-can" aria-hidden="true"></i> {{ button_remove }}<span class="visually-hidden">: {{ product.name }}</span></a>
-            </div>
-            <div class="bcf-cart-row-price" data-label="{{ column_price }}">{{ product.price }}</div>
-            <div class="bcf-cart-row-total" data-label="{{ column_total }}">{{ product.total }}</div>
-          </div>
+            </td>
+            <td class="text-end" data-label="{{ column_price }}">{{ product.price }}</td>
+            <td class="text-end" data-label="{{ column_total }}">{{ product.total }}</td>
+          </tr>
         {% endfor %}
-      </div>
+      </tbody>
+    </table>
+  </div>
 
+  <div class="bcf-cart-lower">
+    <div class="bcf-cart-modules-col">
       {% if modules %}
         <h2 class="bcf-cart-next">{{ text_next }}</h2>
         <p class="bcf-cart-next-help">{{ text_next_choice }}</p>
@@ -67,22 +78,20 @@
         </div>
       {% endif %}
     </div>
-
-    <aside class="bcf-cart-summary" aria-labelledby="bcf-summary-title">
-      <h2 id="bcf-summary-title">{{ bcf_text_order_summary }}</h2>
-      <table id="checkout-total" class="bcf-summary-totals">
-        <tbody>
-          {% for total in totals %}
-            <tr{% if loop.last %} class="bcf-summary-final"{% endif %}>
-              <th scope="row">{{ total.title }}</th>
-              <td>{{ total.text }}</td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-      <a href="{{ checkout }}" class="bcf-btn-checkout">{{ button_checkout }} <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
-      <a href="{{ continue }}" class="bcf-btn-continue">{{ button_shopping }}</a>
-    </aside>
+    <table id="checkout-total" class="bcf-cart-totals-table">
+      <tbody>
+        {% for total in totals %}
+          <tr>
+            <th scope="row">{{ total.title }}:</th>
+            <td>{{ total.text }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="bcf-cart-buttons">
+    <a href="{{ continue }}" class="bcf-btn-continue">{{ button_shopping }}</a>
+    <a href="{{ checkout }}" class="bcf-btn-checkout">{{ button_checkout }}</a>
   </div>
 {% else %}
   <div class="bcf-cart-emptystate">
