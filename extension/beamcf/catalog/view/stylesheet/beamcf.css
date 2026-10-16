@@ -3228,3 +3228,17 @@ html.bcf-qv-open {
 
 .bcf-form-actions .bcf-btn-checkout { background: #fff; color: #000 !important; border: 2px solid #000 !important; }
 .bcf-form-actions .bcf-btn-checkout:hover { background: #000; color: #fff !important; }
+
+/* ---------- Login: sign-in and register cards ---------- */
+.bcf-login-card h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: var(--bcf-space-3); }
+.bcf-login-card label { font-weight: 600; }
+.bcf-login-card a:not([class]) { color: var(--bcf-text); text-decoration: underline; }
+.bcf-login-page .bcf-btn-checkout { background: var(--bcf-accent); color: var(--bcf-on-accent) !important; }
+.bcf-login-page .bcf-btn-checkout:hover { background: var(--bcf-accent-hover); }
+.bcf-btn-outline-dark {
+  display: inline-flex; align-items: center; justify-content: center; min-height: 52px; padding: 0 var(--bcf-space-5);
+  background: #fff; color: #000 !important; border: 2px solid #000; border-radius: var(--bcf-radius);
+  font-weight: 700; text-transform: uppercase; text-decoration: none;
+}
+.bcf-btn-outline-dark:hover { background: #000; color: #fff !important; }
+@media (max-width: 575.98px) { .bcf-btn-outline-dark { width: 100%; } }
