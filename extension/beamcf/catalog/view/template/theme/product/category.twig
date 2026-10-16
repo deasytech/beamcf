@@ -192,10 +192,10 @@
           <button type="button" class="bcf-btn bcf-btn-outline bcf-filter-toggle d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#bcf-filters" aria-controls="bcf-filters">
             <i class="fa-solid fa-sliders" aria-hidden="true"></i> {{ bcf_text_filter_open }}{% if f.chips %} ({{ f.chips|length }}){% endif %}
           </button>
-          <div class="btn-group bcf-view d-none d-md-inline-flex" role="group" aria-label="{{ bcf_text_products }}">
+          <fieldset class="bcf-view d-none d-md-inline-flex"><legend class="visually-hidden">{{ bcf_text_products }}</legend>
             <button type="button" class="bcf-view-btn active" data-bcf-view="grid" aria-pressed="true" title="{{ bcf_text_grid_view }}" aria-label="{{ bcf_text_grid_view }}"><i class="fa-solid fa-table-cells" aria-hidden="true"></i></button>
             <button type="button" class="bcf-view-btn" data-bcf-view="list" aria-pressed="false" title="{{ bcf_text_list_view }}" aria-label="{{ bcf_text_list_view }}"><i class="fa-solid fa-table-list" aria-hidden="true"></i></button>
-          </div>
+          </fieldset>
           <div class="bcf-field">
             <label for="input-limit">{{ bcf_text_show }}:</label>
             <select id="input-limit" class="form-select" data-bcf-nav>
@@ -217,12 +217,12 @@
         <p class="bcf-toolbar-count" role="status" aria-live="polite">{{ (bcf_count == 1 ? bcf_text_showing_one : bcf_text_showing)|format(bcf_count) }}</p>
 
         {% if f.chips %}
-          <div class="bcf-chips" role="group" aria-label="{{ bcf_text_active_filters }}">
+          <fieldset class="bcf-chips"><legend class="visually-hidden">{{ bcf_text_active_filters }}</legend>
             {% for chip in f.chips %}
               <a href="{{ chip.href }}" class="bcf-chip" title="{{ bcf_text_remove_filter }}">{{ chip.text }} <i class="fa-solid fa-xmark" aria-hidden="true"></i><span class="visually-hidden">{{ bcf_text_remove_filter }}</span></a>
             {% endfor %}
             <a href="{{ f.reset }}" class="bcf-chip-clear">{{ bcf_text_clear_all }}</a>
-          </div>
+          </fieldset>
         {% endif %}
 
         {% if products %}
