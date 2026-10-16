@@ -926,11 +926,6 @@ body.bcf {
   text-decoration: line-through;
   margin-left: var(--bcf-space-1);
 }
-.bcf .product-thumb .price-tax {
-  display: block;
-  color: var(--bcf-text-muted);
-  font-size: var(--bcf-fs-sm);
-}
 .bcf .product-thumb .bcf-card-actions {
   display: flex;
   flex-wrap: wrap;

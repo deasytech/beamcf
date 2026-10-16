@@ -75,7 +75,6 @@
                 <span class="price-new">{{ special }}</span> <span class="price-old">{{ price }}</span>
                 {% if bcf_discount_percent %}<span class="bcf-pd-save">-{{ bcf_discount_percent }}%</span>{% endif %}
               {% endif %}
-              {% if tax %}<span class="price-tax">{{ text_tax }} {{ tax }}</span>{% endif %}
               {% if points %}<span class="price-tax">{{ text_points }} {{ points }}</span>{% endif %}
             </div>
             {% if discounts %}
