@@ -147,12 +147,43 @@ class Beamcf extends \Opencart\System\Engine\Controller {
 			$this->load->model('setting/event');
 
 			$this->model_setting_event->deleteEventByCode('beamcf_theme');
+			$this->model_setting_event->deleteEventByCode('beamcf_catalog_products');
+			$this->model_setting_event->deleteEventByCode('beamcf_catalog_total');
+			$this->model_setting_event->deleteEventByCode('beamcf_catalog_pagination');
 
 			$this->model_setting_event->addEvent([
 				'code'        => 'beamcf_theme',
 				'description' => 'BeamCF theme: swap in BeamCF templates when the BeamCF theme is selected.',
 				'trigger'     => 'catalog/view/*/before',
 				'action'      => 'extension/beamcf/event/theme.view',
+				'status'      => true,
+				'sort_order'  => 1
+			]);
+
+			// Category filters: route the listing queries to the BeamCF filter model while a filter is active.
+			$this->model_setting_event->addEvent([
+				'code'        => 'beamcf_catalog_products',
+				'description' => 'BeamCF theme: apply category filters to the product query.',
+				'trigger'     => 'catalog/model/catalog/product.getProducts/before',
+				'action'      => 'extension/beamcf/event/catalog.products',
+				'status'      => true,
+				'sort_order'  => 1
+			]);
+
+			$this->model_setting_event->addEvent([
+				'code'        => 'beamcf_catalog_total',
+				'description' => 'BeamCF theme: apply category filters to the product count.',
+				'trigger'     => 'catalog/model/catalog/product.getTotalProducts/before',
+				'action'      => 'extension/beamcf/event/catalog.products',
+				'status'      => true,
+				'sort_order'  => 1
+			]);
+
+			$this->model_setting_event->addEvent([
+				'code'        => 'beamcf_catalog_pagination',
+				'description' => 'BeamCF theme: keep category filters in pagination links.',
+				'trigger'     => 'catalog/controller/common/pagination/before',
+				'action'      => 'extension/beamcf/event/catalog.pagination',
 				'status'      => true,
 				'sort_order'  => 1
 			]);
@@ -169,6 +200,9 @@ class Beamcf extends \Opencart\System\Engine\Controller {
 			$this->load->model('setting/event');
 
 			$this->model_setting_event->deleteEventByCode('beamcf_theme');
+			$this->model_setting_event->deleteEventByCode('beamcf_catalog_products');
+			$this->model_setting_event->deleteEventByCode('beamcf_catalog_total');
+			$this->model_setting_event->deleteEventByCode('beamcf_catalog_pagination');
 		}
 	}
 }
