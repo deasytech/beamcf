@@ -5,7 +5,7 @@
       {% set current = bcf_path_root == category.category_id %}
       {% if category.children %}
         <li class="dropdown bcf-nav-item">
-          <a href="{{ category.href }}" class="bcf-nav-link bcf-nav-parent{% if current %} active{% endif %}"{% if current %} aria-current="page"{% endif %}>{{ category.name }}</a><button type="button" class="bcf-sub-toggle{% if current %} active{% endif %}" data-bs-toggle="dropdown" aria-expanded="false" aria-label="{{ bcf_text_show_sub|format(category.name) }}"><i class="fa-solid fa-caret-down" aria-hidden="true"></i></button>
+          <a href="{{ category.href }}" class="bcf-nav-link bcf-nav-parent{% if current %} active{% endif %}"{% if current %} aria-current="page"{% endif %}>{{ category.name }}</a><button type="button" class="bcf-sub-toggle{% if current %} active{% endif %}" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false" aria-label="{{ bcf_text_show_sub|format(category.name) }}"><i class="fa-solid fa-caret-down" aria-hidden="true"></i></button>
           <ul class="dropdown-menu bcf-sub-menu">
             {% for child in category.children %}
               <li><a href="{{ child.href }}" class="dropdown-item">{{ child.name }}</a></li>

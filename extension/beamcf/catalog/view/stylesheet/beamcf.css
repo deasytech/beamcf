@@ -750,6 +750,8 @@ body.bcf {
   letter-spacing: 0.04em;
   text-decoration: none;
   border-radius: var(--bcf-radius);
+  border: 1px solid var(--bcf-accent);
+  cursor: pointer;
 }
 .bcf a.bcf-btn:hover, .bcf a:hover > .bcf-btn {
   background: var(--bcf-accent-hover);
@@ -1640,10 +1642,7 @@ body.bcf {
 /* ======================================================================
    Catalog: category listing with filter sidebar
    ====================================================================== */
-.bcf .bcf-btn {
-  border: 1px solid var(--bcf-accent);
-  cursor: pointer;
-}
+
 .bcf .bcf-btn-outline, .bcf a.bcf-btn-outline:hover {
   background: var(--bcf-white);
   color: var(--bcf-black);
@@ -1666,8 +1665,10 @@ body.bcf {
   padding: 0;
 }
 .bcf-catalog-main > h1 {
-  font-size: 1.75rem;
+  font-size: 2rem;
   margin: 0 0 var(--bcf-space-3);
+  font-weight: 800;
+  margin-bottom: var(--bcf-space-3);
 }
 .bcf-category-intro {
   display: flex;
@@ -1703,10 +1704,14 @@ body.bcf {
 
 /* Sidebar */
 .bcf-sidebar-title {
-  font-size: 1.125rem;
-  margin: 0 0 var(--bcf-space-3);
+  font-size: 1.5rem;
+  margin: 0;
   padding-bottom: var(--bcf-space-2);
   border-bottom: 2px solid var(--bcf-black);
+  padding: var(--bcf-space-4) var(--bcf-space-4) var(--bcf-space-3);
+  border: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
 }
 .bcf-filter-group {
   margin: 0 0 var(--bcf-space-4);
@@ -1725,7 +1730,7 @@ body.bcf {
 }
 .bcf-filter-list {
   margin: 0;
-  max-height: 260px;
+  max-height: 280px;
   overflow-y: auto;
 }
 .bcf-filter-list li + li {
@@ -1734,10 +1739,14 @@ body.bcf {
 .bcf-filter-count {
   color: var(--bcf-text-muted);
   font-size: var(--bcf-fs-sm);
+  min-width: 28px;
+  padding: 2px 6px;
+  background: var(--bcf-bg-alt);
+  text-align: center;
 }
 .bcf-price-range {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   gap: var(--bcf-space-2);
 }
 .bcf-price-range > div {
@@ -1755,6 +1764,8 @@ body.bcf {
 .bcf-filter-actions {
   display: flex;
   gap: var(--bcf-space-2);
+  padding: var(--bcf-space-4);
+  border-top: 1px solid var(--bcf-border);
 }
 .bcf-filter-actions .bcf-btn {
   flex: 1 1 0;
@@ -1783,14 +1794,16 @@ body.bcf {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--bcf-space-3);
-  padding: var(--bcf-space-2) 0 var(--bcf-space-3);
-  border-bottom: 1px solid var(--bcf-border);
+  gap: var(--bcf-space-4);
+  padding: var(--bcf-space-2) 0;
+  border-bottom: 0;
   margin-bottom: var(--bcf-space-3);
 }
 .bcf-toolbar-count {
-  margin: 0;
+  margin: 0 0 var(--bcf-space-3);
   font-weight: 600;
+  color: var(--bcf-text-muted);
+  font-size: var(--bcf-fs-sm);
 }
 .bcf-toolbar-tools {
   display: flex;
@@ -1806,38 +1819,50 @@ body.bcf {
 }
 .bcf-field label {
   margin: 0;
-  font-size: var(--bcf-fs-sm);
-  color: var(--bcf-text-muted);
+  font-size: var(--bcf-fs-base);
+  color: var(--bcf-text);
   white-space: nowrap;
 }
 .bcf-field .form-select {
   width: auto;
   max-width: 100%;
-  font-size: var(--bcf-fs-sm);
+  font-size: var(--bcf-fs-base);
+  min-width: 80px;
+  border-radius: 0;
 }
 .bcf-view {
   gap: 0;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
 }
 .bcf-view-btn {
-  width: 38px;
-  height: 38px;
-  border: 1px solid var(--bcf-border);
-  background: var(--bcf-white);
-  color: var(--bcf-text);
+  width: 34px;
+  height: 34px;
+  border: 0;
+  background: none;
+  color: #9a9a9a;
+  font-size: 1.4rem;
 }
 .bcf-view-btn + .bcf-view-btn {
   border-left: 0;
 }
 .bcf-view-btn.active {
-  background: var(--bcf-accent);
-  border-color: var(--bcf-accent);
-  color: var(--bcf-on-accent);
+  background: none;
+  color: var(--bcf-black);
+  width: 34px;
+  height: 34px;
+  border: 0;
+  font-size: 1.4rem;
 }
 .bcf-compare-link {
   color: var(--bcf-text);
-  font-size: var(--bcf-fs-sm);
+  font-size: var(--bcf-fs-base);
   text-decoration: none;
   white-space: nowrap;
+  font-weight: 600;
+  text-transform: uppercase;
 }
 .bcf-compare-link:hover {
   text-decoration: underline;
@@ -1848,6 +1873,9 @@ body.bcf {
 
 /* Active filter chips */
 .bcf-chips {
+  min-width: 0;
+  padding: 0;
+  border: 0;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -1879,7 +1907,7 @@ body.bcf {
 .bcf-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--bcf-space-3);
+  gap: var(--bcf-space-4) var(--bcf-space-3);
 }
 .bcf-grid-item {
   min-width: 0;
@@ -1996,14 +2024,7 @@ body.bcf {
   display: block;
   padding: 0;
 }
-.bcf-sidebar-title {
-  margin: 0;
-  padding: var(--bcf-space-4) var(--bcf-space-4) var(--bcf-space-3);
-  border: 0;
-  font-size: 1.5rem;
-  text-transform: uppercase;
-  letter-spacing: 0.01em;
-}
+
 @media (min-width: 992px) {
   .bcf-sidebar {
     border: 1px solid var(--bcf-border);
@@ -2055,10 +2076,7 @@ body.bcf {
 .bcf-fbody {
   padding: 0 var(--bcf-space-4) var(--bcf-space-4);
 }
-.bcf-filter-list {
-  max-height: 280px;
-  margin: 0;
-}
+
 .bcf-filter-list li {
   display: flex;
   align-items: center;
@@ -2081,31 +2099,13 @@ body.bcf {
   margin: 0;
   accent-color: var(--bcf-black);
 }
-.bcf-filter-count {
-  min-width: 28px;
-  padding: 2px 6px;
-  background: var(--bcf-bg-alt);
-  color: var(--bcf-text-muted);
-  font-size: var(--bcf-fs-sm);
-  text-align: center;
-}
-.bcf-price-range {
-  display: flex;
-  align-items: center;
-  gap: var(--bcf-space-2);
-}
+
 .bcf-price-range .form-control {
   min-width: 0;
   border-radius: 0;
 }
 .bcf-filter-form .form-control {
   border-radius: 0;
-}
-.bcf-filter-actions {
-  display: flex;
-  gap: var(--bcf-space-2);
-  padding: var(--bcf-space-4);
-  border-top: 1px solid var(--bcf-border);
 }
 
 /* Dual price slider: two stacked range inputs over one track. Pure enhancement; the number fields work alone. */
@@ -2166,56 +2166,15 @@ body.bcf {
 }
 
 /* Toolbar: view icons, Show, compare on the left, Sort By on the right. */
-.bcf-toolbar {
-  border-bottom: 0;
-  padding-bottom: var(--bcf-space-2);
-  gap: var(--bcf-space-4);
-}
+
 .bcf-field-sort {
   margin-left: auto;
 }
-.bcf-field label {
-  font-size: var(--bcf-fs-base);
-  color: var(--bcf-text);
-}
-.bcf-field .form-select {
-  min-width: 80px;
-  border-radius: 0;
-  font-size: var(--bcf-fs-base);
-}
+
 .bcf-field-sort .form-select {
   min-width: 200px;
 }
-.bcf-compare-link {
-  font-size: var(--bcf-fs-base);
-  font-weight: 600;
-  text-transform: uppercase;
-  color: var(--bcf-text);
-}
-.bcf-view-btn, .bcf-view-btn.active {
-  width: 34px;
-  height: 34px;
-  border: 0;
-  background: none;
-  color: #9a9a9a;
-  font-size: 1.4rem;
-}
-.bcf-view-btn.active {
-  color: var(--bcf-black);
-}
-.bcf-toolbar-count {
-  margin: 0 0 var(--bcf-space-3);
-  color: var(--bcf-text-muted);
-  font-size: var(--bcf-fs-sm);
-}
-.bcf-catalog-main > h1 {
-  font-size: 2rem;
-  font-weight: 800;
-  margin-bottom: var(--bcf-space-3);
-}
-.bcf-grid {
-  gap: var(--bcf-space-4) var(--bcf-space-3);
-}
+
 @media (max-width: 991.98px) {
   .bcf-sidebar-title { display: none; }
   .bcf-field-sort { margin-left: 0; }
@@ -2333,8 +2292,8 @@ body.bcf {
     flex: 1 1 auto;
   }
   .bcf .bcf-sub-menu {
-    position: static !important;
-    transform: none !important;
+    position: static;
+    transform: none;
     width: 100%;
     background: #141414;
   }
