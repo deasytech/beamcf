@@ -65,6 +65,9 @@ class Theme extends \Opencart\System\Engine\Controller {
 			case self::ROUTE_PRODUCT:
 				$this->product($args);
 				break;
+			case 'information/contact':
+				$args['bcf_email'] = trim((string)$this->config->get('config_email'));
+				break;
 		}
 
 		$this->text($args);

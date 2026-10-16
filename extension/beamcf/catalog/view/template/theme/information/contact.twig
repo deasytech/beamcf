@@ -1,0 +1,102 @@
+{{ header }}
+<div id="information-contact" class="bcf-contact">
+  <div class="container">
+    <ul class="breadcrumb">
+      {% for breadcrumb in breadcrumbs %}
+        <li class="breadcrumb-item"><a href="{{ breadcrumb.href }}">{% if loop.first %}<i class="fa-solid fa-house" aria-hidden="true"></i><span class="visually-hidden">{{ bcf_text_home }}</span>{% else %}{{ breadcrumb.text }}{% endif %}</a></li>
+      {% endfor %}
+    </ul>
+  </div>
+  {{ content_top }}
+  {% if telephone or bcf_email or address %}
+    <section class="bcf-contact-cards" aria-label="{{ text_location }}">
+      <div class="container bcf-contact-cards-grid">
+        {% if telephone %}
+          <div class="bcf-contact-card">
+            <i class="fa-solid fa-phone-volume" aria-hidden="true"></i>
+            <h2>{{ text_telephone }}</h2>
+            <p><a href="tel:{{ telephone|replace({' ': ''}) }}">{{ telephone }}</a></p>
+          </div>
+        {% endif %}
+        {% if bcf_email %}
+          <div class="bcf-contact-card">
+            <i class="fa-regular fa-envelope" aria-hidden="true"></i>
+            <h2>{{ entry_email }}</h2>
+            <p><a href="mailto:{{ bcf_email }}">{{ bcf_email }}</a></p>
+          </div>
+        {% endif %}
+        {% if address %}
+          <div class="bcf-contact-card">
+            <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+            <h2>{{ text_location }}</h2>
+            <p>{{ address }}</p>
+            {% if open %}<p class="bcf-contact-open"><strong>{{ text_open }}</strong><br/>{{ open }}</p>{% endif %}
+          </div>
+        {% endif %}
+      </div>
+    </section>
+  {% endif %}
+
+  <section class="bcf-contact-main">
+    <div class="container bcf-contact-main-grid{% if not image %} bcf-contact-noimage{% endif %}">
+      <div class="bcf-contact-form">
+        <h1>{{ heading_title }}</h1>
+        {% if comment %}<p class="bcf-contact-comment">{{ comment }}</p>{% endif %}
+        <form id="form-contact" action="{{ send }}" method="post" data-oc-toggle="ajax">
+          <div class="mb-3 required">
+            <label for="input-name" class="visually-hidden">{{ entry_name }}</label>
+            <input type="text" name="name" value="{{ name }}" id="input-name" class="form-control" placeholder="{{ entry_name }}" autocomplete="name"/>
+            <div id="error-name" class="invalid-feedback"></div>
+          </div>
+          <div class="mb-3 required">
+            <label for="input-email" class="visually-hidden">{{ entry_email }}</label>
+            <input type="text" name="email" value="{{ email }}" id="input-email" class="form-control" placeholder="{{ entry_email }}" autocomplete="email"/>
+            <div id="error-email" class="invalid-feedback"></div>
+          </div>
+          <div class="mb-3 required">
+            <label for="input-enquiry" class="visually-hidden">{{ entry_enquiry }}</label>
+            <textarea name="enquiry" rows="7" id="input-enquiry" class="form-control" placeholder="{{ entry_enquiry }}"></textarea>
+            <div id="error-enquiry" class="invalid-feedback"></div>
+          </div>
+          {{ captcha }}
+          <button type="submit" class="bcf-contact-submit">{{ button_submit }}</button>
+        </form>
+      </div>
+      {% if image %}
+        <div class="bcf-contact-photo"><img src="{{ image }}" alt="{{ store }}" loading="lazy"/></div>
+      {% endif %}
+    </div>
+  </section>
+
+  {% if geocode %}
+    <section class="bcf-contact-map" aria-label="{{ text_location }}">
+      <iframe title="{{ store }} — {{ text_location }}" src="https://maps.google.com/maps?q={{ geocode|url_encode }}&hl={{ geocode_hl }}&t=m&z=15&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </section>
+  {% endif %}
+
+  {% if locations %}
+    <div class="container bcf-contact-locations">
+      <h2>{{ text_store }}</h2>
+      <div id="accordion" class="accordion">
+        {% for location in locations %}
+          <div class="accordion-item">
+            <h3 class="accordion-header">
+              <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#collapse-location-{{ location.location_id }}" aria-expanded="false" aria-controls="collapse-location-{{ location.location_id }}">{{ location.name }}</button>
+            </h3>
+            <div id="collapse-location-{{ location.location_id }}" class="accordion-collapse collapse" data-bs-parent="#accordion">
+              <div class="accordion-body">
+                <address>{{ location.address }}</address>
+                {% if location.telephone %}<p><strong>{{ text_telephone }}</strong> {{ location.telephone }}</p>{% endif %}
+                {% if location.open %}<p><strong>{{ text_open }}</strong><br/>{{ location.open }}</p>{% endif %}
+                {% if location.comment %}<p>{{ location.comment }}</p>{% endif %}
+                {% if location.geocode %}<a href="https://maps.google.com/maps?q={{ location.geocode|url_encode }}&hl={{ geocode_hl }}&t=m&z=15" target="_blank" rel="noopener" class="bcf-contact-submit"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> {{ button_map }}</a>{% endif %}
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+  {{ content_bottom }}
+</div>
+{{ footer }}

@@ -3174,3 +3174,34 @@ html.bcf-qv-open {
 @media (max-width: 767.98px) {
   .bcf input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), .bcf select, .bcf textarea { font-size: 16px; }
 }
+
+/* ---------- Contact page: info cards, form beside a store photo, full-width map ---------- */
+.bcf-contact-cards { background: var(--bcf-bg-alt); padding: var(--bcf-space-5) 0; }
+.bcf-contact-cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--bcf-space-4); }
+.bcf-contact-card { background: var(--bcf-white); padding: var(--bcf-space-5); }
+.bcf-contact-card i { font-size: 2rem; color: var(--bcf-accent); }
+.bcf-contact-card h2 { font-size: 1.5rem; font-weight: 800; margin: var(--bcf-space-3) 0; }
+.bcf-contact-card p { margin: 0 0 var(--bcf-space-2); }
+.bcf-contact-card a { color: inherit; text-decoration: none; overflow-wrap: anywhere; }
+.bcf-contact-card a:hover { text-decoration: underline; }
+.bcf-contact-main { padding: 0; }
+.bcf-contact-main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--bcf-space-5); align-items: stretch; }
+.bcf-contact-main-grid.bcf-contact-noimage { grid-template-columns: minmax(0, 720px); justify-content: center; }
+.bcf-contact-form { padding: var(--bcf-space-5) 0; }
+.bcf-contact-form h1 { font-size: 2.25rem; font-weight: 800; margin-bottom: var(--bcf-space-4); }
+.bcf-contact-comment { margin-bottom: var(--bcf-space-4); }
+.bcf-contact-form .form-control { background: var(--bcf-bg-alt); border: 1px solid var(--bcf-border); border-radius: 0; padding: 1rem 1.25rem; min-height: 52px; }
+.bcf-contact-form textarea.form-control { min-height: 160px; }
+.bcf-contact-submit { display: inline-block; border: 0; background: var(--bcf-accent); color: var(--bcf-on-accent); font-weight: 800; text-transform: uppercase; padding: 1rem 2rem; min-height: 48px; text-decoration: none; cursor: pointer; }
+.bcf-contact-submit:hover { filter: brightness(0.95); color: var(--bcf-on-accent); }
+.bcf-contact-photo { min-height: 260px; }
+.bcf-contact-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.bcf-contact-map { line-height: 0; }
+.bcf-contact-map iframe { width: 100%; height: 360px; border: 0; }
+.bcf-contact-locations { padding: var(--bcf-space-5) 0; }
+.bcf-contact-locations h2 { font-size: 1.5rem; margin-bottom: var(--bcf-space-3); }
+@media (max-width: 991.98px) {
+  .bcf-contact-main-grid { grid-template-columns: 1fr; }
+  .bcf-contact-photo { min-height: 0; aspect-ratio: 4 / 3; }
+  .bcf-contact-form h1 { font-size: 1.75rem; }
+}
