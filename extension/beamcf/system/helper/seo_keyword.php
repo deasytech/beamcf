@@ -9,7 +9,7 @@
  *
  * @return string
  */
-function bcf_seo_slug(string $text, int $max = 64): string {
+function bcfSeoSlug(string $text, int $max = 64): string {
     $text = html_entity_decode(strip_tags($text), ENT_QUOTES, 'UTF-8');
     $text = str_replace('&', ' and ', $text);
 
@@ -50,7 +50,7 @@ function bcf_seo_slug(string $text, int $max = 64): string {
  *
  * @return string
  */
-function bcf_seo_unique(string $base, int $id, string $prefix, callable $exists, int $max = 64): string {
+function bcfSeoUnique(string $base, int $id, string $prefix, callable $exists, int $max = 64): string {
     if ($base === '') {
         $base = $prefix . '-' . $id;
     }

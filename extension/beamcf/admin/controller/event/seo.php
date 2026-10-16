@@ -36,7 +36,7 @@ class Seo extends \Opencart\System\Engine\Controller {
                 continue;
             }
 
-            $keyword = bcf_seo_unique(bcf_seo_slug((string)$row['name']), $product_id, 'product', function (string $keyword) use ($language_id): bool {
+            $keyword = bcfSeoUnique(bcfSeoSlug((string)$row['name']), $product_id, 'product', function (string $keyword) use ($language_id): bool {
                 return (bool)$this->db->query("SELECT `seo_url_id` FROM `" . DB_PREFIX . "seo_url` WHERE `keyword` = '" . $this->db->escape($keyword) . "' AND `store_id` = '0' AND `language_id` = '" . $language_id . "'")->num_rows;
             });
 
