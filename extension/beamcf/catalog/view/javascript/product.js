@@ -201,4 +201,16 @@
         button.removeAttribute('aria-busy');
       });
   });
+
+  /* The core review form's star radios have no accessible name; label them from the form's own "Rating" label. */
+  var ratingGroup = document.getElementById('input-rating');
+  if (ratingGroup) {
+    var ratingLabel = ratingGroup.parentNode.querySelector('label');
+    var ratingName = ratingLabel ? ratingLabel.textContent.trim() : '';
+    ratingGroup.setAttribute('role', 'radiogroup');
+    if (ratingName) { ratingGroup.setAttribute('aria-label', ratingName); }
+    ratingGroup.querySelectorAll('input[name="rating"]').forEach(function (radio) {
+      radio.setAttribute('aria-label', (ratingName ? ratingName + ' ' : '') + radio.value + '/5');
+    });
+  }
 })();

@@ -1214,6 +1214,8 @@ body.bcf {
   aspect-ratio: 1920 / 600;
   object-fit: cover;
 }
+.bcf-hero .carousel-control-prev { left: 0; }
+.bcf-hero .carousel-control-next { right: 0; }
 .bcf-hero .carousel-control-prev, .bcf-hero .carousel-control-next {
   width: 60px;
   height: 164px;
@@ -3152,4 +3154,23 @@ html.bcf-qv-open {
   .bcf-checkout-panel { padding: var(--bcf-space-3); }
   .bcf-cart-buttons { flex-direction: column-reverse; }
   .bcf-btn-checkout, .bcf-btn-continue { width: 100%; }
+}
+
+/* ---------- Phase 7: touch targets and small-screen fixes ---------- */
+.bcf .product-thumb .bcf-card-actions { flex-wrap: wrap; }
+@media (pointer: coarse), (max-width: 767.98px) {
+  .bcf-topbar-toggle { min-height: 44px; min-width: 44px; display: inline-flex; align-items: center; justify-content: center; }
+  .bcf-category-toggle { min-height: 44px; min-width: 44px; }
+  .bcf .btn-close { width: 44px; height: 44px; background-position: center; }
+  .bcf-footer a, .bcf-drawer-link, .bcf-breadcrumb a, .breadcrumb a { display: inline-block; padding-block: 0.7rem; }
+  .bcf-footer li { margin: 0; }
+  .bcf-pd .bcf-qv-qty button, .bcf-qv-qty button { min-width: 44px; min-height: 44px; }
+  .bcf-pd .bcf-qv-qty input, .bcf-qv-qty input { min-height: 44px; }
+  .bcf-sidebar input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), .bcf-toolbar select { min-height: 44px; }
+  .bcf-compare-link, .bcf-pd-compare { display: inline-flex; align-items: center; min-height: 44px; }
+}
+.bcf-logo a { display: inline-block; }
+/* 16px controls stop iOS Safari zooming the page on focus. */
+@media (max-width: 767.98px) {
+  .bcf input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), .bcf select, .bcf textarea { font-size: 16px; }
 }
