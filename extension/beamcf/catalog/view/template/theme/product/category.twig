@@ -1,0 +1,255 @@
+{{ header }}
+{% set f = bcf_filter %}
+{% macro filter_form(f, text, form_id) %}
+  <form action="{{ f.action }}" method="get" id="{{ form_id }}" class="bcf-filter-form" data-bcf-filter>
+    {% for name, value in f.hidden %}<input type="hidden" name="{{ name }}" value="{{ value }}"/>{% endfor %}
+
+    {% if f.show_price %}
+      {% set lo = f.facets.price.min|round %}
+      {% set hi = f.facets.price.max|round %}
+      <details class="bcf-fgroup" open>
+        <summary>{{ text.price }} ({{ f.currency_symbol }})</summary>
+        <div class="bcf-fbody">
+          <div class="bcf-range" data-bcf-range data-min="{{ lo }}" data-max="{{ hi }}">
+            <div class="bcf-range-track"></div>
+            <input type="range" min="{{ lo }}" max="{{ hi }}" step="1" value="{{ f.active.price_min ?: lo }}" data-bcf-range-min aria-label="{{ text.price_min }}"/>
+            <input type="range" min="{{ lo }}" max="{{ hi }}" step="1" value="{{ f.active.price_max ?: hi }}" data-bcf-range-max aria-label="{{ text.price_max }}"/>
+          </div>
+          <div class="bcf-price-range">
+            <label class="visually-hidden" for="{{ form_id }}-pmin">{{ text.price_min }}</label>
+            <input type="number" inputmode="decimal" min="0" step="any" id="{{ form_id }}-pmin" name="price_min" value="{{ f.active.price_min }}" placeholder="{{ lo }}" class="form-control"/>
+            <span>{{ text.to }}</span>
+            <label class="visually-hidden" for="{{ form_id }}-pmax">{{ text.price_max }}</label>
+            <input type="number" inputmode="decimal" min="0" step="any" id="{{ form_id }}-pmax" name="price_max" value="{{ f.active.price_max }}" placeholder="{{ hi }}" class="form-control"/>
+          </div>
+        </div>
+      </details>
+    {% endif %}
+
+    {% if f.facets.brands %}
+      <details class="bcf-fgroup" open>
+        <summary>{{ text.brand }}</summary>
+        <div class="bcf-fbody">
+          <ul class="list-unstyled bcf-filter-list">
+            {% for brand in f.facets.brands %}
+              <li>
+                <input type="checkbox" class="bcf-check" name="brand[]" value="{{ brand.id }}" id="{{ form_id }}-brand-{{ brand.id }}"{% if brand.id in f.selected_brands %} checked{% endif %}/>
+                <label for="{{ form_id }}-brand-{{ brand.id }}"><span>{{ brand.name }}</span> <span class="bcf-filter-count">{{ brand.count }}</span></label>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </details>
+    {% endif %}
+
+    <details class="bcf-fgroup" open>
+      <summary>{{ text.search }}</summary>
+      <div class="bcf-fbody">
+        <label class="visually-hidden" for="{{ form_id }}-q">{{ text.search }}</label>
+        <input type="search" id="{{ form_id }}-q" name="q" value="{{ f.active.q }}" placeholder="{{ text.search_placeholder }}" class="form-control" maxlength="100"/>
+      </div>
+    </details>
+
+    {% if f.facets.color %}
+      <details class="bcf-fgroup" open>
+        <summary>{{ text.color }}</summary>
+        <div class="bcf-fbody">
+          <ul class="list-unstyled bcf-swatches">
+            {% for value in f.facets.color %}
+              <li>
+                <input type="checkbox" class="bcf-swatch-input" name="color[]" value="{{ value.id }}" id="{{ form_id }}-color-{{ value.id }}"{% if value.id in f.active.color %} checked{% endif %}/>
+                {% if value.css %}<label for="{{ form_id }}-color-{{ value.id }}" class="bcf-swatch" style="--swatch: {{ value.css }}" title="{{ value.name }} ({{ value.count }})"><span class="visually-hidden">{{ value.name }}</span></label>{% else %}<label for="{{ form_id }}-color-{{ value.id }}" class="bcf-size" title="{{ value.name }} ({{ value.count }})">{{ value.name }}</label>{% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </details>
+    {% endif %}
+
+    {% if f.facets.stock or f.facets.preorder %}
+      <details class="bcf-fgroup" open>
+        <summary>{{ text.availability }}</summary>
+        <div class="bcf-fbody">
+          <ul class="list-unstyled bcf-filter-list">
+            {% if f.facets.stock %}
+              <li>
+                <input type="checkbox" class="bcf-check" name="stock" value="1" id="{{ form_id }}-stock"{% if f.active.stock %} checked{% endif %}/>
+                <label for="{{ form_id }}-stock"><span>{{ text.in_stock }}</span> <span class="bcf-filter-count">{{ f.facets.stock }}</span></label>
+              </li>
+            {% endif %}
+            {% if f.facets.preorder %}
+              <li>
+                <input type="checkbox" class="bcf-check" name="preorder" value="1" id="{{ form_id }}-preorder"{% if f.active.preorder %} checked{% endif %}/>
+                <label for="{{ form_id }}-preorder"><span>{{ text.pre_order }}</span> <span class="bcf-filter-count">{{ f.facets.preorder }}</span></label>
+              </li>
+            {% endif %}
+          </ul>
+        </div>
+      </details>
+    {% endif %}
+
+    {% if f.facets.size %}
+      <details class="bcf-fgroup" open>
+        <summary>{{ text.size }}</summary>
+        <div class="bcf-fbody">
+          <ul class="list-unstyled bcf-sizes">
+            {% for value in f.facets.size %}
+              <li>
+                <input type="checkbox" class="bcf-swatch-input" name="size[]" value="{{ value.id }}" id="{{ form_id }}-size-{{ value.id }}"{% if value.id in f.active.size %} checked{% endif %}/>
+                <label for="{{ form_id }}-size-{{ value.id }}" class="bcf-size" title="{{ value.name }} ({{ value.count }})">{{ value.name }}</label>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </details>
+    {% endif %}
+
+    {% if f.facets.discount %}
+      <details class="bcf-fgroup" open>
+        <summary>{{ text.discount }}</summary>
+        <div class="bcf-fbody">
+          <ul class="list-unstyled bcf-filter-list">
+            {% for tier, count in f.facets.discount %}
+              <li>
+                <input type="radio" class="bcf-check bcf-radio" name="discount" value="{{ tier }}" id="{{ form_id }}-discount-{{ tier }}"{% if f.active.discount == tier %} checked{% endif %}/>
+                <label for="{{ form_id }}-discount-{{ tier }}"><span>{{ text.discount_up|format(tier) }}</span> <span class="bcf-filter-count">{{ count }}</span></label>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </details>
+    {% endif %}
+
+    {% if f.show_rating %}
+      <details class="bcf-fgroup" open>
+        <summary>{{ text.rating }}</summary>
+        <div class="bcf-fbody">
+          <ul class="list-unstyled bcf-filter-list">
+            {% for stars in 5..1 %}
+              {% if f.facets.rating[stars] %}
+                <li>
+                  <input type="radio" class="bcf-check" name="rating" value="{{ stars }}" id="{{ form_id }}-rating-{{ stars }}"{% if f.active.rating == stars %} checked{% endif %}/>
+                  <label for="{{ form_id }}-rating-{{ stars }}"><span>{{ text.rating_up|format(stars) }}</span> <span class="bcf-filter-count">{{ f.facets.rating[stars] }}</span></label>
+                </li>
+              {% endif %}
+            {% endfor %}
+          </ul>
+        </div>
+      </details>
+    {% endif %}
+
+    <div class="bcf-filter-actions">
+      <button type="submit" class="bcf-btn">{{ text.apply }}</button>
+      <a href="{{ f.reset }}" class="bcf-btn bcf-btn-outline">{{ text.reset }}</a>
+    </div>
+  </form>
+{% endmacro %}
+{% import _self as ui %}
+{% set text = {
+  'price': bcf_text_price, 'price_min': bcf_text_price_min, 'price_max': bcf_text_price_max, 'brand': bcf_text_brand,
+  'availability': bcf_text_availability, 'in_stock': bcf_text_in_stock, 'on_sale': bcf_text_on_sale, 'rating': bcf_text_rating,
+  'rating_up': bcf_text_rating_up, 'pre_order': bcf_text_pre_order, 'color': bcf_text_color, 'size': bcf_text_size, 'discount': bcf_text_discount, 'discount_up': bcf_text_discount_up, 'search': bcf_text_search_label, 'search_placeholder': bcf_text_search_placeholder, 'to': bcf_text_to, 'apply': bcf_text_apply, 'reset': bcf_text_reset, 'no_filters': bcf_text_no_filters
+} %}
+<div id="product-category" class="container bcf-catalog">
+  <ul class="breadcrumb">
+    {% for breadcrumb in breadcrumbs %}
+      <li class="breadcrumb-item"><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+    {% endfor %}
+  </ul>
+
+  <div class="bcf-catalog-layout">
+    {# Filter sidebar: static column on desktop, off-canvas drawer below the lg breakpoint. #}
+    <aside class="bcf-sidebar offcanvas-lg offcanvas-start" tabindex="-1" id="bcf-filters" aria-labelledby="bcf-filters-title">
+      <div class="offcanvas-header">
+        <h2 class="offcanvas-title" id="bcf-filters-title">{{ bcf_text_filters }}</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#bcf-filters" aria-label="{{ bcf_text_close }}"></button>
+      </div>
+      <div class="offcanvas-body">
+        <h2 class="bcf-sidebar-title d-none d-lg-block">{{ bcf_text_filter_title }}</h2>
+        {{ ui.filter_form(f, text, 'bcf-filter-form') }}
+      </div>
+    </aside>
+
+    <div id="content" class="bcf-catalog-main">{{ content_top }}
+      <h1>{{ heading_title }}</h1>
+      {% if image or description %}
+        <div class="bcf-category-intro">
+          {% if image %}<img src="{{ image }}" alt="{{ heading_title }}" class="bcf-category-image" loading="lazy"/>{% endif %}
+          {% if description %}<div class="bcf-category-description">{{ description }}</div>{% endif %}
+        </div>
+      {% endif %}
+
+      {% if categories %}
+        <nav aria-label="{{ bcf_text_subcategories }}">
+          <ul class="list-unstyled bcf-subcats">
+            {% for category in categories %}<li><a href="{{ category.href }}">{{ category.name }}</a></li>{% endfor %}
+          </ul>
+        </nav>
+      {% endif %}
+
+      {% if bcf_has_products %}
+        <div class="bcf-toolbar">
+          <button type="button" class="bcf-btn bcf-btn-outline bcf-filter-toggle d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#bcf-filters" aria-controls="bcf-filters">
+            <i class="fa-solid fa-sliders" aria-hidden="true"></i> {{ bcf_text_filter_open }}{% if f.chips %} ({{ f.chips|length }}){% endif %}
+          </button>
+          <fieldset class="bcf-view d-none d-md-inline-flex"><legend class="visually-hidden">{{ bcf_text_products }}</legend>
+            <button type="button" class="bcf-view-btn active" data-bcf-view="grid" aria-pressed="true" title="{{ bcf_text_grid_view }}" aria-label="{{ bcf_text_grid_view }}"><i class="fa-solid fa-table-cells" aria-hidden="true"></i></button>
+            <button type="button" class="bcf-view-btn" data-bcf-view="list" aria-pressed="false" title="{{ bcf_text_list_view }}" aria-label="{{ bcf_text_list_view }}"><i class="fa-solid fa-table-list" aria-hidden="true"></i></button>
+          </fieldset>
+          <div class="bcf-field">
+            <label for="input-limit">{{ bcf_text_show }}:</label>
+            <select id="input-limit" class="form-select" data-bcf-nav>
+              {% for limits in limits %}
+                <option value="{{ limits.href }}"{% if limits.value == limit %} selected{% endif %}>{{ limits.text }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <a href="{{ compare }}" id="compare-total" class="bcf-compare-link">{{ text_compare }}</a>
+          <div class="bcf-field bcf-field-sort">
+            <label for="input-sort">{{ bcf_text_sort_by }}:</label>
+            <select id="input-sort" class="form-select" data-bcf-nav>
+              {% for sorts in sorts %}
+                <option value="{{ sorts.href }}"{% if sorts.value == '%s-%s'|format(sort, order) %} selected{% endif %}>{{ sorts.text }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <p class="bcf-toolbar-count" role="status" aria-live="polite">{{ (bcf_count == 1 ? bcf_text_showing_one : bcf_text_showing)|format(bcf_count) }}</p>
+
+        {% if f.chips %}
+          <fieldset class="bcf-chips"><legend class="visually-hidden">{{ bcf_text_active_filters }}</legend>
+            {% for chip in f.chips %}
+              <a href="{{ chip.href }}" class="bcf-chip" title="{{ bcf_text_remove_filter }}">{{ chip.text }} <i class="fa-solid fa-xmark" aria-hidden="true"></i><span class="visually-hidden">{{ bcf_text_remove_filter }}</span></a>
+            {% endfor %}
+            <a href="{{ f.reset }}" class="bcf-chip-clear">{{ bcf_text_clear_all }}</a>
+          </fieldset>
+        {% endif %}
+
+        {% if products %}
+          <div id="bcf-product-grid" class="bcf-grid bcf-products" data-view="grid">
+            {% for product in products %}
+              <div class="bcf-grid-item">{{ product }}</div>
+            {% endfor %}
+          </div>
+
+          <div class="bcf-pager">
+            <div class="bcf-pager-links">{{ pagination }}</div>
+            <div class="bcf-pager-results">{{ results }}</div>
+          </div>
+        {% else %}
+          <div class="bcf-empty" role="status">
+            <p class="bcf-empty-title">{{ bcf_text_no_match }}</p>
+            <p>{{ bcf_text_no_match_help }}</p>
+            <a href="{{ f.reset }}" class="bcf-btn">{{ bcf_text_clear_all }}</a>
+          </div>
+        {% endif %}
+      {% elseif not categories %}
+        <div class="bcf-empty" role="status">
+          <p class="bcf-empty-title">{{ bcf_text_category_empty }}</p>
+          <a href="{{ continue }}" class="bcf-btn">{{ button_continue }}</a>
+        </div>
+      {% endif %}
+      {{ content_bottom }}{{ column_right }}</div>
+  </div>
+</div>
+{{ footer }}
