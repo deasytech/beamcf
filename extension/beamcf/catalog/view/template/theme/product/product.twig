@@ -3,7 +3,7 @@
   <nav aria-label="breadcrumb">
     <ul class="breadcrumb">
       {% for breadcrumb in breadcrumbs %}
-        <li class="breadcrumb-item"><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        <li class="breadcrumb-item"><a href="{{ breadcrumb.href }}">{% if loop.first %}<i class="fa-solid fa-house" aria-hidden="true"></i><span class="visually-hidden">{{ breadcrumb.text }}</span>{% else %}{{ breadcrumb.text }}{% endif %}</a></li>
       {% endfor %}
     </ul>
   </nav>
@@ -15,6 +15,7 @@
           {% if thumb %}
             <div class="bcf-pd-stage">
               {% if bcf_discount_percent %}<span class="bcf-badge-tag bcf-badge-sale bcf-pd-badge">-{{ bcf_discount_percent }}%</span>{% endif %}
+              <button type="submit" form="form-wishlist" formaction="{{ wishlist_add }}" class="bcf-pd-heart" aria-label="{{ button_wishlist }}" title="{{ button_wishlist }}"><i class="fa-regular fa-heart" aria-hidden="true"></i></button>
               <a href="{{ popup }}" class="bcf-pd-zoom" data-bcf-zoom="{{ popup }}" aria-haspopup="dialog" title="{{ bcf_text_pd_zoom }}"><img src="{{ thumb }}" alt="{{ heading_title }}" id="bcf-pd-main" width="{{ bcf_thumb_width }}" height="{{ bcf_thumb_height }}" fetchpriority="high"/></a>
               {% if images %}
                 <button type="button" class="bcf-qv-nav bcf-qv-prev" data-bcf-pd-step="-1" aria-label="{{ bcf_text_prev }}"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
@@ -36,27 +37,33 @@
 
         <div class="bcf-pd-info">
           <h1 class="bcf-pd-name">{{ heading_title }}</h1>
-          {% if review_status %}
-            <div class="bcf-rating bcf-pd-rating">
-              {% if rating %}<span class="visually-hidden">{{ rating }}/5</span>
-                {% for i in 1..5 %}
-                  {% if rating < i %}
-                    <span class="fa-stack" aria-hidden="true"><i class="fa-regular fa-star fa-stack-1x"></i></span>
-                  {% else %}
-                    <span class="fa-stack" aria-hidden="true"><i class="fa-solid fa-star fa-stack-1x"></i><i class="fa-regular fa-star fa-stack-1x"></i></span>
-                  {% endif %}
-                {% endfor %}
-              {% endif %}
-              <a href="#tab-review" data-bcf-tab="tab-review">{{ text_reviews }}</a>
-            </div>
-          {% endif %}
-          <ul class="bcf-qv-meta bcf-pd-meta list-unstyled">
-            {% if manufacturer %}<li><span>{{ text_manufacturer }}</span> <a href="{{ manufacturers }}">{{ manufacturer }}</a></li>{% endif %}
-            {% if model %}<li><span>{{ text_model }}</span> {{ model }}</li>{% endif %}
-            {% for product_code in product_codes %}<li><span>{{ product_code.code }}:</span> {{ product_code.value }}</li>{% endfor %}
-            {% if reward %}<li><span>{{ text_reward }}</span> {{ reward }}</li>{% endif %}
-            <li><span>{{ text_stock }}</span> <strong class="bcf-pd-stock {{ bcf_in_stock ? 'is-in' : 'is-out' }}">{{ stock }}</strong></li>
-          </ul>
+          <div class="bcf-pd-head">
+            {% if review_status %}
+              <div class="bcf-rating bcf-pd-rating">
+                {% if rating %}
+                  {% for i in 1..5 %}
+                    {% if rating < i %}
+                      <span class="fa-stack" aria-hidden="true"><i class="fa-regular fa-star fa-stack-1x"></i></span>
+                    {% else %}
+                      <span class="fa-stack" aria-hidden="true"><i class="fa-solid fa-star fa-stack-1x"></i><i class="fa-regular fa-star fa-stack-1x"></i></span>
+                    {% endif %}
+                  {% endfor %}
+                  <span class="bcf-pd-score">{{ rating }}/5</span>
+                {% endif %}
+                <a href="#tab-review" data-bcf-tab="tab-review">{{ text_reviews }}</a>
+              </div>
+            {% endif %}
+            {% for product_code in product_codes %}<span class="bcf-pd-code"><strong>{{ product_code.code }}:</strong> {{ product_code.value }}</span>{% endfor %}
+          </div>
+          <div class="bcf-pd-brandrow">
+            <ul class="bcf-qv-meta bcf-pd-meta list-unstyled">
+              {% if manufacturer %}<li><strong>{{ text_manufacturer }}</strong> <a href="{{ manufacturers }}">{{ manufacturer }}</a></li>{% endif %}
+              {% if model %}<li><strong>{{ text_model }}</strong> {{ model }}</li>{% endif %}
+              {% if reward %}<li><strong>{{ text_reward }}</strong> {{ reward }}</li>{% endif %}
+              <li><strong>{{ text_stock }}</strong> <span class="bcf-pd-stock {{ bcf_in_stock ? 'is-in' : 'is-out' }}">{{ stock }}</span></li>
+            </ul>
+            {% if bcf_brand_image %}<a href="{{ manufacturers }}" class="bcf-pd-brand"><img src="{{ bcf_brand_image }}" alt="{{ manufacturer }}" width="80" height="80" loading="lazy"/></a>{% endif %}
+          </div>
           {% if price %}
             <div class="bcf-price bcf-pd-price">
               {% if not special %}
@@ -146,29 +153,29 @@
                   <input type="text" inputmode="numeric" name="quantity" value="{{ minimum }}" id="input-quantity" data-min="{{ minimum }}" aria-label="{{ entry_qty }}" aria-describedby="error-quantity" autocomplete="off"/>
                   <button type="button" data-bcf-pd-qty="1" aria-label="{{ bcf_text_qty_more }}">+</button>
                 </div>
-                <button type="submit" class="bcf-qv-add" id="button-cart"><i class="fa-solid fa-shopping-cart" aria-hidden="true"></i> <span>{{ button_cart }}</span></button>
+                <button type="submit" class="bcf-qv-add" id="button-cart"><span>{{ button_cart }}</span></button>
+                <button type="submit" class="bcf-pd-buy" id="button-buy" data-bcf-buy>{{ bcf_text_pd_buy_now }}</button>
               </div>
               <div id="error-quantity" class="invalid-feedback"></div>
               <input type="hidden" name="product_id" value="{{ product_id }}" id="input-product-id"/>
+              <button type="submit" form="form-wishlist" formaction="{{ compare_add }}" class="bcf-pd-action bcf-pd-compare"><i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i> {{ bcf_text_pd_compare }}</button>
             </form>
             <div id="bcf-pd-status" class="bcf-qv-status" role="status" aria-live="polite"></div>
-            <form method="post" data-oc-toggle="ajax" class="bcf-pd-actions">
-              <button type="submit" formaction="{{ wishlist_add }}" class="bcf-pd-action"><i class="fa-solid fa-heart" aria-hidden="true"></i> {{ button_wishlist }}</button>
-              <button type="submit" formaction="{{ compare_add }}" class="bcf-pd-action"><i class="fa-solid fa-arrow-right-arrow-left" aria-hidden="true"></i> {{ button_compare }}</button>
-              <input type="hidden" name="product_id" value="{{ product_id }}"/>
-            </form>
+            <form method="post" id="form-wishlist" data-oc-toggle="ajax"><input type="hidden" name="product_id" value="{{ product_id }}"/></form>
           </div>
+          {% if review_status %}
+            <section id="tab-review" class="bcf-pd-reviews" tabindex="-1" aria-labelledby="bcf-pd-reviews-title">
+              <h2 id="bcf-pd-reviews-title" class="bcf-pd-reviews-title">{{ rating ? rating ~ '/5' : '' }} <small>{{ text_reviews }}</small></h2>
+              {{ review }}
+            </section>
+          {% endif %}
         </div>
-      </div>
 
       <div class="bcf-pd-tabs">
         <ul class="nav nav-tabs" role="tablist">
           <li class="nav-item" role="presentation"><button type="button" class="nav-link active" id="tab-description-btn" data-bs-toggle="tab" data-bs-target="#tab-description" role="tab" aria-controls="tab-description" aria-selected="true">{{ tab_description }}</button></li>
           {% if attribute_groups %}
             <li class="nav-item" role="presentation"><button type="button" class="nav-link" id="tab-specification-btn" data-bs-toggle="tab" data-bs-target="#tab-specification" role="tab" aria-controls="tab-specification" aria-selected="false">{{ tab_attribute }}</button></li>
-          {% endif %}
-          {% if review_status %}
-            <li class="nav-item" role="presentation"><button type="button" class="nav-link" id="tab-review-btn" data-bs-toggle="tab" data-bs-target="#tab-review" role="tab" aria-controls="tab-review" aria-selected="false">{{ tab_review }}</button></li>
           {% endif %}
         </ul>
         <div class="tab-content">
@@ -195,10 +202,8 @@
               </div>
             </div>
           {% endif %}
-          {% if review_status %}
-            <div id="tab-review" class="tab-pane fade" role="tabpanel" aria-labelledby="tab-review-btn" tabindex="0">{{ review }}</div>
-          {% endif %}
         </div>
+      </div>
       </div>
       {{ related }}
       {{ content_bottom }}
@@ -219,7 +224,7 @@ $('#input-subscription').on('change', function () {
 });
 //--></script>
 <script type="text/javascript"><!--
-window.bcfProduct = {cart: 'index.php?route=checkout/cart.add&language={{ language }}', cartInfo: 'index.php?route=common/cart.info&language={{ language }}', failed: {{ bcf_text_qv_failed|json_encode|raw }}};
+window.bcfProduct = {cart: 'index.php?route=checkout/cart.add&language={{ language }}', checkout: {{ bcf_checkout|json_encode|raw }}, cartInfo: 'index.php?route=common/cart.info&language={{ language }}', failed: {{ bcf_text_qv_failed|json_encode|raw }}};
 //--></script>
 <script src="extension/beamcf/catalog/view/javascript/product.js" type="text/javascript"></script>
 {{ footer }}

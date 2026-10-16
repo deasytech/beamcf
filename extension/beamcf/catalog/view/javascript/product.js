@@ -146,16 +146,28 @@
   };
 
   var pending = false;
+  var buyNow = false;
+
+  // Buy now is the normal add to cart request; only after a successful add does it continue to the real checkout.
+  var buy = document.getElementById('button-buy');
+
+  if (buy) { buy.addEventListener('click', function () { buyNow = true; }); }
 
   form.addEventListener('submit', function (event) {
     event.preventDefault();
 
+    var goCheckout = buyNow;
+
+    buyNow = false;
+
     if (pending) { return; }
 
     var button = document.getElementById('button-cart');
+    var buyButton = document.getElementById('button-buy');
 
     pending = true;
     button.disabled = true;
+    if (buyButton) { buyButton.disabled = true; }
     button.setAttribute('aria-busy', 'true');
     clearErrors();
 
@@ -177,12 +189,15 @@
           message('success', json.success);
 
           if (window.jQuery) { window.jQuery('#cart').load(config.cartInfo); }
+
+          if (goCheckout && config.checkout) { window.location.href = config.checkout; }
         }
       })
       .catch(function () { message('danger', config.failed || ''); })
       .then(function () {
         pending = false;
         button.disabled = false;
+        if (buyButton) { buyButton.disabled = false; }
         button.removeAttribute('aria-busy');
       });
   });

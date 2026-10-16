@@ -406,6 +406,17 @@ class Theme extends \Opencart\System\Engine\Controller {
 
 		$show_price = $this->customer->isLogged() || !$this->config->get('config_customer_price');
 
+		$args['bcf_checkout'] = $this->url->link('checkout/checkout', 'language=' . $this->config->get('config_language'));
+		$args['bcf_brand_image'] = '';
+
+		$this->load->model('catalog/manufacturer');
+
+		$brand = $this->model_catalog_manufacturer->getManufacturer($product_info['manufacturer_id']);
+
+		if ($brand && $brand['image'] && is_file(DIR_IMAGE . html_entity_decode($brand['image'], ENT_QUOTES, 'UTF-8'))) {
+			$args['bcf_brand_image'] = $this->model_tool_image->resize($brand['image'], 80, 80);
+		}
+
 		$args['bcf_discount_percent'] = 0;
 
 		if ($show_price && (float)$product_info['special'] && (float)$product_info['price'] > 0 && $product_info['special'] < $product_info['price']) {
@@ -481,7 +492,7 @@ class Theme extends \Opencart\System\Engine\Controller {
 	 * @return void
 	 */
 	protected function text(array &$args): void {
-		foreach (['skip', 'shop_by_category', 'categories', 'menu', 'close', 'home', 'special', 'products', 'blog', 'contact', 'compare', 'search', 'cart', 'items', 'all', 'my_account', 'quick_links', 'information', 'brands', 'address', 'call_us', 'email_us', 'follow', 'back_to_top', 'shop_now', 'prev', 'next', 'slide', 'shop_by_category_title', 'view_all', 'latest', 'featured', 'bestseller', 'deals', 'deal_ends', 'days', 'hours', 'minutes', 'seconds', 'special_products', 'best_sellers', 'from_blog', 'read_more', 'brands_title', 'sale', 'new', 'out_of_stock', 'our_products', 'testimonials', 'view_more', 'filters', 'filter_by', 'price', 'price_min', 'price_max', 'brand', 'availability', 'in_stock', 'on_sale', 'rating', 'rating_up', 'apply', 'reset', 'clear_all', 'active_filters', 'remove_filter', 'showing', 'showing_one', 'sort_by', 'show', 'grid_view', 'list_view', 'no_match', 'no_match_help', 'no_filters', 'category_empty', 'subcategories', 'filter_open', 'search_label', 'search_placeholder', 'filter_title', 'to', 'show_sub', 'pre_order', 'color', 'size', 'discount', 'discount_up', 'quick_view', 'qv_loading', 'qv_failed', 'qv_retry', 'qv_wishlist_failed', 'pd_zoom', 'qty_less', 'qty_more'] as $key) {
+		foreach (['skip', 'shop_by_category', 'categories', 'menu', 'close', 'home', 'special', 'products', 'blog', 'contact', 'compare', 'search', 'cart', 'items', 'all', 'my_account', 'quick_links', 'information', 'brands', 'address', 'call_us', 'email_us', 'follow', 'back_to_top', 'shop_now', 'prev', 'next', 'slide', 'shop_by_category_title', 'view_all', 'latest', 'featured', 'bestseller', 'deals', 'deal_ends', 'days', 'hours', 'minutes', 'seconds', 'special_products', 'best_sellers', 'from_blog', 'read_more', 'brands_title', 'sale', 'new', 'out_of_stock', 'our_products', 'testimonials', 'view_more', 'filters', 'filter_by', 'price', 'price_min', 'price_max', 'brand', 'availability', 'in_stock', 'on_sale', 'rating', 'rating_up', 'apply', 'reset', 'clear_all', 'active_filters', 'remove_filter', 'showing', 'showing_one', 'sort_by', 'show', 'grid_view', 'list_view', 'no_match', 'no_match_help', 'no_filters', 'category_empty', 'subcategories', 'filter_open', 'search_label', 'search_placeholder', 'filter_title', 'to', 'show_sub', 'pre_order', 'color', 'size', 'discount', 'discount_up', 'quick_view', 'qv_loading', 'qv_failed', 'qv_retry', 'qv_wishlist_failed', 'pd_zoom', 'pd_buy_now', 'pd_compare', 'qty_less', 'qty_more'] as $key) {
 			$args['bcf_text_' . $key] = $this->language->get('bcf_' . $key);
 		}
 	}
