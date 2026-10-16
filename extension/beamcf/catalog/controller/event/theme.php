@@ -211,12 +211,13 @@ class Theme extends \Opencart\System\Engine\Controller {
 		$parts = explode('_', (string)($get['path'] ?? ''));
 
 		$this->load->model('extension/beamcf/theme/catalog');
+		$this->load->model('extension/beamcf/theme/facet');
 		$this->load->model('catalog/product');
 
 		$core = ['filter_category_id' => (int)array_pop($parts), 'filter_sub_category' => false, 'filter_filter' => $get['filter'] ?? ''];
 
 		$active = $this->model_extension_beamcf_theme_catalog->getActive();
-		$facets = $this->model_extension_beamcf_theme_catalog->getFacets($core);
+		$facets = $this->model_extension_beamcf_theme_facet->getFacets($core);
 
 		// Parameters that always travel with the listing, and the filter parameters.
 		$keep = array_intersect_key($get, array_flip(['path', 'sort', 'order', 'limit', 'filter']));
@@ -270,25 +271,38 @@ class Theme extends \Opencart\System\Engine\Controller {
 			$chips[] = ['text' => '“' . $active['q'] . '”', 'href' => $without(['q'])];
 		}
 
-		foreach (['brand' => 'brands', 'color' => 'color', 'size' => 'size'] as $group => $facet) {
-			foreach ($facets[$facet] as $value) {
-				if (in_array($value['id'], $active[$group], true)) {
-					$rest = array_diff($active[$group], [$value['id']]);
-
-					$chips[] = ['text' => $value['name'], 'href' => $this->categoryLink($keep + array_diff_key($filters, [$group => 1]) + ($rest ? [$group => implode(',', $rest)] : []))];
-				}
-			}
-		}
-
-		foreach (['stock' => 'bcf_in_stock', 'preorder' => 'bcf_pre_order'] as $key => $text) {
-			if ($active[$key]) {
-				$chips[] = ['text' => $this->language->get($text), 'href' => $without([$key])];
-			}
-		}
-
-		foreach (['discount' => 'bcf_discount_up', 'rating' => 'bcf_rating_up'] as $key => $text) {
+		foreach (['stock' => 'bcf_in_stock', 'preorder' => 'bcf_pre_order', 'discount' => 'bcf_discount_up', 'rating' => 'bcf_rating_up'] as $key => $text) {
 			if ($active[$key]) {
 				$chips[] = ['text' => sprintf($this->language->get($text), $active[$key]), 'href' => $without([$key])];
+			}
+		}
+
+		return array_merge($chips, $this->valueChips($active, $facets, $keep, $filters));
+	}
+
+	/**
+	 * Chips for the selected brands, colours and sizes. Removing one keeps the others selected.
+	 *
+	 * @param array<string, mixed> $active
+	 * @param array<string, mixed> $facets
+	 * @param array<string, mixed> $keep
+	 * @param array<string, mixed> $filters
+	 *
+	 * @return array<int, array<string, string>>
+	 */
+	protected function valueChips(array $active, array $facets, array $keep, array $filters): array {
+		$chips = [];
+
+		foreach (['brand' => 'brands', 'color' => 'color', 'size' => 'size'] as $group => $facet) {
+			foreach ($facets[$facet] as $value) {
+				if (!in_array($value['id'], $active[$group], true)) {
+					continue;
+				}
+
+				$rest = array_diff($active[$group], [$value['id']]);
+				$params = $keep + array_diff_key($filters, [$group => 1]) + ($rest ? [$group => implode(',', $rest)] : []);
+
+				$chips[] = ['text' => $value['name'], 'href' => $this->categoryLink($params)];
 			}
 		}
 

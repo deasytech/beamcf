@@ -14,8 +14,13 @@ namespace Opencart\Catalog\Model\Extension\Beamcf\Theme;
  * @package Opencart\Catalog\Model\Extension\Beamcf\Theme
  */
 class Catalog extends \Opencart\Catalog\Model\Catalog\Product {
-    private const COLOR_OPTIONS = ['color', 'colour', 'colors', 'colours'];
-    private const SIZE_OPTIONS = ['size'];
+    /**
+     * Product option names that feed each option filter, compared case-insensitively.
+     */
+    private const OPTION_NAMES = [
+        'color' => ['color', 'colour', 'colors', 'colours'],
+        'size'  => ['size']
+    ];
 
     /**
      * Rows already loaded in this request, so the listing, its count and the facets share one load per data set.
@@ -96,36 +101,6 @@ class Catalog extends \Opencart\Catalog\Model\Catalog\Product {
     }
 
     /**
-     * Get Facets
-     *
-     * Describes what the filter panel can offer. Counts describe the product set of the category narrowed by the
-     * in-category search, so they match what the shopper is looking at; `total` is the unsearched category total,
-     * which tells an empty category from a search or filter that matches nothing.
-     *
-     * @param array<string, mixed> $data core filter data of the listing (category, filter groups)
-     *
-     * @return array<string, mixed>
-     */
-    public function getFacets(array $data): array {
-        $total = count($this->getRows($data));
-
-        $active = $this->getActive();
-
-        if ($active['q'] !== '') {
-            $data['filter_search'] = $active['q'];
-        }
-
-        $rows = $this->getRows($data);
-
-        $facets = $this->countRows($rows) + [
-            'total'    => $total,
-            'currency' => $this->session->data['currency']
-        ];
-
-        return $facets + $this->getOptionFacets(array_column($rows, 'product_id'));
-    }
-
-    /**
      * Can Show Price
      *
      * Mirrors the product controller: prices are hidden from guests when the store requires login for prices.
@@ -165,7 +140,7 @@ class Catalog extends \Opencart\Catalog\Model\Catalog\Product {
      *
      * @return array<int, array<string, mixed>>
      */
-    protected function getRows(array $data): array {
+    public function getRows(array $data): array {
         unset($data['start'], $data['limit']);
 
         $key = hash('sha256', serialize($data));
@@ -210,8 +185,8 @@ class Catalog extends \Opencart\Catalog\Model\Catalog\Product {
 
         $context = [
             'preorder' => $this->getPreorderStatusIds(),
-            'colors'   => $active['color'] ? $this->getValuesByOption(self::COLOR_OPTIONS, $ids) : [],
-            'sizes'    => $active['size'] ? $this->getValuesByOption(self::SIZE_OPTIONS, $ids) : []
+            'colors'   => $active['color'] ? $this->getValuesByOption('color', $ids) : [],
+            'sizes'    => $active['size'] ? $this->getValuesByOption('size', $ids) : []
         ];
 
         return array_values(array_filter($rows, fn (array $row): bool => $this->matches($row, $active, $context)));
@@ -225,22 +200,12 @@ class Catalog extends \Opencart\Catalog\Model\Catalog\Product {
      * @return bool
      */
     private function matches(array $row, array $active, array $context): bool {
-        return $this->matchesBrand($row, $active)
+        return (!$active['brand'] || in_array((int)$row['manufacturer_id'], $active['brand'], true))
             && $this->matchesAvailability($row, $active, $context['preorder'])
             && $this->matchesOption($row, $active['color'], $context['colors'])
             && $this->matchesOption($row, $active['size'], $context['sizes'])
             && $this->matchesDiscountAndRating($row, $active)
             && $this->matchesPrice($row, $active);
-    }
-
-    /**
-     * @param array<string, mixed> $row
-     * @param array<string, mixed> $active
-     *
-     * @return bool
-     */
-    private function matchesBrand(array $row, array $active): bool {
-        return !$active['brand'] || in_array((int)$row['manufacturer_id'], $active['brand'], true);
     }
 
     /**
@@ -305,175 +270,6 @@ class Catalog extends \Opencart\Catalog\Model\Catalog\Product {
     }
 
     /**
-     * Counts the rows into the facets that need no extra query.
-     *
-     * @param array<int, array<string, mixed>> $rows
-     *
-     * @return array<string, mixed>
-     */
-    private function countRows(array $rows): array {
-        $facets = [
-            'price'    => null,
-            'brands'   => [],
-            'stock'    => 0,
-            'preorder' => 0,
-            'discount' => [10 => 0, 20 => 0, 30 => 0, 40 => 0, 50 => 0],
-            'rating'   => [1 => 0, 2 => 0, 3 => 0, 4 => 0, 5 => 0]
-        ];
-
-        $preorder = $this->getPreorderStatusIds();
-        $review = (bool)$this->config->get('config_review_status');
-        $prices = [];
-        $brands = [];
-
-        foreach ($rows as $row) {
-            $prices[] = $this->canShowPrice() ? $this->getDisplayPrice($row) : null;
-            $brands[(int)$row['manufacturer_id']] = ($brands[(int)$row['manufacturer_id']] ?? 0) + 1;
-
-            $this->countAvailability($facets, $row, $preorder);
-            $this->countDiscount($facets['discount'], $row);
-
-            if ($review) {
-                $this->countRating($facets['rating'], $row);
-            }
-        }
-
-        $facets['discount'] = array_filter($facets['discount']);
-
-        $prices = array_filter($prices, fn ($price): bool => $price !== null);
-
-        if ($prices) {
-            $facets['price'] = ['min' => floor(min($prices)), 'max' => ceil(max($prices))];
-        }
-
-        unset($brands[0]);
-
-        $facets['brands'] = $this->getBrandFacets($brands);
-
-        return $facets;
-    }
-
-    /**
-     * @param array<string, mixed> $facets
-     * @param array<string, mixed> $row
-     * @param array<int, int>      $preorder
-     *
-     * @return void
-     */
-    private function countAvailability(array &$facets, array $row, array $preorder): void {
-        if ($row['quantity'] > 0) {
-            $facets['stock']++;
-        } elseif (in_array((int)$row['stock_status_id'], $preorder, true)) {
-            $facets['preorder']++;
-        }
-    }
-
-    /**
-     * @param array<int, int>      $tiers percent tier => products at or above it
-     * @param array<string, mixed> $row
-     *
-     * @return void
-     */
-    private function countDiscount(array &$tiers, array $row): void {
-        $percent = $this->getDiscountPercent($row);
-
-        foreach (array_keys($tiers) as $tier) {
-            if ($percent >= $tier) {
-                $tiers[$tier]++;
-            }
-        }
-    }
-
-    /**
-     * @param array<int, int>      $stars stars => products rated at least that many stars
-     * @param array<string, mixed> $row
-     *
-     * @return void
-     */
-    private function countRating(array &$stars, array $row): void {
-        for ($i = 1; $i <= (int)round((float)$row['rating']); $i++) {
-            $stars[$i]++;
-        }
-    }
-
-    /**
-     * @param array<int, int> $counts manufacturer ID => product count
-     *
-     * @return array<int, array<string, mixed>>
-     */
-    private function getBrandFacets(array $counts): array {
-        if (!$counts) {
-            return [];
-        }
-
-        $this->load->model('catalog/manufacturer');
-
-        $brands = [];
-
-        foreach ($counts as $manufacturer_id => $count) {
-            $manufacturer_info = $this->model_catalog_manufacturer->getManufacturer($manufacturer_id);
-
-            if ($manufacturer_info) {
-                $brands[] = ['id' => $manufacturer_id, 'name' => $manufacturer_info['name'], 'count' => $count];
-            }
-        }
-
-        usort($brands, fn (array $a, array $b): int => strcasecmp($a['name'], $b['name']));
-
-        return $brands;
-    }
-
-    /**
-     * Colour and size facets, from product options named Color/Colour (or plural) and Size.
-     *
-     * @param array<int, int> $ids product IDs
-     *
-     * @return array<string, array<int, array<string, mixed>>>
-     */
-    private function getOptionFacets(array $ids): array {
-        return [
-            'color' => $this->getOptionValueFacets(self::COLOR_OPTIONS, $ids),
-            'size'  => $this->getOptionValueFacets(self::SIZE_OPTIONS, $ids)
-        ];
-    }
-
-    /**
-     * @param array<int, string> $names option names
-     * @param array<int, int>    $ids   product IDs
-     *
-     * @return array<int, array<string, mixed>>
-     */
-    private function getOptionValueFacets(array $names, array $ids): array {
-        $counts = [];
-
-        foreach ($this->getValuesByOption($names, $ids) as $values) {
-            foreach ($values as $value_id => $name) {
-                $counts[$value_id] = [
-                    'id'    => $value_id,
-                    'name'  => $name,
-                    'count' => ($counts[$value_id]['count'] ?? 0) + 1,
-                    'css'   => $this->getSwatchColor($name)
-                ];
-            }
-        }
-
-        return array_values($counts);
-    }
-
-    /**
-     * A swatch colour is only used when the value name is a plain CSS colour (name or hex); otherwise the text is shown.
-     *
-     * @param string $name
-     *
-     * @return string
-     */
-    private function getSwatchColor(string $name): string {
-        $name = preg_replace('/\s+/', '', $name);
-
-        return preg_match('/^([a-zA-Z]{3,20}|#[0-9a-fA-F]{3,8})$/', $name) ? $name : '';
-    }
-
-    /**
      * Get Discount Percent
      *
      * How far the special price is below the regular price, as shown on the card.
@@ -482,7 +278,7 @@ class Catalog extends \Opencart\Catalog\Model\Catalog\Product {
      *
      * @return float
      */
-    protected function getDiscountPercent(array $row): float {
+    public function getDiscountPercent(array $row): float {
         if (!(float)$row['special'] || (float)$row['price'] <= 0 || (float)$row['special'] >= (float)$row['price']) {
             return 0.0;
         }
@@ -497,28 +293,28 @@ class Catalog extends \Opencart\Catalog\Model\Catalog\Product {
      *
      * @return array<int, int>
      */
-    protected function getPreorderStatusIds(): array {
+    public function getPreorderStatusIds(): array {
         $query = $this->db->query("SELECT `stock_status_id` FROM `" . DB_PREFIX . "stock_status` WHERE `language_id` = '" . (int)$this->config->get('config_language_id') . "' AND REPLACE(REPLACE(LCASE(`name`), '-', ''), ' ', '') = 'preorder'");
 
         return array_map('intval', array_column($query->rows, 'stock_status_id'));
     }
 
     /**
-     * Get Option Values
+     * Get Values By Option
      *
-     * Option values by product for options with the given names (case-insensitive).
+     * Option values by product for the options that feed a filter group (see OPTION_NAMES).
      *
-     * @param array<int, string> $names
-     * @param array<int, int>    $product_ids
+     * @param string          $group       color or size
+     * @param array<int, int> $product_ids
      *
      * @return array<int, array<int, string>> [product_id => [option_value_id => name]]
      */
-    protected function getValuesByOption(array $names, array $product_ids): array {
+    public function getValuesByOption(string $group, array $product_ids): array {
         if (!$product_ids) {
             return [];
         }
 
-        $names = array_map(fn (string $name): string => "'" . $this->db->escape($name) . "'", $names);
+        $names = array_map(fn (string $name): string => "'" . $this->db->escape($name) . "'", self::OPTION_NAMES[$group]);
 
         $query = $this->db->query("SELECT DISTINCT `pov`.`product_id`, `pov`.`option_value_id`, `ovd`.`name` FROM `" . DB_PREFIX . "product_option_value` `pov` LEFT JOIN `" . DB_PREFIX . "option_description` `od` ON (`od`.`option_id` = `pov`.`option_id` AND `od`.`language_id` = '" . (int)$this->config->get('config_language_id') . "') LEFT JOIN `" . DB_PREFIX . "option_value_description` `ovd` ON (`ovd`.`option_value_id` = `pov`.`option_value_id` AND `ovd`.`language_id` = '" . (int)$this->config->get('config_language_id') . "') LEFT JOIN `" . DB_PREFIX . "option_value` `ov` ON (`ov`.`option_value_id` = `pov`.`option_value_id`) WHERE `pov`.`product_id` IN (" . implode(',', array_map('intval', $product_ids)) . ") AND LCASE(`od`.`name`) IN (" . implode(',', $names) . ") ORDER BY `ov`.`sort_order`, `ovd`.`name`");
 
@@ -540,7 +336,7 @@ class Catalog extends \Opencart\Catalog\Model\Catalog\Product {
      *
      * @return float
      */
-    protected function getDisplayPrice(array $row): float {
+    public function getDisplayPrice(array $row): float {
         $price = (float)$row['special'] ? (float)$row['special'] : (float)$row['price'];
 
         $price = $this->tax->calculate($price, $row['tax_class_id'], $this->config->get('config_tax'));
