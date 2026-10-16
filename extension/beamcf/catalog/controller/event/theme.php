@@ -57,6 +57,9 @@ class Theme extends \Opencart\System\Engine\Controller {
 			case 'product/thumb':
 				$this->thumb($args);
 				break;
+			case 'product/category':
+				$this->category($args);
+				break;
 		}
 
 		$this->text($args);
@@ -117,6 +120,16 @@ class Theme extends \Opencart\System\Engine\Controller {
 		$args['bcf_blog_url'] = $this->model_cms_article->getTotalArticles() ? $this->url->link('cms/blog', $language) : '';
 
 		$args['bcf_route'] = $this->request->get['route'] ?? self::ROUTE_HOME;
+
+		// Top level category of the current category page, to mark the matching menu item.
+		$path = explode('_', (string)($this->request->get['path'] ?? ''));
+		$args['bcf_path_root'] = (int)$path[0];
+
+		foreach ($args['categories'] ?? [] as $i => $category) {
+			preg_match('/path=(\d+)/', $category['href'], $match);
+
+			$args['categories'][$i]['category_id'] = (int)($match[1] ?? 0);
+		}
 	}
 
 	/**
@@ -185,6 +198,123 @@ class Theme extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
+	 * Filter panel, active filter chips and listing count for the category page.
+	 *
+	 * @param array<string, mixed> $args
+	 *
+	 * @return void
+	 */
+	protected function category(array &$args): void {
+		$get = $this->request->get;
+		$language = 'language=' . $this->config->get('config_language');
+
+		$parts = explode('_', (string)($get['path'] ?? ''));
+		$category_id = (int)array_pop($parts);
+
+		$this->load->model('extension/beamcf/theme/catalog');
+		$model = $this->model_extension_beamcf_theme_catalog;
+
+		$core = ['filter_category_id' => $category_id, 'filter_sub_category' => false, 'filter_filter' => $get['filter'] ?? ''];
+
+		$active = $model->getActive();
+		$facets = $model->getFacets($core);
+
+		// Parameters that always travel with the listing.
+		$keep = array_intersect_key($get, array_flip(['path', 'sort', 'order', 'limit', 'filter']));
+		$filters = array_intersect_key($get, array_flip(['price_min', 'price_max', 'brand', 'stock', 'preorder', 'color', 'size', 'discount', 'rating', 'q']));
+
+		$link = function (array $params) use ($language): string {
+			return $this->url->link('product/category', $language . ($params ? '&' . http_build_query($params) : ''));
+		};
+
+		// Chips, each removing one filter.
+		$chips = [];
+		$without = function (array $names) use ($filters, $keep, $link): string {
+			return $link($keep + array_diff_key($filters, array_flip($names)));
+		};
+
+		$currency = $this->session->data['currency'];
+		$format = fn (float $amount): string => $this->currency->format($amount, $currency, 1.0);
+
+		if ($active['price_min'] !== null || $active['price_max'] !== null) {
+			$label = $active['price_min'] !== null && $active['price_max'] !== null ? $format($active['price_min']) . ' – ' . $format($active['price_max']) : ($active['price_min'] !== null ? '≥ ' . $format($active['price_min']) : '≤ ' . $format($active['price_max']));
+			$chips[] = ['text' => $label, 'href' => $without(['price_min', 'price_max'])];
+		}
+
+		foreach ($facets['brands'] as $brand) {
+			if (in_array($brand['id'], $active['brand'], true)) {
+				$rest = array_diff($active['brand'], [$brand['id']]);
+				$params = $keep + array_diff_key($filters, ['brand' => 1]) + ($rest ? ['brand' => implode(',', $rest)] : []);
+				$chips[] = ['text' => $brand['name'], 'href' => $link($params)];
+			}
+		}
+
+		if ($active['q'] !== '') {
+			$chips[] = ['text' => '“' . $active['q'] . '”', 'href' => $without(['q'])];
+		}
+
+		if ($active['stock']) {
+			$chips[] = ['text' => $this->language->get('bcf_in_stock'), 'href' => $without(['stock'])];
+		}
+
+		if ($active['preorder']) {
+			$chips[] = ['text' => $this->language->get('bcf_pre_order'), 'href' => $without(['preorder'])];
+		}
+
+		foreach (['color', 'size'] as $group) {
+			foreach ($facets[$group] as $value) {
+				if (in_array($value['id'], $active[$group], true)) {
+					$rest = array_diff($active[$group], [$value['id']]);
+					$params = $keep + array_diff_key($filters, [$group => 1]) + ($rest ? [$group => implode(',', $rest)] : []);
+					$chips[] = ['text' => $value['name'], 'href' => $link($params)];
+				}
+			}
+		}
+
+		if ($active['discount']) {
+			$chips[] = ['text' => sprintf($this->language->get('bcf_discount_up'), $active['discount']), 'href' => $without(['discount'])];
+		}
+
+		if ($active['rating']) {
+			$chips[] = ['text' => sprintf($this->language->get('bcf_rating_up'), $active['rating']), 'href' => $without(['rating'])];
+		}
+
+		// Form fields that must survive a filter submit.
+		$hidden = ['route' => 'product/category', 'language' => $this->config->get('config_language')] + $keep;
+
+		// The core sort and limit links only carry the parameters it knows about, so add the filters to them.
+		if ($filters) {
+			$extra = '&amp;' . str_replace('&', '&amp;', http_build_query($filters));
+
+			foreach (['sorts', 'limits'] as $key) {
+				foreach ($args[$key] ?? [] as $i => $item) {
+					$args[$key][$i]['href'] = $item['href'] . $extra;
+				}
+			}
+		}
+
+		$this->load->model('catalog/product');
+
+		$args['bcf_filter'] = [
+			'action'  => $this->config->get('config_url') . 'index.php',
+			'hidden'  => $hidden,
+			'active'  => $active,
+			'selected_brands' => $active['brand'],
+			'facets'  => $facets,
+			'chips'   => $chips,
+			'reset'   => $link($keep),
+			'show_price' => $facets['price'] !== null && $facets['price']['max'] > $facets['price']['min'],
+			'show_rating' => (bool)$this->config->get('config_review_status') && array_sum($facets['rating']) > 0,
+			'currency_symbol' => trim($this->currency->getSymbolLeft($currency) ?: $this->currency->getSymbolRight($currency)),
+			'any'     => (bool)($facets['brands'] || $facets['discount'] || $facets['stock'] || $facets['preorder'] || $facets['color'] || $facets['size'] || $facets['price'] !== null)
+		];
+
+		$args['bcf_count'] = $this->model_catalog_product->getTotalProducts($core);
+		$args['bcf_filtered'] = (bool)$chips;
+		$args['bcf_has_products'] = $facets['total'] > 0;
+	}
+
+	/**
 	 * Badges for the shared product card. Raw values are passed by the BeamCF homepage; for cards built by
 	 * other modules only the sale badge can be told from the formatted special price.
 	 *
@@ -236,7 +366,7 @@ class Theme extends \Opencart\System\Engine\Controller {
 	 * @return void
 	 */
 	protected function text(array &$args): void {
-		foreach (['skip', 'shop_by_category', 'categories', 'menu', 'close', 'home', 'special', 'products', 'blog', 'contact', 'compare', 'search', 'cart', 'items', 'all', 'my_account', 'quick_links', 'information', 'brands', 'address', 'call_us', 'email_us', 'follow', 'back_to_top', 'shop_now', 'prev', 'next', 'slide', 'shop_by_category_title', 'view_all', 'latest', 'featured', 'bestseller', 'deals', 'deal_ends', 'days', 'hours', 'minutes', 'seconds', 'special_products', 'best_sellers', 'from_blog', 'read_more', 'brands_title', 'sale', 'new', 'out_of_stock', 'our_products', 'testimonials', 'view_more'] as $key) {
+		foreach (['skip', 'shop_by_category', 'categories', 'menu', 'close', 'home', 'special', 'products', 'blog', 'contact', 'compare', 'search', 'cart', 'items', 'all', 'my_account', 'quick_links', 'information', 'brands', 'address', 'call_us', 'email_us', 'follow', 'back_to_top', 'shop_now', 'prev', 'next', 'slide', 'shop_by_category_title', 'view_all', 'latest', 'featured', 'bestseller', 'deals', 'deal_ends', 'days', 'hours', 'minutes', 'seconds', 'special_products', 'best_sellers', 'from_blog', 'read_more', 'brands_title', 'sale', 'new', 'out_of_stock', 'our_products', 'testimonials', 'view_more', 'filters', 'filter_by', 'price', 'price_min', 'price_max', 'brand', 'availability', 'in_stock', 'on_sale', 'rating', 'rating_up', 'apply', 'reset', 'clear_all', 'active_filters', 'remove_filter', 'showing', 'showing_one', 'sort_by', 'show', 'grid_view', 'list_view', 'no_match', 'no_match_help', 'no_filters', 'category_empty', 'subcategories', 'filter_open', 'search_label', 'search_placeholder', 'filter_title', 'to', 'show_sub', 'pre_order', 'color', 'size', 'discount', 'discount_up'] as $key) {
 			$args['bcf_text_' . $key] = $this->language->get('bcf_' . $key);
 		}
 	}
