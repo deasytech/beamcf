@@ -38,6 +38,7 @@
     <form method="post" data-oc-toggle="ajax" data-oc-load="{{ cart }}" data-oc-target="#cart">
       <div class="button bcf-card-actions">
         <button type="submit" formaction="{{ cart_add }}" class="bcf-card-cart" title="{{ button_cart }}"><i class="fa-solid fa-shopping-cart" aria-hidden="true"></i> <span>{{ button_cart }}</span></button>
+        <button type="button" class="bcf-card-icon" data-bcf-quickview="{{ bcf_quickview }}" aria-haspopup="dialog" title="{{ bcf_text_quick_view }}" aria-label="{{ bcf_text_quick_view }}: {{ name }}"><i class="fa-regular fa-eye" aria-hidden="true"></i></button>
         <button type="submit" formaction="{{ wishlist_add }}" class="bcf-card-icon" data-bs-toggle="tooltip" title="{{ button_wishlist }}" aria-label="{{ button_wishlist }}"><i class="fa-solid fa-heart" aria-hidden="true"></i></button>
         <button type="submit" formaction="{{ compare_add }}" class="bcf-card-icon" data-bs-toggle="tooltip" title="{{ button_compare }}" aria-label="{{ button_compare }}"><i class="fa-solid fa-arrow-right-arrow-left" aria-hidden="true"></i></button>
       </div>
