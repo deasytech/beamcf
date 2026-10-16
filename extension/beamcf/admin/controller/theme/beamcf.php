@@ -150,6 +150,7 @@ class Beamcf extends \Opencart\System\Engine\Controller {
 			$this->model_setting_event->deleteEventByCode('beamcf_catalog_products');
 			$this->model_setting_event->deleteEventByCode('beamcf_catalog_total');
 			$this->model_setting_event->deleteEventByCode('beamcf_catalog_pagination');
+			$this->model_setting_event->deleteEventByCode('beamcf_admin_login');
 
 			$this->model_setting_event->addEvent([
 				'code'        => 'beamcf_theme',
@@ -187,6 +188,15 @@ class Beamcf extends \Opencart\System\Engine\Controller {
 				'status'      => true,
 				'sort_order'  => 1
 			]);
+
+			$this->model_setting_event->addEvent([
+				'code'        => 'beamcf_admin_login',
+				'description' => 'BeamCF theme: show the company logo on the admin login screen.',
+				'trigger'     => 'admin/view/common/login/after',
+				'action'      => 'extension/beamcf/event/login',
+				'status'      => true,
+				'sort_order'  => 1
+			]);
 		}
 	}
 
@@ -203,6 +213,7 @@ class Beamcf extends \Opencart\System\Engine\Controller {
 			$this->model_setting_event->deleteEventByCode('beamcf_catalog_products');
 			$this->model_setting_event->deleteEventByCode('beamcf_catalog_total');
 			$this->model_setting_event->deleteEventByCode('beamcf_catalog_pagination');
+			$this->model_setting_event->deleteEventByCode('beamcf_admin_login');
 		}
 	}
 }
