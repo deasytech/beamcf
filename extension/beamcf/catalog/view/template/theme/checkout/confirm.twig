@@ -1,0 +1,38 @@
+<ul class="bcf-confirm-items list-unstyled">
+  {% for product in products %}
+    <li>
+      <div class="bcf-confirm-name">{{ product.quantity }}x <a href="{{ product.href }}">{{ product.name }}</a>
+        <ul class="list-unstyled bcf-cart-row-meta">
+          <li>{{ text_model }}: {{ product.model }}</li>
+          {% for option in product.option %}
+            <li>{{ option.name }}: {{ option.value }}</li>
+          {% endfor %}
+          {% if product.subscription %}
+            <li>{{ text_subscription }}: {{ product.subscription }}</li>
+          {% endif %}
+          {% if product.reward %}
+            <li>{{ text_points }}: {{ product.reward }}</li>
+          {% endif %}
+        </ul>
+      </div>
+      <div class="bcf-confirm-total">{{ product.total }}</div>
+    </li>
+  {% endfor %}
+</ul>
+<table class="bcf-summary-totals">
+  <tbody>
+    {% for total in totals %}
+      <tr{% if loop.last %} class="bcf-summary-final"{% endif %}>
+        <th scope="row">{{ total.title }}</th>
+        <td>{{ total.text }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<div id="checkout-payment">
+  {% if payment %}
+    {{ payment }}
+  {% else %}
+    <div class="text-end"><button type="button" class="btn btn-primary" disabled>{{ button_confirm }}</button></div>
+  {% endif %}
+</div>

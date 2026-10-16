@@ -104,3 +104,4 @@ $_['bcf_qty_more']           = 'Increase quantity';
 $_['bcf_pd_zoom']            = 'Click to enlarge';
 $_['bcf_pd_buy_now']         = 'Buy now';
 $_['bcf_pd_compare']         = 'Compare this product';
+$_['bcf_order_summary']      = 'Order Summary';

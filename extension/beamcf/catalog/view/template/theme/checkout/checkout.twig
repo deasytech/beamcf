@@ -1,0 +1,45 @@
+{{ header }}
+<div id="checkout-checkout" class="container bcf-checkout-page">
+  <ul class="breadcrumb">
+    {% for breadcrumb in breadcrumbs %}
+      <li class="breadcrumb-item"><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+    {% endfor %}
+  </ul>
+  <div class="row">{{ column_left }}
+    <div id="content" class="col">{{ content_top }}
+      <h1 class="bcf-page-title">{{ heading_title }}</h1>
+      <div class="bcf-checkout-layout">
+        {% if register or payment_address or shipping_address %}
+          <div class="bcf-checkout-forms">
+            {% if register %}
+              <div id="checkout-register" class="bcf-checkout-block">{{ register }}</div>
+            {% endif %}
+            {% if payment_address %}
+              <div id="checkout-payment-address" class="bcf-checkout-block">{{ payment_address }}</div>
+            {% endif %}
+            {% if shipping_address %}
+              <div id="checkout-shipping-address" class="bcf-checkout-block">{{ shipping_address }}</div>
+            {% endif %}
+          </div>
+        {% endif %}
+        <div class="bcf-checkout-side bcf-checkout-panel">
+          {% if shipping_method %}
+            <div id="checkout-shipping-method" class="bcf-checkout-card">{{ shipping_method }}</div>
+          {% endif %}
+          <div id="checkout-payment-method" class="bcf-checkout-card">{{ payment_method }}</div>
+          <div class="bcf-checkout-card bcf-checkout-summary"><h2 class="bcf-checkout-summary-title">{{ bcf_text_order_summary }}</h2><div id="checkout-confirm">{{ confirm }}</div></div>
+        </div>
+      </div>
+    </div>
+    {{ content_bottom }}
+  </div>
+  {{ column_right }}
+</div>
+
+<script type="text/javascript"><!--
+$(document).ready(function() {
+    $('#input-comment').val('');
+});
+//--></script>
+
+{{ footer }}
