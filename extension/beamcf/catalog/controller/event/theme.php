@@ -132,12 +132,6 @@ class Theme extends \Opencart\System\Engine\Controller {
 		// Top level category of the current category page, to mark the matching menu item.
 		$path = explode('_', (string)($this->request->get['path'] ?? ''));
 		$args['bcf_path_root'] = (int)$path[0];
-
-		foreach ($args['categories'] ?? [] as $i => $category) {
-			preg_match('/path=(\d+)/', $category['href'], $match);
-
-			$args['categories'][$i]['category_id'] = (int)($match[1] ?? 0);
-		}
 	}
 
 	/**

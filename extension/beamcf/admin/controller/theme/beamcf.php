@@ -136,9 +136,27 @@ class Beamcf extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
+	 * Events this theme registers: code => [description, trigger, action].
+	 *
+	 * @return array<string, array<string, string>>
+	 */
+	private function events(): array {
+		return [
+			// Swap in BeamCF templates when the BeamCF theme is selected.
+			'beamcf_theme' => ['BeamCF theme: swap in BeamCF templates when the BeamCF theme is selected.', 'catalog/view/*/before', 'extension/beamcf/event/theme.view'],
+			// Category filters: route the listing queries to the BeamCF filter model while a filter is active.
+			'beamcf_catalog_products' => ['BeamCF theme: apply category filters to the product query.', 'catalog/model/catalog/product.getProducts/before', 'extension/beamcf/event/catalog.products'],
+			'beamcf_catalog_total' => ['BeamCF theme: apply category filters to the product count.', 'catalog/model/catalog/product.getTotalProducts/before', 'extension/beamcf/event/catalog.products'],
+			'beamcf_catalog_pagination' => ['BeamCF theme: keep category filters in pagination links.', 'catalog/controller/common/pagination/before', 'extension/beamcf/event/catalog.pagination'],
+			'beamcf_admin_login' => ['BeamCF theme: show the company logo on the admin login screen.', 'admin/view/common/login/after', 'extension/beamcf/event/login'],
+			'beamcf_product_seo' => ['BeamCF theme: create an SEO keyword for new products saved without one.', 'admin/model/catalog/product.addProduct/after', 'extension/beamcf/event/seo.product']
+		];
+	}
+
+	/**
 	 * Install
 	 *
-	 * Registers the template switching event. Nothing in the default theme is changed.
+	 * Registers the theme events. Nothing in the default theme is changed.
 	 *
 	 * @return void
 	 */
@@ -146,57 +164,18 @@ class Beamcf extends \Opencart\System\Engine\Controller {
 		if ($this->user->hasPermission('modify', 'extension/theme')) {
 			$this->load->model('setting/event');
 
-			$this->model_setting_event->deleteEventByCode('beamcf_theme');
-			$this->model_setting_event->deleteEventByCode('beamcf_catalog_products');
-			$this->model_setting_event->deleteEventByCode('beamcf_catalog_total');
-			$this->model_setting_event->deleteEventByCode('beamcf_catalog_pagination');
-			$this->model_setting_event->deleteEventByCode('beamcf_admin_login');
+			foreach ($this->events() as $code => [$description, $trigger, $action]) {
+				$this->model_setting_event->deleteEventByCode($code);
 
-			$this->model_setting_event->addEvent([
-				'code'        => 'beamcf_theme',
-				'description' => 'BeamCF theme: swap in BeamCF templates when the BeamCF theme is selected.',
-				'trigger'     => 'catalog/view/*/before',
-				'action'      => 'extension/beamcf/event/theme.view',
-				'status'      => true,
-				'sort_order'  => 1
-			]);
-
-			// Category filters: route the listing queries to the BeamCF filter model while a filter is active.
-			$this->model_setting_event->addEvent([
-				'code'        => 'beamcf_catalog_products',
-				'description' => 'BeamCF theme: apply category filters to the product query.',
-				'trigger'     => 'catalog/model/catalog/product.getProducts/before',
-				'action'      => 'extension/beamcf/event/catalog.products',
-				'status'      => true,
-				'sort_order'  => 1
-			]);
-
-			$this->model_setting_event->addEvent([
-				'code'        => 'beamcf_catalog_total',
-				'description' => 'BeamCF theme: apply category filters to the product count.',
-				'trigger'     => 'catalog/model/catalog/product.getTotalProducts/before',
-				'action'      => 'extension/beamcf/event/catalog.products',
-				'status'      => true,
-				'sort_order'  => 1
-			]);
-
-			$this->model_setting_event->addEvent([
-				'code'        => 'beamcf_catalog_pagination',
-				'description' => 'BeamCF theme: keep category filters in pagination links.',
-				'trigger'     => 'catalog/controller/common/pagination/before',
-				'action'      => 'extension/beamcf/event/catalog.pagination',
-				'status'      => true,
-				'sort_order'  => 1
-			]);
-
-			$this->model_setting_event->addEvent([
-				'code'        => 'beamcf_admin_login',
-				'description' => 'BeamCF theme: show the company logo on the admin login screen.',
-				'trigger'     => 'admin/view/common/login/after',
-				'action'      => 'extension/beamcf/event/login',
-				'status'      => true,
-				'sort_order'  => 1
-			]);
+				$this->model_setting_event->addEvent([
+					'code'        => $code,
+					'description' => $description,
+					'trigger'     => $trigger,
+					'action'      => $action,
+					'status'      => true,
+					'sort_order'  => 1
+				]);
+			}
 		}
 	}
 
@@ -209,11 +188,9 @@ class Beamcf extends \Opencart\System\Engine\Controller {
 		if ($this->user->hasPermission('modify', 'extension/theme')) {
 			$this->load->model('setting/event');
 
-			$this->model_setting_event->deleteEventByCode('beamcf_theme');
-			$this->model_setting_event->deleteEventByCode('beamcf_catalog_products');
-			$this->model_setting_event->deleteEventByCode('beamcf_catalog_total');
-			$this->model_setting_event->deleteEventByCode('beamcf_catalog_pagination');
-			$this->model_setting_event->deleteEventByCode('beamcf_admin_login');
+			foreach (array_keys($this->events()) as $code) {
+				$this->model_setting_event->deleteEventByCode($code);
+			}
 		}
 	}
 }
