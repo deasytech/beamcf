@@ -1,0 +1,206 @@
+{{ header }}
+{% macro tile(banner, class, cta) %}
+  {% set tag = banner.link ? 'a' : 'div' %}
+  <{{ tag }}{% if banner.link %} href="{{ banner.link }}"{% endif %} class="bcf-tile {{ class }}">
+    <img src="{{ banner.image }}" alt="{{ banner.title }}" width="{{ banner.width }}" height="{{ banner.height }}" loading="lazy" class="bcf-tile-img"/>
+  </{{ tag }}>
+{% endmacro %}
+{% macro carousel(products, prev, next) %}
+  <div class="bcf-carousel">
+    <button type="button" class="bcf-carousel-btn bcf-carousel-prev" aria-label="{{ prev }}" hidden><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
+    <div class="bcf-track" tabindex="-1">{% for product in products %}<div class="bcf-slide">{{ product }}</div>{% endfor %}</div>
+    <button type="button" class="bcf-carousel-btn bcf-carousel-next" aria-label="{{ next }}" hidden><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
+  </div>
+{% endmacro %}
+{% import _self as ui %}
+<div id="common-home" class="bcf-home">
+
+  {# 1. Hero #}
+  {% if bcf.hero %}
+    <section class="bcf-hero" aria-roledescription="carousel" aria-label="{{ bcf_text_home }}">
+      <div id="bcf-hero" class="carousel slide"{% if bcf.hero|length > 1 %} data-bs-ride="carousel"{% endif %}>
+        {% if bcf.hero|length > 1 %}
+          <div class="carousel-indicators">
+            {% for banner in bcf.hero %}
+              <button type="button" data-bs-target="#bcf-hero" data-bs-slide-to="{{ loop.index0 }}"{% if loop.first %} class="active" aria-current="true"{% endif %} aria-label="{{ bcf_text_slide|format(loop.index) }}"></button>
+            {% endfor %}
+          </div>
+        {% endif %}
+        <div class="carousel-inner">
+          {% for banner in bcf.hero %}
+            <div class="carousel-item{% if loop.first %} active{% endif %}">
+              {% if banner.link %}<a href="{{ banner.link }}">{% endif %}
+              <img src="{{ banner.image }}" alt="{{ banner.title }}" width="{{ banner.width }}" height="{{ banner.height }}" class="d-block w-100"{% if loop.first %} fetchpriority="high"{% else %} loading="lazy"{% endif %}/>
+              {% if banner.link %}</a>{% endif %}
+            </div>
+          {% endfor %}
+        </div>
+        {% if bcf.hero|length > 1 %}
+          <button class="carousel-control-prev" type="button" data-bs-target="#bcf-hero" data-bs-slide="prev"><span class="carousel-control-prev-icon" aria-hidden="true"></span><span class="visually-hidden">{{ bcf_text_prev }}</span></button>
+          <button class="carousel-control-next" type="button" data-bs-target="#bcf-hero" data-bs-slide="next"><span class="carousel-control-next-icon" aria-hidden="true"></span><span class="visually-hidden">{{ bcf_text_next }}</span></button>
+        {% endif %}
+      </div>
+    </section>
+  {% endif %}
+
+  {# 2. Promo pair #}
+  {% if bcf.promo %}
+    <section class="bcf-section container">
+      <div class="bcf-promo-grid">
+        {% for banner in bcf.promo %}{{ ui.tile(banner, 'bcf-tile-promo', bcf_text_shop_now) }}{% endfor %}
+      </div>
+    </section>
+  {% endif %}
+
+  {# 3. Benefits #}
+  {% if bcf.benefits %}
+    <section class="bcf-section container">
+      <ul class="bcf-benefits list-unstyled">
+        {% for benefit in bcf.benefits %}
+          <li><i class="fa-solid {{ benefit.icon }}" aria-hidden="true"></i><span><strong>{{ benefit.title }}</strong>{% if benefit.text %}<small>{{ benefit.text }}</small>{% endif %}</span></li>
+        {% endfor %}
+      </ul>
+    </section>
+  {% endif %}
+
+  {# 4. Deals of the Day #}
+  {% if bcf.deal %}
+    <section class="bcf-section container" aria-labelledby="bcf-deals-title">
+      <h2 id="bcf-deals-title" class="bcf-title">{{ bcf_text_deals }}</h2>
+      <div class="bcf-deals{% if bcf.deal_tiles|length < 2 %} bcf-deals-solo{% endif %}">
+        {% if bcf.deal_tiles[0] %}{{ ui.tile(bcf.deal_tiles[0], 'bcf-tile-deal', bcf_text_shop_now) }}{% endif %}
+        <div class="bcf-deal-card">
+          {{ bcf.deal.card }}
+          {% if bcf.deal.end %}
+            <div class="bcf-countdown" data-end="{{ bcf.deal.end }}" data-now="{{ bcf.deal.now }}" role="timer" aria-label="{{ bcf_deal_text }}">
+              <span class="bcf-countdown-label">{{ bcf_deal_text }}</span>
+              <span><b data-unit="d">0</b>{{ bcf_text_days }}</span><span><b data-unit="h">0</b>{{ bcf_text_hours }}</span><span><b data-unit="m">0</b>{{ bcf_text_minutes }}</span><span><b data-unit="s">0</b>{{ bcf_text_seconds }}</span>
+            </div>
+          {% endif %}
+        </div>
+        {% if bcf.deal_tiles[1] %}{{ ui.tile(bcf.deal_tiles[1], 'bcf-tile-deal', bcf_text_shop_now) }}{% endif %}
+      </div>
+    </section>
+  {% endif %}
+
+  {# 5. Shop by category #}
+  {% if bcf.categories %}
+    <section class="bcf-section container" aria-labelledby="bcf-cat-title">
+      <h2 id="bcf-cat-title" class="bcf-title bcf-title-center">{{ bcf_text_shop_by_category_title }}</h2>
+      <div class="bcf-carousel bcf-cat-carousel">
+        <button type="button" class="bcf-carousel-btn bcf-carousel-prev" aria-label="{{ bcf_text_prev }}" hidden><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
+        <ul class="bcf-track bcf-cat-grid list-unstyled">
+          {% for category in bcf.categories %}
+            <li class="bcf-slide"><a href="{{ category.href }}"><img src="{{ category.thumb }}" alt="" width="400" height="500" loading="lazy"/><span class="bcf-cat-label"><strong>{{ category.name }}</strong><small>{{ category.total }} {{ bcf_text_products }}</small></span></a></li>
+          {% endfor %}
+        </ul>
+        <button type="button" class="bcf-carousel-btn bcf-carousel-next" aria-label="{{ bcf_text_next }}" hidden><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
+      </div>
+    </section>
+  {% endif %}
+
+  {# 6. Product tabs #}
+  {% if bcf.tabs %}
+    {% set labels = {'latest': bcf_text_latest, 'featured': bcf_text_featured, 'bestseller': bcf_text_bestseller} %}
+    <section class="bcf-section container bcf-products" aria-labelledby="bcf-products-title">
+      <h2 id="bcf-products-title" class="bcf-title bcf-title-center">{{ bcf_text_our_products }}</h2>
+      <ul class="nav bcf-tabs" role="tablist">
+        {% for key, products in bcf.tabs %}
+          <li class="nav-item" role="presentation"><button type="button" class="nav-link{% if loop.first %} active{% endif %}" id="bcf-tab-{{ key }}" data-bs-toggle="tab" data-bs-target="#bcf-pane-{{ key }}" role="tab" aria-controls="bcf-pane-{{ key }}" aria-selected="{{ loop.first ? 'true' : 'false' }}">{{ labels[key] }}</button></li>
+        {% endfor %}
+      </ul>
+      <div class="tab-content">
+        {% for key, products in bcf.tabs %}
+          <div class="tab-pane fade{% if loop.first %} show active{% endif %}" id="bcf-pane-{{ key }}" role="tabpanel" aria-labelledby="bcf-tab-{{ key }}" tabindex="0">
+            <div class="bcf-carousel">
+              <button type="button" class="bcf-carousel-btn bcf-carousel-prev" aria-label="{{ bcf_text_prev }}" hidden><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
+              <div class="bcf-track" tabindex="-1">{% for product in products %}<div class="bcf-slide">{{ product }}</div>{% endfor %}</div>
+              <button type="button" class="bcf-carousel-btn bcf-carousel-next" aria-label="{{ bcf_text_next }}" hidden><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+
+  {# 7. Campaign banner #}
+  {% if bcf.campaign %}
+    <section class="bcf-campaign">
+      <div class="container bcf-campaign-inner">
+        <div class="bcf-campaign-copy">
+          {% if bcf.campaign.title %}<h2>{{ bcf.campaign.title }}</h2>{% endif %}
+          {% if bcf.campaign_text %}<p>{{ bcf.campaign_text }}</p>{% endif %}
+          {% if bcf.campaign.link %}<a href="{{ bcf.campaign.link }}" class="bcf-btn bcf-btn-light">{{ bcf_text_shop_now }}</a>{% endif %}
+        </div>
+        <img src="{{ bcf.campaign.image }}" alt="" width="{{ bcf.campaign.width }}" height="{{ bcf.campaign.height }}" loading="lazy"/>
+      </div>
+    </section>
+  {% endif %}
+
+  {# 8. Special products and best sellers: light band, white product cards #}
+  {% if bcf.specials or bcf.mix_bestsellers %}
+    <section class="bcf-band bcf-products">
+      <div class="container">
+        {% if bcf.specials %}
+          <h2 class="bcf-title bcf-title-center">{{ bcf_text_special_products }}</h2>
+          {{ ui.carousel(bcf.specials, bcf_text_prev, bcf_text_next) }}
+        {% endif %}
+        {% if bcf.mix_bestsellers %}
+          <h2 class="bcf-title bcf-title-center{% if bcf.specials %} bcf-band-second{% endif %}">{{ bcf_text_best_sellers }}</h2>
+          {{ ui.carousel(bcf.mix_bestsellers, bcf_text_prev, bcf_text_next) }}
+        {% endif %}
+      </div>
+    </section>
+  {% endif %}
+
+  {# 10. Customer reviews (testimonials) and blog: each column only when the store has real data #}
+  {% if bcf.reviews or bcf.articles %}
+    <section class="bcf-section container">
+      <div class="bcf-duo{% if bcf.reviews and bcf.articles %} bcf-duo-2{% endif %}">
+        {% if bcf.reviews %}
+          <div class="bcf-duo-col bcf-testimonials" aria-labelledby="bcf-reviews-title">
+            <h2 id="bcf-reviews-title" class="bcf-title">{{ bcf_text_testimonials }}</h2>
+            <div id="bcf-reviews" class="carousel slide" data-bs-ride="carousel">
+              <div class="carousel-inner">
+                {% for review in bcf.reviews %}
+                  <figure class="carousel-item{% if loop.first %} active{% endif %}">
+                    <i class="fa-solid fa-quote-left bcf-quote" aria-hidden="true"></i>
+                    <blockquote><p>{{ review.text }}</p></blockquote>
+                    <div class="bcf-rating"><span class="visually-hidden">{{ review.rating }}/5</span>{% for i in 1..5 %}<i class="fa-{{ review.rating < i ? 'regular' : 'solid' }} fa-star" aria-hidden="true"></i>{% endfor %}</div>
+                    <figcaption><strong>{{ review.author }}</strong> <a href="{{ review.href }}">{{ review.product }}</a></figcaption>
+                  </figure>
+                {% endfor %}
+              </div>
+              {% if bcf.reviews|length > 1 %}
+                <div class="carousel-indicators">
+                  {% for review in bcf.reviews %}
+                    <button type="button" data-bs-target="#bcf-reviews" data-bs-slide-to="{{ loop.index0 }}"{% if loop.first %} class="active" aria-current="true"{% endif %} aria-label="{{ bcf_text_slide|format(loop.index) }}"></button>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        {% endif %}
+        {% if bcf.articles %}
+          <div class="bcf-duo-col" aria-labelledby="bcf-blog-title">
+            <h2 id="bcf-blog-title" class="bcf-title">{{ bcf_text_from_blog }}</h2>
+            <div class="bcf-blog-list">
+              {% for article in bcf.articles %}
+                <article class="bcf-article">
+                  {% if article.thumb %}<a href="{{ article.href }}" class="bcf-article-img"><img src="{{ article.thumb }}" alt="" width="600" height="400" loading="lazy"/></a>{% endif %}
+                  <div class="bcf-article-body">
+                    <div class="bcf-article-meta">{% if article.author %}<span><i class="fa-solid fa-user" aria-hidden="true"></i> {{ article.author }}</span>{% endif %}<time><i class="fa-regular fa-calendar" aria-hidden="true"></i> {{ article.date }}</time></div>
+                    <h3><a href="{{ article.href }}">{{ article.name }}</a></h3>
+                  </div>
+                </article>
+              {% endfor %}
+            </div>
+            <a href="{{ bcf_blog_url }}" class="bcf-more">{{ bcf_text_view_more }} <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+          </div>
+        {% endif %}
+      </div>
+    </section>
+  {% endif %}
+</div>
+<script src="{{ bcf_script_home }}"></script>
+{{ footer }}

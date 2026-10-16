@@ -10,6 +10,8 @@ namespace Opencart\Catalog\Controller\Extension\Beamcf\Event;
  * @package Opencart\Catalog\Controller\Extension\Beamcf\Event
  */
 class Theme extends \Opencart\System\Engine\Controller {
+	private const ROUTE_HOME = 'common/home';
+
 	/**
 	 * View
 	 *
@@ -48,6 +50,12 @@ class Theme extends \Opencart\System\Engine\Controller {
 				break;
 			case 'common/footer':
 				$this->footer($args);
+				break;
+			case self::ROUTE_HOME:
+				$this->home($args);
+				break;
+			case 'product/thumb':
+				$this->thumb($args);
 				break;
 		}
 
@@ -100,7 +108,7 @@ class Theme extends \Opencart\System\Engine\Controller {
 	protected function menu(array &$args): void {
 		$language = 'language=' . $this->config->get('config_language');
 
-		$args['bcf_home_url'] = $this->url->link('common/home', $language);
+		$args['bcf_home_url'] = $this->url->link(self::ROUTE_HOME, $language);
 		$args['bcf_special_url'] = $this->url->link('product/special', $language);
 		$args['bcf_contact_url'] = $this->url->link('information/contact', $language);
 
@@ -108,7 +116,7 @@ class Theme extends \Opencart\System\Engine\Controller {
 
 		$args['bcf_blog_url'] = $this->model_cms_article->getTotalArticles() ? $this->url->link('cms/blog', $language) : '';
 
-		$args['bcf_route'] = $this->request->get['route'] ?? 'common/home';
+		$args['bcf_route'] = $this->request->get['route'] ?? self::ROUTE_HOME;
 	}
 
 	/**
@@ -157,7 +165,56 @@ class Theme extends \Opencart\System\Engine\Controller {
 		$args['bcf_script'] = 'extension/beamcf/catalog/view/javascript/beamcf.js';
 		$args['bcf_logo'] = $this->logo() ?: (is_file(DIR_IMAGE . $this->config->get('config_logo')) ? $this->config->get('config_url') . 'image/' . $this->config->get('config_logo') : '');
 		$args['bcf_name'] = $this->config->get('config_name');
-		$args['bcf_home_url'] = $this->url->link('common/home', $language);
+		$args['bcf_home_url'] = $this->url->link(self::ROUTE_HOME, $language);
+	}
+
+	/**
+	 * @param array<string, mixed> $args
+	 *
+	 * @return void
+	 */
+	protected function home(array &$args): void {
+		$this->load->model('extension/beamcf/theme/home');
+
+		$args['bcf'] = $this->model_extension_beamcf_theme_home->getSections();
+		$args['bcf_deal_text'] = $args['bcf']['deal'] ? $this->language->get('bcf_deal_ends') : '';
+		$args['bcf_special_url'] = $this->url->link('product/special', 'language=' . $this->config->get('config_language'));
+		$args['bcf_blog_url'] = $this->url->link('cms/blog', 'language=' . $this->config->get('config_language'));
+		$args['bcf_script_home'] = 'extension/beamcf/catalog/view/javascript/home.js';
+
+	}
+
+	/**
+	 * Badges for the shared product card. Raw values are passed by the BeamCF homepage; for cards built by
+	 * other modules only the sale badge can be told from the formatted special price.
+	 *
+	 * @param array<string, mixed> $args
+	 *
+	 * @return void
+	 */
+	protected function thumb(array &$args): void {
+		$badges = [];
+		$raw = $args['bcf_raw'] ?? [];
+
+		if (isset($raw['quantity']) && $raw['quantity'] <= 0) {
+			$badges[] = ['class' => 'bcf-badge-out', 'text' => $this->language->get('bcf_out_of_stock')];
+		}
+
+		if (!empty($args['special'])) {
+			$text = $this->language->get('bcf_sale');
+
+			if (!empty($raw['price']) && !empty($raw['special']) && $raw['special'] < $raw['price']) {
+				$text = '-' . round((1 - $raw['special'] / $raw['price']) * 100) . '%';
+			}
+
+			$badges[] = ['class' => 'bcf-badge-sale', 'text' => $text];
+		}
+
+		if (!empty($raw['date_added']) && strtotime($raw['date_added']) > strtotime('-30 days')) {
+			$badges[] = ['class' => 'bcf-badge-new', 'text' => $this->language->get('bcf_new')];
+		}
+
+		$args['bcf_badges'] = $badges;
 	}
 
 	/**
@@ -179,7 +236,7 @@ class Theme extends \Opencart\System\Engine\Controller {
 	 * @return void
 	 */
 	protected function text(array &$args): void {
-		foreach (['skip', 'shop_by_category', 'categories', 'menu', 'close', 'home', 'special', 'products', 'blog', 'contact', 'compare', 'search', 'cart', 'items', 'all', 'my_account', 'quick_links', 'information', 'brands', 'address', 'call_us', 'email_us', 'follow', 'back_to_top'] as $key) {
+		foreach (['skip', 'shop_by_category', 'categories', 'menu', 'close', 'home', 'special', 'products', 'blog', 'contact', 'compare', 'search', 'cart', 'items', 'all', 'my_account', 'quick_links', 'information', 'brands', 'address', 'call_us', 'email_us', 'follow', 'back_to_top', 'shop_now', 'prev', 'next', 'slide', 'shop_by_category_title', 'view_all', 'latest', 'featured', 'bestseller', 'deals', 'deal_ends', 'days', 'hours', 'minutes', 'seconds', 'special_products', 'best_sellers', 'from_blog', 'read_more', 'brands_title', 'sale', 'new', 'out_of_stock', 'our_products', 'testimonials', 'view_more'] as $key) {
 			$args['bcf_text_' . $key] = $this->language->get('bcf_' . $key);
 		}
 	}

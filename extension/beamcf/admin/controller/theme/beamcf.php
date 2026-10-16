@@ -58,9 +58,22 @@ class Beamcf extends \Opencart\System\Engine\Controller {
 
 		$setting_info = $this->model_setting_setting->getSetting('theme_beamcf', $store_id);
 
-		foreach (['status', 'announcement', 'app_text', 'app_url', 'facebook', 'x', 'instagram', 'youtube'] as $key) {
+		$keys = ['status', 'announcement', 'app_text', 'app_url', 'facebook', 'x', 'instagram', 'youtube', 'hero_banner_id', 'promo_banner_id', 'deals_banner_id', 'campaign_banner_id', 'campaign_text'];
+
+		for ($i = 1; $i <= 4; $i++) {
+			$keys[] = 'benefit_' . $i . '_title';
+			$keys[] = 'benefit_' . $i . '_text';
+		}
+
+		foreach ($keys as $key) {
 			$data['theme_beamcf_' . $key] = $setting_info['theme_beamcf_' . $key] ?? '';
 		}
+
+		// Banners (Design > Banner) the homepage sections can use
+		$this->load->model('design/banner');
+
+		$data['banners'] = $this->model_design_banner->getBanners();
+		$data['benefit_icons'] = ['fa-truck-fast', 'fa-headset', 'fa-rotate-left', 'fa-shield-halved'];
 
 		$data['header'] = $this->load->controller('common/header');
 		$data['column_left'] = $this->load->controller('common/column_left');
