@@ -12,6 +12,7 @@ namespace Opencart\Catalog\Controller\Extension\Beamcf\Event;
 class Theme extends \Opencart\System\Engine\Controller {
 	private const ROUTE_HOME = 'common/home';
 	private const ROUTE_CATEGORY = 'product/category';
+	private const ROUTE_PRODUCT = 'product/product';
 
 	/**
 	 * View
@@ -60,6 +61,9 @@ class Theme extends \Opencart\System\Engine\Controller {
 				break;
 			case self::ROUTE_CATEGORY:
 				$this->category($args);
+				break;
+			case self::ROUTE_PRODUCT:
+				$this->product($args);
 				break;
 		}
 
@@ -373,6 +377,58 @@ class Theme extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
+	 * Extra data for the product page: gallery image sizes, discount percentage and the availability flag. Every
+	 * value is derived from the same catalog record the core controller used.
+	 *
+	 * @param array<string, mixed> $args
+	 *
+	 * @return void
+	 */
+	protected function product(array &$args): void {
+		$this->load->model('catalog/product');
+		$this->load->model('tool/image');
+
+		$product_info = $this->model_catalog_product->getProduct((int)($args['product_id'] ?? 0));
+
+		if (!$product_info) {
+			return;
+		}
+
+		$width = (int)$this->config->get('config_image_thumb_width');
+		$height = (int)$this->config->get('config_image_thumb_height');
+		$popup_width = (int)$this->config->get('config_image_popup_width');
+		$popup_height = (int)$this->config->get('config_image_popup_height');
+
+		$args['bcf_thumb_width'] = $width;
+		$args['bcf_thumb_height'] = $height;
+		$args['bcf_in_stock'] = $product_info['quantity'] > 0;
+		$args['bcf_first_small'] = $product_info['image'] ? $this->model_tool_image->resize($product_info['image'], 80, 80) : '';
+
+		$show_price = $this->customer->isLogged() || !$this->config->get('config_customer_price');
+
+		$args['bcf_discount_percent'] = 0;
+
+		if ($show_price && (float)$product_info['special'] && (float)$product_info['price'] > 0 && $product_info['special'] < $product_info['price']) {
+			$args['bcf_discount_percent'] = (int)round((1 - $product_info['special'] / $product_info['price']) * 100);
+		}
+
+		// Gallery thumbnails and the main image share the core image order; add the main-size URL for the swap.
+		$args['images'] = [];
+
+		foreach ($this->model_catalog_product->getImages($product_info['product_id']) as $result) {
+			if (!$result['image'] || !is_file(DIR_IMAGE . html_entity_decode($result['image'], ENT_QUOTES, 'UTF-8'))) {
+				continue;
+			}
+
+			$args['images'][] = [
+				'bcf_main' => $this->model_tool_image->resize($result['image'], $width, $height),
+				'popup'    => $this->model_tool_image->resize($result['image'], $popup_width, $popup_height),
+				'thumb'    => $this->model_tool_image->resize($result['image'], 80, 80)
+			];
+		}
+	}
+
+	/**
 	 * Badges for the shared product card. Raw values are passed by the BeamCF homepage; for cards built by
 	 * other modules only the sale badge can be told from the formatted special price.
 	 *
@@ -425,7 +481,7 @@ class Theme extends \Opencart\System\Engine\Controller {
 	 * @return void
 	 */
 	protected function text(array &$args): void {
-		foreach (['skip', 'shop_by_category', 'categories', 'menu', 'close', 'home', 'special', 'products', 'blog', 'contact', 'compare', 'search', 'cart', 'items', 'all', 'my_account', 'quick_links', 'information', 'brands', 'address', 'call_us', 'email_us', 'follow', 'back_to_top', 'shop_now', 'prev', 'next', 'slide', 'shop_by_category_title', 'view_all', 'latest', 'featured', 'bestseller', 'deals', 'deal_ends', 'days', 'hours', 'minutes', 'seconds', 'special_products', 'best_sellers', 'from_blog', 'read_more', 'brands_title', 'sale', 'new', 'out_of_stock', 'our_products', 'testimonials', 'view_more', 'filters', 'filter_by', 'price', 'price_min', 'price_max', 'brand', 'availability', 'in_stock', 'on_sale', 'rating', 'rating_up', 'apply', 'reset', 'clear_all', 'active_filters', 'remove_filter', 'showing', 'showing_one', 'sort_by', 'show', 'grid_view', 'list_view', 'no_match', 'no_match_help', 'no_filters', 'category_empty', 'subcategories', 'filter_open', 'search_label', 'search_placeholder', 'filter_title', 'to', 'show_sub', 'pre_order', 'color', 'size', 'discount', 'discount_up', 'quick_view', 'qv_loading', 'qv_failed', 'qv_retry', 'qv_wishlist_failed'] as $key) {
+		foreach (['skip', 'shop_by_category', 'categories', 'menu', 'close', 'home', 'special', 'products', 'blog', 'contact', 'compare', 'search', 'cart', 'items', 'all', 'my_account', 'quick_links', 'information', 'brands', 'address', 'call_us', 'email_us', 'follow', 'back_to_top', 'shop_now', 'prev', 'next', 'slide', 'shop_by_category_title', 'view_all', 'latest', 'featured', 'bestseller', 'deals', 'deal_ends', 'days', 'hours', 'minutes', 'seconds', 'special_products', 'best_sellers', 'from_blog', 'read_more', 'brands_title', 'sale', 'new', 'out_of_stock', 'our_products', 'testimonials', 'view_more', 'filters', 'filter_by', 'price', 'price_min', 'price_max', 'brand', 'availability', 'in_stock', 'on_sale', 'rating', 'rating_up', 'apply', 'reset', 'clear_all', 'active_filters', 'remove_filter', 'showing', 'showing_one', 'sort_by', 'show', 'grid_view', 'list_view', 'no_match', 'no_match_help', 'no_filters', 'category_empty', 'subcategories', 'filter_open', 'search_label', 'search_placeholder', 'filter_title', 'to', 'show_sub', 'pre_order', 'color', 'size', 'discount', 'discount_up', 'quick_view', 'qv_loading', 'qv_failed', 'qv_retry', 'qv_wishlist_failed', 'pd_zoom', 'qty_less', 'qty_more'] as $key) {
 			$args['bcf_text_' . $key] = $this->language->get('bcf_' . $key);
 		}
 	}
