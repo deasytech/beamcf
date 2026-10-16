@@ -1207,6 +1207,13 @@ body.bcf {
 .bcf-hero .carousel-item a {
   display: block;
 }
+/* The width/height attributes reserve space; without this the fixed height stretches the banner below 1920px. */
+.bcf-hero .carousel-item img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1920 / 600;
+  object-fit: cover;
+}
 .bcf-hero .carousel-control-prev, .bcf-hero .carousel-control-next {
   width: 60px;
   height: 164px;
