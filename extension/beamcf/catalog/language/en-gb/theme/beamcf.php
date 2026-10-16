@@ -101,3 +101,6 @@ $_['bcf_qv_details']         = 'View full details';
 $_['bcf_qv_wishlist_failed'] = 'The wish list could not be updated. Please try again.';
 $_['bcf_qty_less']           = 'Decrease quantity';
 $_['bcf_qty_more']           = 'Increase quantity';
+$_['bcf_pd_zoom']            = 'Click to enlarge';
+$_['bcf_pd_buy_now']         = 'Buy now';
+$_['bcf_pd_compare']         = 'Compare this product';
