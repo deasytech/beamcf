@@ -151,6 +151,7 @@ class Beamcf extends \Opencart\System\Engine\Controller {
 			$this->model_setting_event->deleteEventByCode('beamcf_catalog_total');
 			$this->model_setting_event->deleteEventByCode('beamcf_catalog_pagination');
 			$this->model_setting_event->deleteEventByCode('beamcf_admin_login');
+			$this->model_setting_event->deleteEventByCode('beamcf_product_seo');
 
 			$this->model_setting_event->addEvent([
 				'code'        => 'beamcf_theme',
@@ -197,6 +198,15 @@ class Beamcf extends \Opencart\System\Engine\Controller {
 				'status'      => true,
 				'sort_order'  => 1
 			]);
+
+			$this->model_setting_event->addEvent([
+				'code'        => 'beamcf_product_seo',
+				'description' => 'BeamCF theme: create an SEO keyword for new products saved without one.',
+				'trigger'     => 'admin/model/catalog/product.addProduct/after',
+				'action'      => 'extension/beamcf/event/seo.product',
+				'status'      => true,
+				'sort_order'  => 1
+			]);
 		}
 	}
 
@@ -213,6 +223,8 @@ class Beamcf extends \Opencart\System\Engine\Controller {
 			$this->model_setting_event->deleteEventByCode('beamcf_catalog_products');
 			$this->model_setting_event->deleteEventByCode('beamcf_catalog_total');
 			$this->model_setting_event->deleteEventByCode('beamcf_catalog_pagination');
+			$this->model_setting_event->deleteEventByCode('beamcf_admin_login');
+			$this->model_setting_event->deleteEventByCode('beamcf_product_seo');
 			$this->model_setting_event->deleteEventByCode('beamcf_admin_login');
 		}
 	}
