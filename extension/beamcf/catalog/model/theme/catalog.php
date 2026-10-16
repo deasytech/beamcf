@@ -15,6 +15,18 @@ namespace Opencart\Catalog\Model\Extension\Beamcf\Theme;
  */
 class Catalog extends \Opencart\Catalog\Model\Catalog\Product {
 	/**
+	 * Rows already loaded in this request, so the listing, its count and the facets share one load per data set.
+	 *
+	 * @var array<string, array<int, array<string, mixed>>>
+	 */
+	private array $rows = [];
+
+	/**
+	 * @var array<string, array<int, array<string, mixed>>>
+	 */
+	private array $filtered = [];
+
+	/**
 	 * Get Active
 	 *
 	 * Reads and sanitises the filter values from the request.
@@ -105,10 +117,20 @@ class Catalog extends \Opencart\Catalog\Model\Catalog\Product {
 	 * @return array<string, mixed>
 	 */
 	public function getFacets(array $data): array {
+		// The unsearched total tells an empty category from a search or filter that matches nothing.
+		$total = count($this->getRows($data));
+
+		// Facets describe the searched set, so their counts match what the shopper is looking at.
+		$active = $this->getActive();
+
+		if ($active['q'] !== '') {
+			$data['filter_search'] = $active['q'];
+		}
+
 		$rows = $this->getRows($data);
 
 		$facets = [
-			'total'    => count($rows),
+			'total'    => $total,
 			'price'    => null,
 			'brands'   => [],
 			'stock'    => 0,
@@ -221,7 +243,9 @@ class Catalog extends \Opencart\Catalog\Model\Catalog\Product {
 	protected function getRows(array $data): array {
 		unset($data['start'], $data['limit']);
 
-		return parent::getProducts($data);
+		$key = md5(serialize($data));
+
+		return $this->rows[$key] ??= parent::getProducts($data);
 	}
 
 	/**
@@ -230,8 +254,22 @@ class Catalog extends \Opencart\Catalog\Model\Catalog\Product {
 	 * @return array<int, array<string, mixed>>
 	 */
 	protected function filterRows(array $data): array {
+		unset($data['start'], $data['limit']);
+
 		$active = $this->getActive();
 
+		$key = md5(serialize([$data, $active]));
+
+		return $this->filtered[$key] ??= $this->applyFilters($data, $active);
+	}
+
+	/**
+	 * @param array<string, mixed> $data
+	 * @param array<string, mixed> $active
+	 *
+	 * @return array<int, array<string, mixed>>
+	 */
+	private function applyFilters(array $data, array $active): array {
 		// Name search inside the category uses the core search, so it matches the same way as the site search.
 		if ($active['q'] !== '') {
 			$data['filter_search'] = $active['q'];

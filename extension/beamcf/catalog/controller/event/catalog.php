@@ -68,11 +68,16 @@ class Catalog extends \Opencart\System\Engine\Controller {
 
 		$query = http_build_query(array_intersect_key($this->request->get, array_flip(self::PARAMS)));
 
-		// Insert before the {page} placeholder so the URL keeps its shape. OpenCart escapes ampersands in links.
+		// Insert before the {page} placeholder so the URL keeps its shape. Links normally carry escaped ampersands, but the raw form is handled too.
 		if ($query) {
-			$extra = '&amp;' . str_replace('&', '&amp;', $query);
+			$escaped = '&amp;' . str_replace('&', '&amp;', $query);
+			$raw = '&' . $query;
 
-			$args[0]['url'] = str_replace(['&amp;page={page}', '&amp;page=%7Bpage%7D'], [$extra . '&amp;page={page}', $extra . '&amp;page=%7Bpage%7D'], $args[0]['url']);
+			$args[0]['url'] = str_replace(
+				['&amp;page={page}', '&amp;page=%7Bpage%7D', '&page={page}', '&page=%7Bpage%7D'],
+				[$escaped . '&amp;page={page}', $escaped . '&amp;page=%7Bpage%7D', $raw . '&page={page}', $raw . '&page=%7Bpage%7D'],
+				$args[0]['url']
+			);
 		}
 	}
 
