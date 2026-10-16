@@ -71,6 +71,10 @@
 <button type="button" class="bcf-top" id="bcf-top" aria-label="{{ bcf_text_back_to_top }}" hidden><i class="fa-solid fa-chevron-up" aria-hidden="true"></i></button>
 </div>
 {{ cookie }}
+<dialog id="bcf-qv" class="bcf-qv" aria-label="{{ bcf_text_quick_view }}" data-cart="{{ bcf_cart_info }}" data-loading="{{ bcf_text_qv_loading }}" data-failed="{{ bcf_text_qv_failed }}" data-retry="{{ bcf_text_qv_retry }}" data-wishlist-failed="{{ bcf_text_qv_wishlist_failed }}">
+  <button type="button" class="bcf-qv-close" data-bcf-qv-close aria-label="{{ bcf_text_close }}"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+  <div class="bcf-qv-content" id="bcf-qv-content" aria-busy="false"></div>
+</dialog>
 <script src="{{ bootstrap }}" type="text/javascript"></script>
 {% for script in scripts %}
   <script src="{{ script.href }}" type="text/javascript"></script>

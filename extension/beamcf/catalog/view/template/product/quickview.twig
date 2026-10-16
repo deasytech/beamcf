@@ -1,0 +1,139 @@
+<div class="bcf-qv-body" data-bcf-qv-ready data-title="{{ name }}">
+  <div class="bcf-qv-media">
+    {% if images %}
+      <div class="bcf-qv-stage">
+        {% if discount_percent %}<span class="bcf-badge-tag bcf-badge-sale bcf-qv-badge">-{{ discount_percent }}%</span>{% endif %}
+        <img src="{{ images[0].main }}" alt="{{ name }}" class="bcf-qv-main" id="bcf-qv-main" width="{{ image_width }}" height="{{ image_height }}"/>
+        {% if images|length > 1 %}
+          <button type="button" class="bcf-qv-nav bcf-qv-prev" data-bcf-qv-step="-1" aria-label="{{ bcf_prev }}"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
+          <button type="button" class="bcf-qv-nav bcf-qv-next" data-bcf-qv-step="1" aria-label="{{ bcf_next }}"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
+        {% endif %}
+      </div>
+      {% if images|length > 1 %}
+        <ul class="bcf-qv-thumbs list-unstyled" aria-label="{{ name }}">
+          {% for image in images %}
+            <li><button type="button" data-bcf-qv-image="{{ image.main }}"{% if loop.first %} aria-current="true"{% endif %}><img src="{{ image.thumb }}" alt="{{ name }} ({{ loop.index }}/{{ images|length }})" width="80" height="80" loading="lazy"/></button></li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% else %}
+      <div class="bcf-qv-stage bcf-qv-noimage"><i class="fa-regular fa-image" aria-hidden="true"></i></div>
+    {% endif %}
+  </div>
+  <div class="bcf-qv-info">
+    <h2 class="bcf-qv-name">{{ name }}</h2>
+    {% if review_status and rating %}
+      <div class="bcf-rating bcf-qv-rating"><span class="visually-hidden">{{ rating }}/5</span>
+        {% for i in 1..5 %}
+          {% if rating < i %}
+            <span class="fa-stack" aria-hidden="true"><i class="fa-regular fa-star fa-stack-1x"></i></span>
+          {% else %}
+            <span class="fa-stack" aria-hidden="true"><i class="fa-solid fa-star fa-stack-1x"></i><i class="fa-regular fa-star fa-stack-1x"></i></span>
+          {% endif %}
+        {% endfor %}
+        <span class="bcf-qv-reviews">{{ text_reviews }}</span>
+      </div>
+    {% endif %}
+    <ul class="bcf-qv-meta list-unstyled">
+      {% if manufacturer %}<li><span>{{ text_manufacturer }}</span> {{ manufacturer }}</li>{% endif %}
+      {% if model %}<li><span>{{ text_model }}</span> {{ model }}</li>{% endif %}
+      {% for product_code in product_codes %}<li><span>{{ product_code.code }}:</span> {{ product_code.value }}</li>{% endfor %}
+      {% if reward %}<li><span>{{ text_reward }}</span> {{ reward }}</li>{% endif %}
+      <li><span>{{ text_stock }}</span> {{ stock }}</li>
+    </ul>
+    {% if price %}
+      <div class="bcf-price bcf-qv-price">
+        {% if not special %}
+          <span class="price-new">{{ price }}</span>
+        {% else %}
+          <span class="price-new">{{ special }}</span> <span class="price-old">{{ price }}</span>
+        {% endif %}
+        {% if tax %}<span class="price-tax">{{ text_tax }} {{ tax }}</span>{% endif %}
+      </div>
+      {% if discounts %}
+        <ul class="bcf-qv-discounts list-unstyled">
+          {% for discount in discounts %}<li>{{ discount.quantity }}{{ text_discount }}{{ discount.price }}</li>{% endfor %}
+        </ul>
+      {% endif %}
+    {% endif %}
+
+    <div id="bcf-qv-status" class="bcf-qv-status" role="status" aria-live="polite"></div>
+
+    <form id="bcf-qv-form" action="{{ cart_add }}" method="post" novalidate data-wishlist="{{ wishlist_add }}">
+      {% if options %}
+        {% for option in options %}
+          {% set oid = option.product_option_id %}
+          <div class="bcf-qv-field{% if option.required %} required{% endif %}">
+            {% if option.type == 'select' %}
+              <label for="bcf-qv-option-{{ oid }}" class="form-label">{{ option.name }}</label>
+              <select name="option[{{ oid }}]" id="bcf-qv-option-{{ oid }}" class="form-select"{% if option.required %} aria-required="true"{% endif %} aria-describedby="bcf-qv-error-option-{{ oid }}">
+                <option value="">{{ text_select }}</option>
+                {% for value in option.product_option_value %}
+                  <option value="{{ value.product_option_value_id }}">{{ value.name }}{% if value.price %} ({{ value.price_prefix }}{{ value.price }}){% endif %}</option>
+                {% endfor %}
+              </select>
+            {% elseif option.type == 'radio' or option.type == 'checkbox' %}
+              <fieldset id="bcf-qv-option-{{ oid }}" aria-describedby="bcf-qv-error-option-{{ oid }}">
+                <legend class="form-label">{{ option.name }}</legend>
+                {% for value in option.product_option_value %}
+                  <div class="form-check">
+                    <input type="{{ option.type }}" name="option[{{ oid }}]{% if option.type == 'checkbox' %}[]{% endif %}" value="{{ value.product_option_value_id }}" id="bcf-qv-value-{{ value.product_option_value_id }}" class="form-check-input"/>
+                    <label for="bcf-qv-value-{{ value.product_option_value_id }}" class="form-check-label">
+                      {% if value.image %}<img src="{{ value.image }}" alt="" class="img-thumbnail" width="50" height="50"/>{% endif %}
+                      {{ value.name }}{% if value.price %} ({{ value.price_prefix }}{{ value.price }}){% endif %}</label>
+                  </div>
+                {% endfor %}
+              </fieldset>
+            {% elseif option.type == 'text' %}
+              <label for="bcf-qv-option-{{ oid }}" class="form-label">{{ option.name }}</label>
+              <input type="text" name="option[{{ oid }}]" value="{{ option.value }}" placeholder="{{ option.name }}" id="bcf-qv-option-{{ oid }}" class="form-control" aria-describedby="bcf-qv-error-option-{{ oid }}"/>
+            {% elseif option.type == 'textarea' %}
+              <label for="bcf-qv-option-{{ oid }}" class="form-label">{{ option.name }}</label>
+              <textarea name="option[{{ oid }}]" rows="3" placeholder="{{ option.name }}" id="bcf-qv-option-{{ oid }}" class="form-control" aria-describedby="bcf-qv-error-option-{{ oid }}">{{ option.value }}</textarea>
+            {% elseif option.type == 'file' %}
+              <label for="bcf-qv-upload-{{ oid }}" class="form-label">{{ option.name }}</label>
+              <div id="bcf-qv-option-{{ oid }}">
+                <button type="button" id="bcf-qv-upload-{{ oid }}" class="btn btn-light" data-bcf-upload="{{ upload }}" data-target="bcf-qv-code-{{ oid }}" data-size-max="{{ config_file_max_size }}" data-size-error="{{ error_upload_size }}"><i class="fa-solid fa-upload" aria-hidden="true"></i> {{ button_upload }}</button>
+                <span class="bcf-qv-filename" id="bcf-qv-filename-{{ oid }}"></span>
+                <input type="hidden" name="option[{{ oid }}]" value="" id="bcf-qv-code-{{ oid }}"/>
+              </div>
+            {% elseif option.type == 'date' or option.type == 'time' or option.type == 'datetime' %}
+              <label for="bcf-qv-option-{{ oid }}" class="form-label">{{ option.name }}</label>
+              <input type="{{ option.type == 'datetime' ? 'datetime-local' : option.type }}" name="option[{{ oid }}]" value="{{ option.value }}" id="bcf-qv-option-{{ oid }}" class="form-control" aria-describedby="bcf-qv-error-option-{{ oid }}"/>
+            {% endif %}
+            <div id="bcf-qv-error-option-{{ oid }}" class="invalid-feedback"></div>
+          </div>
+        {% endfor %}
+      {% endif %}
+
+      {% if subscription_plans %}
+        <div class="bcf-qv-field required">
+          <label for="bcf-qv-subscription" class="form-label">{{ text_subscription }}</label>
+          <select name="subscription_plan_id" id="bcf-qv-subscription" class="form-select" aria-required="true" aria-describedby="bcf-qv-error-subscription bcf-qv-plan-text">
+            <option value="">{{ text_select }}</option>
+            {% for plan in subscription_plans %}
+              <option value="{{ plan.subscription_plan_id }}" data-description="{{ plan.description }}">{{ plan.name }}</option>
+            {% endfor %}
+          </select>
+          <div id="bcf-qv-plan-text" class="form-text"></div>
+          <div id="bcf-qv-error-subscription" class="invalid-feedback"></div>
+        </div>
+      {% endif %}
+
+      {% if minimum > 1 %}<p class="bcf-qv-min"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> {{ text_minimum }}</p>{% endif %}
+
+      <div class="bcf-qv-buy">
+        <div class="bcf-qv-qty">
+          <button type="button" data-bcf-qv-qty="-1" aria-label="{{ bcf_qty_less }}">&minus;</button>
+          <input type="text" inputmode="numeric" name="quantity" value="{{ minimum }}" id="bcf-qv-quantity" data-min="{{ minimum }}" aria-label="{{ entry_qty }}" autocomplete="off"/>
+          <button type="button" data-bcf-qv-qty="1" aria-label="{{ bcf_qty_more }}">+</button>
+        </div>
+        <button type="submit" class="bcf-qv-add" id="bcf-qv-add"><i class="fa-solid fa-shopping-cart" aria-hidden="true"></i> <span>{{ button_cart }}</span></button>
+        <button type="button" class="bcf-qv-wish" id="bcf-qv-wish" aria-label="{{ button_wishlist }}" title="{{ button_wishlist }}"><i class="fa-solid fa-heart" aria-hidden="true"></i></button>
+      </div>
+      <div id="bcf-qv-error-quantity" class="invalid-feedback"></div>
+      <input type="hidden" name="product_id" value="{{ product_id }}"/>
+    </form>
+    <a href="{{ href }}" class="bcf-qv-full">{{ bcf_qv_details }} <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+  </div>
+</div>

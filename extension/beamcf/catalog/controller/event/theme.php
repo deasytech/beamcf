@@ -177,6 +177,7 @@ class Theme extends \Opencart\System\Engine\Controller {
 
 		$args['bcf_compare_url'] = $this->url->link('product/compare', $language);
 		$args['bcf_script'] = 'extension/beamcf/catalog/view/javascript/beamcf.js';
+		$args['bcf_cart_info'] = $this->url->link('common/cart.info', 'language=' . $this->config->get('config_language'));
 		$args['bcf_logo'] = $this->logo() ?: (is_file(DIR_IMAGE . $this->config->get('config_logo')) ? $this->config->get('config_url') . 'image/' . $this->config->get('config_logo') : '');
 		$args['bcf_name'] = $this->config->get('config_name');
 		$args['bcf_home_url'] = $this->url->link(self::ROUTE_HOME, $language);
@@ -402,6 +403,7 @@ class Theme extends \Opencart\System\Engine\Controller {
 		}
 
 		$args['bcf_badges'] = $badges;
+		$args['bcf_quickview'] = $this->url->link('extension/beamcf/product/quickview', 'language=' . $this->config->get('config_language') . '&product_id=' . (int)($args['product_id'] ?? 0));
 	}
 
 	/**
@@ -423,7 +425,7 @@ class Theme extends \Opencart\System\Engine\Controller {
 	 * @return void
 	 */
 	protected function text(array &$args): void {
-		foreach (['skip', 'shop_by_category', 'categories', 'menu', 'close', 'home', 'special', 'products', 'blog', 'contact', 'compare', 'search', 'cart', 'items', 'all', 'my_account', 'quick_links', 'information', 'brands', 'address', 'call_us', 'email_us', 'follow', 'back_to_top', 'shop_now', 'prev', 'next', 'slide', 'shop_by_category_title', 'view_all', 'latest', 'featured', 'bestseller', 'deals', 'deal_ends', 'days', 'hours', 'minutes', 'seconds', 'special_products', 'best_sellers', 'from_blog', 'read_more', 'brands_title', 'sale', 'new', 'out_of_stock', 'our_products', 'testimonials', 'view_more', 'filters', 'filter_by', 'price', 'price_min', 'price_max', 'brand', 'availability', 'in_stock', 'on_sale', 'rating', 'rating_up', 'apply', 'reset', 'clear_all', 'active_filters', 'remove_filter', 'showing', 'showing_one', 'sort_by', 'show', 'grid_view', 'list_view', 'no_match', 'no_match_help', 'no_filters', 'category_empty', 'subcategories', 'filter_open', 'search_label', 'search_placeholder', 'filter_title', 'to', 'show_sub', 'pre_order', 'color', 'size', 'discount', 'discount_up'] as $key) {
+		foreach (['skip', 'shop_by_category', 'categories', 'menu', 'close', 'home', 'special', 'products', 'blog', 'contact', 'compare', 'search', 'cart', 'items', 'all', 'my_account', 'quick_links', 'information', 'brands', 'address', 'call_us', 'email_us', 'follow', 'back_to_top', 'shop_now', 'prev', 'next', 'slide', 'shop_by_category_title', 'view_all', 'latest', 'featured', 'bestseller', 'deals', 'deal_ends', 'days', 'hours', 'minutes', 'seconds', 'special_products', 'best_sellers', 'from_blog', 'read_more', 'brands_title', 'sale', 'new', 'out_of_stock', 'our_products', 'testimonials', 'view_more', 'filters', 'filter_by', 'price', 'price_min', 'price_max', 'brand', 'availability', 'in_stock', 'on_sale', 'rating', 'rating_up', 'apply', 'reset', 'clear_all', 'active_filters', 'remove_filter', 'showing', 'showing_one', 'sort_by', 'show', 'grid_view', 'list_view', 'no_match', 'no_match_help', 'no_filters', 'category_empty', 'subcategories', 'filter_open', 'search_label', 'search_placeholder', 'filter_title', 'to', 'show_sub', 'pre_order', 'color', 'size', 'discount', 'discount_up', 'quick_view', 'qv_loading', 'qv_failed', 'qv_retry', 'qv_wishlist_failed'] as $key) {
 			$args['bcf_text_' . $key] = $this->language->get('bcf_' . $key);
 		}
 	}

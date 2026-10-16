@@ -121,3 +121,365 @@
     // Ignore: default grid view.
   }
 })();
+
+/* Quick view: loads the server-rendered fragment from extension/beamcf/product/quickview into a native <dialog>
+   (focus trap, Escape and inert background come from showModal). Adding to the cart posts to the core
+   checkout/cart.add route; no prices or totals are calculated here. */
+(function () {
+  var dialog = document.getElementById('bcf-qv');
+  var content = document.getElementById('bcf-qv-content');
+
+  if (!dialog || !content || typeof dialog.showModal !== 'function') {
+    // Without <dialog> support the card's quick view button does nothing; the product link still works.
+    document.querySelectorAll('[data-bcf-quickview]').forEach(function (button) { button.hidden = true; });
+    return;
+  }
+
+  var trigger = null;
+  var request = 0;
+  var pending = false;
+
+  var text = function (name) { return dialog.getAttribute('data-' + name) || ''; };
+
+  var message = function (kind, html) {
+    var status = document.getElementById('bcf-qv-status');
+
+    if (!status) { return; }
+
+    status.innerHTML = '';
+
+    if (html) {
+      var note = document.createElement('div');
+      note.className = 'alert alert-' + kind;
+      note.innerHTML = html;
+      status.appendChild(note);
+      status.scrollIntoView({block: 'nearest'});
+    }
+  };
+
+  var showState = function (html, busy) {
+    content.setAttribute('aria-busy', busy ? 'true' : 'false');
+    content.innerHTML = html;
+  };
+
+  var failure = function (url) {
+    showState('<div class="bcf-qv-body bcf-qv-empty"><p role="alert"></p><button type="button" class="bcf-qv-retry"></button></div>', false);
+
+    content.querySelector('p').textContent = text('failed');
+
+    var retry = content.querySelector('.bcf-qv-retry');
+    retry.textContent = text('retry');
+    retry.addEventListener('click', function () { load(url); });
+    retry.focus();
+  };
+
+  var ready = function () {
+    var body = content.querySelector('[data-bcf-qv-ready]');
+
+    if (!body) { return; }
+
+    var name = body.querySelector('.bcf-qv-name');
+
+    name.id = 'bcf-qv-title';
+    name.tabIndex = -1;
+    dialog.setAttribute('aria-labelledby', 'bcf-qv-title');
+    dialog.removeAttribute('aria-label');
+    name.focus({preventScroll: true});
+  };
+
+  var load = function (url) {
+    var id = ++request;
+
+    showState('<div class="bcf-qv-body bcf-qv-empty"><p role="status"></p></div>', true);
+    content.querySelector('p').textContent = text('loading');
+
+    fetch(url, {credentials: 'same-origin', headers: {'X-Requested-With': 'XMLHttpRequest'}})
+      .then(function (response) {
+        return response.text().then(function (html) { return {ok: response.ok, html: html}; });
+      })
+      .then(function (result) {
+        if (id !== request) { return; }
+
+        // A 404 carries a readable "not available" fragment; any other failure is a retryable error.
+        if (!result.ok && result.html.indexOf('data-bcf-qv-error') === -1) {
+          failure(url);
+          return;
+        }
+
+        showState(result.html, false);
+        ready();
+      })
+      .catch(function () {
+        if (id === request) { failure(url); }
+      });
+  };
+
+  var open = function (button) {
+    trigger = button;
+    pending = false;
+    dialog.removeAttribute('aria-labelledby');
+    dialog.setAttribute('aria-label', button.getAttribute('title') || '');
+    document.documentElement.classList.add('bcf-qv-open');
+
+    if (!dialog.open) { dialog.showModal(); }
+
+    load(button.getAttribute('data-bcf-quickview'));
+  };
+
+  dialog.addEventListener('close', function () {
+    request++;
+    document.documentElement.classList.remove('bcf-qv-open');
+    content.innerHTML = '';
+
+    if (trigger && document.contains(trigger)) { trigger.focus(); }
+
+    trigger = null;
+  });
+
+  var cartRefresh = function () {
+    var url = text('cart').replace(/&amp;/g, '&');
+
+    if (window.jQuery) {
+      window.jQuery('#cart').load(url);
+    }
+  };
+
+  var setImage = function (index) {
+    var thumbs = content.querySelectorAll('[data-bcf-qv-image]');
+    var main = document.getElementById('bcf-qv-main');
+
+    if (!thumbs.length || !main) { return; }
+
+    index = (index + thumbs.length) % thumbs.length;
+
+    thumbs.forEach(function (thumb, i) {
+      if (i === index) {
+        thumb.setAttribute('aria-current', 'true');
+        main.src = thumb.getAttribute('data-bcf-qv-image');
+      } else {
+        thumb.removeAttribute('aria-current');
+      }
+    });
+  };
+
+  var clearErrors = function (form) {
+    form.querySelectorAll('.is-invalid').forEach(function (node) {
+      node.classList.remove('is-invalid');
+      node.removeAttribute('aria-invalid');
+    });
+    form.querySelectorAll('.invalid-feedback').forEach(function (node) {
+      node.classList.remove('d-block');
+      node.textContent = '';
+    });
+    message('', '');
+  };
+
+  var showErrors = function (form, errors) {
+    var first = null;
+
+    Object.keys(errors).forEach(function (key) {
+      if (key === 'warning') {
+        message('danger', errors[key]);
+        return;
+      }
+
+      var slug = key.replace(/_/g, '-');
+      var note = document.getElementById('bcf-qv-error-' + slug);
+      var field = document.getElementById('bcf-qv-' + slug);
+
+      if (key === 'subscription') { field = document.getElementById('bcf-qv-subscription'); }
+
+      if (note) {
+        note.innerHTML = errors[key];
+        note.classList.add('d-block');
+      }
+
+      if (field) {
+        field.classList.add('is-invalid');
+        field.setAttribute('aria-invalid', 'true');
+        first = first || field;
+      }
+    });
+
+    if (first) {
+      var focusable = first.matches('input, select, textarea, button') ? first : first.querySelector('input, select, textarea, button');
+
+      (focusable || first).focus();
+    }
+  };
+
+  var submit = function (form) {
+    if (pending) { return; }
+
+    var button = document.getElementById('bcf-qv-add');
+
+    // A response that arrives after the dialog was closed or reopened belongs to a dialog that no longer exists.
+    var id = request;
+    var current = function () { return id === request; };
+
+    pending = true;
+    button.disabled = true;
+    button.setAttribute('aria-busy', 'true');
+    clearErrors(form);
+
+    fetch(form.action, {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: {'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest'},
+      body: new URLSearchParams(new FormData(form)).toString()
+    })
+      .then(function (response) { return response.json(); })
+      .then(function (json) {
+        // The cart was changed on the server either way, so the header is always refreshed.
+        if (json.success) { cartRefresh(); }
+
+        if (!current()) { return; }
+
+        if (typeof json.error === 'string') {
+          message('danger', json.error);
+        } else if (json.error) {
+          showErrors(form, json.error);
+        }
+
+        if (json.success) {
+          message('success', json.success);
+        }
+      })
+      .catch(function () { if (current()) { message('danger', text('failed')); } })
+      .then(function () {
+        if (!current()) { return; }
+
+        pending = false;
+        button.disabled = false;
+        button.removeAttribute('aria-busy');
+      });
+  };
+
+  var upload = function (button) {
+    var input = document.createElement('input');
+
+    input.type = 'file';
+    input.addEventListener('change', function () {
+      var file = input.files[0];
+
+      if (!file) { return; }
+
+      if (file.size > parseInt(button.getAttribute('data-size-max'), 10)) {
+        message('danger', button.getAttribute('data-size-error'));
+        return;
+      }
+
+      var body = new FormData();
+      body.append('file', file);
+      button.disabled = true;
+
+      fetch(button.getAttribute('data-bcf-upload').replace(/&amp;/g, '&'), {method: 'POST', credentials: 'same-origin', body: body})
+        .then(function (response) { return response.json(); })
+        .then(function (json) {
+          if (json.error) {
+            message('danger', json.error);
+          }
+
+          if (json.code) {
+            document.getElementById(button.getAttribute('data-target')).value = json.code;
+            button.nextElementSibling.textContent = file.name;
+            message('success', json.success || '');
+          }
+        })
+        .catch(function () { message('danger', text('failed')); })
+        .then(function () { button.disabled = false; });
+    });
+    input.click();
+  };
+
+  var wishlist = function (form) {
+    var body = new URLSearchParams({product_id: form.elements.product_id.value}).toString();
+
+    fetch(form.getAttribute('data-wishlist').replace(/&amp;/g, '&'), {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: {'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest'},
+      body: body
+    })
+      .then(function (response) { return response.json(); })
+      .then(function (json) {
+        if (json.success) {
+          message('success', json.success);
+        } else if (json.error) {
+          message('danger', typeof json.error === 'string' ? json.error : (json.error.warning || text('wishlist-failed')));
+        }
+      })
+      .catch(function () { message('danger', text('wishlist-failed')); });
+  };
+
+  document.addEventListener('click', function (event) {
+    var button = event.target.closest('[data-bcf-quickview]');
+
+    if (button) {
+      event.preventDefault();
+      open(button);
+    }
+  });
+
+  dialog.addEventListener('click', function (event) {
+    var target = event.target;
+
+    if (target === dialog || target.closest('[data-bcf-qv-close]')) {
+      dialog.close();
+      return;
+    }
+
+    var thumb = target.closest('[data-bcf-qv-image]');
+
+    if (thumb) {
+      setImage(Array.prototype.indexOf.call(content.querySelectorAll('[data-bcf-qv-image]'), thumb));
+      return;
+    }
+
+    var step = target.closest('[data-bcf-qv-step]');
+
+    if (step) {
+      var current = content.querySelector('[data-bcf-qv-image][aria-current]');
+      var all = Array.prototype.slice.call(content.querySelectorAll('[data-bcf-qv-image]'));
+
+      setImage(all.indexOf(current) + parseInt(step.getAttribute('data-bcf-qv-step'), 10));
+      return;
+    }
+
+    var qty = target.closest('[data-bcf-qv-qty]');
+
+    if (qty) {
+      var input = document.getElementById('bcf-qv-quantity');
+      var min = parseInt(input.getAttribute('data-min'), 10) || 1;
+
+      input.value = Math.max(min, (parseInt(input.value, 10) || min) + parseInt(qty.getAttribute('data-bcf-qv-qty'), 10));
+      return;
+    }
+
+    var file = target.closest('[data-bcf-upload]');
+
+    if (file) {
+      upload(file);
+      return;
+    }
+
+    if (target.closest('#bcf-qv-wish')) {
+      wishlist(document.getElementById('bcf-qv-form'));
+    }
+  });
+
+  dialog.addEventListener('change', function (event) {
+    if (event.target.id === 'bcf-qv-subscription') {
+      var option = event.target.options[event.target.selectedIndex];
+
+      document.getElementById('bcf-qv-plan-text').textContent = option ? (option.getAttribute('data-description') || '') : '';
+    }
+  });
+
+  dialog.addEventListener('submit', function (event) {
+    if (event.target.id === 'bcf-qv-form') {
+      event.preventDefault();
+      submit(event.target);
+    }
+  });
+})();
