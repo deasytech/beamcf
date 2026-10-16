@@ -166,6 +166,7 @@ class Theme extends \Opencart\System\Engine\Controller {
 		}
 
 		// Store details come from General Settings. OpenCart stores admin input already HTML-encoded, like the default templates these are printed as-is.
+		$args['bcf_store_name'] = $this->config->get('config_name');
 		$args['bcf_address'] = nl2br(trim((string)$this->config->get('config_address')));
 		$args['bcf_telephone'] = trim((string)$this->config->get('config_telephone'));
 		$args['bcf_email'] = trim((string)$this->config->get('config_email'));
