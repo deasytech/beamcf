@@ -12,26 +12,29 @@
       {{ content_top }}
       <div class="bcf-pd-main">
         <div class="bcf-pd-media">
-          {% if thumb %}
-            <div class="bcf-pd-stage">
+          {# One list for the stage and the thumbnails: the main image first (when set), then the gallery images. #}
+          {% set items = [] %}
+          {% if thumb %}{% set items = items|merge([{main: thumb, popup: popup, small: bcf_first_small}]) %}{% endif %}
+          {% for image in images %}{% set items = items|merge([{main: image.bcf_main, popup: image.popup, small: image.thumb}]) %}{% endfor %}
+          {% if items %}
+            <div class="bcf-pd-stage bcf-qv-stage">
               {% if bcf_discount_percent %}<span class="bcf-badge-tag bcf-badge-sale bcf-pd-badge">-{{ bcf_discount_percent }}%</span>{% endif %}
               <button type="submit" form="form-wishlist" formaction="{{ wishlist_add }}" class="bcf-pd-heart" aria-label="{{ button_wishlist }}" title="{{ button_wishlist }}"><i class="fa-regular fa-heart" aria-hidden="true"></i></button>
-              <a href="{{ popup }}" class="bcf-pd-zoom" data-bcf-zoom="{{ popup }}" aria-haspopup="dialog" title="{{ bcf_text_pd_zoom }}"><img src="{{ thumb }}" alt="{{ heading_title }}" id="bcf-pd-main" width="{{ bcf_thumb_width }}" height="{{ bcf_thumb_height }}" fetchpriority="high"/></a>
-              {% if images %}
+              <a href="{{ items[0].popup }}" class="bcf-pd-zoom" data-bcf-zoom="{{ items[0].popup }}" aria-haspopup="dialog" title="{{ bcf_text_pd_zoom }}"><img src="{{ items[0].main }}" alt="{{ heading_title }}" id="bcf-pd-main" width="{{ bcf_thumb_width }}" height="{{ bcf_thumb_height }}" fetchpriority="high"/></a>
+              {% if items|length > 1 %}
                 <button type="button" class="bcf-qv-nav bcf-qv-prev" data-bcf-pd-step="-1" aria-label="{{ bcf_text_prev }}"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
                 <button type="button" class="bcf-qv-nav bcf-qv-next" data-bcf-pd-step="1" aria-label="{{ bcf_text_next }}"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
               {% endif %}
             </div>
-            {% if images %}
+            {% if items|length > 1 %}
               <ul class="bcf-qv-thumbs list-unstyled" aria-label="{{ heading_title }}">
-                <li><button type="button" data-bcf-pd-image="{{ thumb }}" data-popup="{{ popup }}" aria-current="true"><img src="{{ bcf_first_small }}" alt="{{ heading_title }} (1/{{ images|length + 1 }})" width="80" height="80"/></button></li>
-                {% for image in images %}
-                  <li><button type="button" data-bcf-pd-image="{{ image.bcf_main }}" data-popup="{{ image.popup }}"><img src="{{ image.thumb }}" alt="{{ heading_title }} ({{ loop.index + 1 }}/{{ images|length + 1 }})" width="80" height="80" loading="lazy"/></button></li>
+                {% for item in items %}
+                  <li><button type="button" data-bcf-pd-image="{{ item.main }}" data-popup="{{ item.popup }}"{% if loop.first %} aria-current="true"{% endif %}><img src="{{ item.small }}" alt="{{ heading_title }} ({{ loop.index }}/{{ items|length }})" width="80" height="80"{% if not loop.first %} loading="lazy"{% endif %}/></button></li>
                 {% endfor %}
               </ul>
             {% endif %}
           {% else %}
-            <div class="bcf-pd-stage bcf-qv-noimage"><i class="fa-regular fa-image" aria-hidden="true"></i></div>
+            <div class="bcf-pd-stage bcf-qv-stage bcf-qv-noimage"><i class="fa-regular fa-image" aria-hidden="true"></i></div>
           {% endif %}
         </div>
 
