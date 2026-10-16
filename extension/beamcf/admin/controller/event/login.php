@@ -29,7 +29,7 @@ class Login extends \Opencart\System\Engine\Controller {
         $alt = htmlspecialchars((string)$this->config->get('config_name'), ENT_QUOTES, 'UTF-8');
 
         // The top-left OpenCart logo in the header bar is swapped for the company logo.
-        $output = preg_replace('#<img src="view/image/logo\.png" alt="OpenCart" title="OpenCart"/>#', '<img src="' . $src . '" alt="' . $alt . '" style="max-height: 40px; width: auto;"/>', $output, 1);
+        $output = preg_replace('#<img\s[^>]*src="view/image/logo\.png"[^>]*>#', '<img src="' . $src . '" alt="' . $alt . '" style="max-height: 40px; width: auto;"/>', $output, 1);
 
         // And the same logo is shown above the login box.
         $marker = '<div class="col-sm-10 col-md-8 col-lg-5">';
