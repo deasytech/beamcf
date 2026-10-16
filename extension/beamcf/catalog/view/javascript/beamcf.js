@@ -483,3 +483,25 @@
     }
   });
 })();
+
+/* Cart drawer: the header cart fragment (#cart) is reloaded after every cart change, so the drawer copies the
+   server-rendered panel from it on open and again whenever #cart is replaced while the drawer is open. */
+(function () {
+  var drawer = document.getElementById('bcf-cart-drawer');
+  var cart = document.getElementById('cart');
+  var body = document.getElementById('bcf-cart-body');
+
+  if (!drawer || !cart || !body) { return; }
+
+  var fill = function () {
+    var panel = cart.querySelector('template.bcf-cart-panel');
+
+    body.innerHTML = panel ? panel.innerHTML : '';
+  };
+
+  drawer.addEventListener('show.bs.offcanvas', fill);
+
+  new MutationObserver(function () {
+    if (drawer.classList.contains('show')) { fill(); }
+  }).observe(cart, {childList: true});
+})();
