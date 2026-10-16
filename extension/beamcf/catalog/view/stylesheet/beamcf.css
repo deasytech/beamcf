@@ -3225,3 +3225,6 @@ html.bcf-qv-open {
   .bcf-form-actions .text-end { text-align: left !important; }
   .bcf-form-actions .bcf-btn-checkout { margin-top: var(--bcf-space-3); }
 }
+
+.bcf-form-actions .bcf-btn-checkout { background: var(--bcf-accent); color: var(--bcf-on-accent) !important; }
+.bcf-form-actions .bcf-btn-checkout:hover { background: var(--bcf-accent-hover); }
