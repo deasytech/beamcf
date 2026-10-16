@@ -65,6 +65,9 @@ class Theme extends \Opencart\System\Engine\Controller {
 			case self::ROUTE_PRODUCT:
 				$this->product($args);
 				break;
+			case 'information/contact':
+				$args['bcf_email'] = trim((string)$this->config->get('config_email'));
+				break;
 		}
 
 		$this->text($args);
@@ -105,7 +108,7 @@ class Theme extends \Opencart\System\Engine\Controller {
 			$args['logo'] = $logo;
 		}
 
-		$args['bcf_stylesheet'] = 'extension/beamcf/catalog/view/stylesheet/beamcf.css';
+		$args['bcf_stylesheet'] = 'extension/beamcf/catalog/view/stylesheet/beamcf.css?v=' . (int)@filemtime(DIR_EXTENSION . 'beamcf/catalog/view/stylesheet/beamcf.css');
 	}
 
 	/**
@@ -163,6 +166,7 @@ class Theme extends \Opencart\System\Engine\Controller {
 		}
 
 		// Store details come from General Settings. OpenCart stores admin input already HTML-encoded, like the default templates these are printed as-is.
+		$args['bcf_store_name'] = $this->config->get('config_name');
 		$args['bcf_address'] = nl2br(trim((string)$this->config->get('config_address')));
 		$args['bcf_telephone'] = trim((string)$this->config->get('config_telephone'));
 		$args['bcf_email'] = trim((string)$this->config->get('config_email'));
@@ -180,7 +184,7 @@ class Theme extends \Opencart\System\Engine\Controller {
 		}
 
 		$args['bcf_compare_url'] = $this->url->link('product/compare', $language);
-		$args['bcf_script'] = 'extension/beamcf/catalog/view/javascript/beamcf.js';
+		$args['bcf_script'] = 'extension/beamcf/catalog/view/javascript/beamcf.js?v=' . (int)@filemtime(DIR_EXTENSION . 'beamcf/catalog/view/javascript/beamcf.js');
 		$args['bcf_cart_info'] = $this->url->link('common/cart.info', 'language=' . $this->config->get('config_language'));
 		$args['bcf_logo'] = $this->logo() ?: (is_file(DIR_IMAGE . $this->config->get('config_logo')) ? $this->config->get('config_url') . 'image/' . $this->config->get('config_logo') : '');
 		$args['bcf_name'] = $this->config->get('config_name');

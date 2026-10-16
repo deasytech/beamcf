@@ -53,19 +53,9 @@
         {% endif %}
       </div>
     </div>
-    {% if bcf_manufacturers %}
-      <div class="bcf-brands">
-        <strong>{{ bcf_text_brands }}:</strong>
-        <ul class="list-inline">
-          {% for brand in bcf_manufacturers %}
-            <li class="list-inline-item"><a href="{{ brand.href }}">{{ brand.name }}</a></li>
-          {% endfor %}
-        </ul>
-      </div>
-    {% endif %}
   </div>
   <div class="bcf-copyright">
-    <div class="container"><p>{{ powered }}</p></div>
+    <div class="container"><p>{{ bcf_store_name }} &copy; {{ "now"|date("Y") }}<br/>Website by <a href="https://deasytech.com.ng" target="_blank" rel="noopener">Deasytech</a></p></div>
   </div>
 </footer>
 <button type="button" class="bcf-top" id="bcf-top" aria-label="{{ bcf_text_back_to_top }}" hidden><i class="fa-solid fa-chevron-up" aria-hidden="true"></i></button>
@@ -77,7 +67,7 @@
 </dialog>
 <div class="offcanvas offcanvas-end bcf-cart-drawer" id="bcf-cart-drawer" tabindex="-1" aria-labelledby="bcf-cart-title">
   <div class="offcanvas-header">
-    <h2 class="offcanvas-title" id="bcf-cart-title">{{ bcf_text_cart }}</h2>
+    <h2 class="offcanvas-title h4" id="bcf-cart-title">{{ bcf_text_cart }}</h2>
     <button type="button" class="bcf-cart-close" data-bs-dismiss="offcanvas" aria-label="{{ bcf_text_close }}"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
   </div>
   <div class="offcanvas-body" id="bcf-cart-body"></div>

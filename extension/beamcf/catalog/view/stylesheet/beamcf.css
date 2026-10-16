@@ -933,6 +933,7 @@ body.bcf {
 }
 .bcf .product-thumb .bcf-card-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--bcf-space-2);
   margin: 0;
   padding: 0;
@@ -1214,6 +1215,8 @@ body.bcf {
   aspect-ratio: 1920 / 600;
   object-fit: cover;
 }
+.bcf-hero .carousel-control-prev { left: 0; }
+.bcf-hero .carousel-control-next { right: 0; }
 .bcf-hero .carousel-control-prev, .bcf-hero .carousel-control-next {
   width: 60px;
   height: 164px;
@@ -3153,3 +3156,86 @@ html.bcf-qv-open {
   .bcf-cart-buttons { flex-direction: column-reverse; }
   .bcf-btn-checkout, .bcf-btn-continue { width: 100%; }
 }
+
+/* ---------- Phase 7: touch targets and small-screen fixes ---------- */
+@media (pointer: coarse), (max-width: 767.98px) {
+  .bcf-topbar-toggle { min-height: 44px; min-width: 44px; display: inline-flex; align-items: center; justify-content: center; }
+  .bcf-category-toggle { min-height: 44px; min-width: 44px; }
+  .bcf .btn-close { width: 44px; height: 44px; background-position: center; }
+  .bcf-footer a, .bcf-drawer-link, .bcf-breadcrumb a, .breadcrumb a { display: inline-block; padding-block: 0.7rem; }
+  .bcf-footer li { margin: 0; }
+  .bcf-pd .bcf-qv-qty button, .bcf-qv-qty button { min-width: 44px; min-height: 44px; }
+  .bcf-pd .bcf-qv-qty input, .bcf-qv-qty input { min-height: 44px; }
+  .bcf-sidebar input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), .bcf-toolbar select { min-height: 44px; }
+  .bcf-compare-link, .bcf-pd-compare { display: inline-flex; align-items: center; min-height: 44px; }
+}
+.bcf-logo a { display: inline-block; }
+/* 16px controls stop iOS Safari zooming the page on focus. */
+@media (max-width: 767.98px) {
+  .bcf input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), .bcf select, .bcf textarea { font-size: 16px; }
+}
+
+/* ---------- Contact page: info cards, form beside a store photo, full-width map ---------- */
+.bcf-contact-cards { background: var(--bcf-bg-alt); padding: var(--bcf-space-5) 0; }
+.bcf-contact-cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--bcf-space-4); }
+.bcf-contact-card { background: var(--bcf-white); padding: var(--bcf-space-5); }
+.bcf-contact-card i { font-size: 2rem; color: var(--bcf-accent); }
+.bcf-contact-card h2 { font-size: 1.5rem; font-weight: 800; margin: var(--bcf-space-3) 0; }
+.bcf-contact-card p { margin: 0 0 var(--bcf-space-2); }
+.bcf-contact-card a { color: inherit; text-decoration: none; overflow-wrap: anywhere; }
+.bcf-contact-card a:hover { text-decoration: underline; }
+.bcf-contact-main { padding: 0; }
+.bcf-contact-main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--bcf-space-5); align-items: stretch; }
+.bcf-contact-main-grid.bcf-contact-noimage { grid-template-columns: minmax(0, 720px); justify-content: center; }
+.bcf-contact-form { padding: var(--bcf-space-5) 0; }
+.bcf-contact-form h1 { font-size: 2.25rem; font-weight: 800; margin-bottom: var(--bcf-space-4); }
+.bcf-contact-comment { margin-bottom: var(--bcf-space-4); }
+.bcf-contact-form .form-control { background: var(--bcf-bg-alt); border: 1px solid var(--bcf-border); border-radius: 0; padding: 1rem 1.25rem; min-height: 52px; }
+.bcf-contact-form textarea.form-control { min-height: 160px; }
+.bcf-contact-submit { display: inline-block; border: 0; background: var(--bcf-accent); color: var(--bcf-on-accent); font-weight: 800; text-transform: uppercase; padding: 1rem 2rem; min-height: 48px; text-decoration: none; cursor: pointer; }
+.bcf-contact-submit:hover { filter: brightness(0.95); color: var(--bcf-on-accent); }
+.bcf-contact-photo { min-height: 260px; }
+.bcf-contact-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.bcf-contact-map { line-height: 0; }
+.bcf-contact-map iframe { width: 100%; height: 360px; border: 0; }
+.bcf-contact-locations { padding: var(--bcf-space-5) 0; }
+.bcf-contact-locations h2 { font-size: 1.5rem; margin-bottom: var(--bcf-space-3); }
+@media (max-width: 991.98px) {
+  .bcf-contact-main-grid { grid-template-columns: 1fr; }
+  .bcf-contact-photo { min-height: 0; aspect-ratio: 4 / 3; }
+  .bcf-contact-form h1 { font-size: 1.75rem; }
+}
+
+/* ---------- Account forms (returns): same side-label card style as checkout ---------- */
+.bcf-form-page { --bcf-cart-btn: var(--bcf-accent); --bcf-cart-btn-hover: var(--bcf-accent-hover); padding-bottom: var(--bcf-space-5); }
+.bcf-form-intro { max-width: 70ch; color: var(--bcf-text-muted); margin-bottom: var(--bcf-space-4); }
+.bcf-form-card { background: var(--bcf-white); border: 1px solid var(--bcf-border); padding: var(--bcf-space-5); }
+.bcf-form-card fieldset { margin-bottom: var(--bcf-space-4); }
+.bcf-form-card legend { font-size: 1.5rem; font-weight: 700; margin: 0 0 var(--bcf-space-3); padding: 0 0 var(--bcf-space-2); border-bottom: 1px solid var(--bcf-border); float: none; width: 100%; }
+.bcf-form-card .col-form-label { font-weight: 600; }
+.bcf-form-card .required > .col-form-label::before { content: "* "; color: var(--bcf-danger, #c0392b); }
+.bcf-form-card .form-control, .bcf-form-card .form-select { background: var(--bcf-bg-alt); border-radius: var(--bcf-radius); min-height: 44px; }
+.bcf-form-card .form-check-input { width: 1.15em; height: 1.15em; border-color: var(--bcf-black); }
+.bcf-form-card .form-check-input:checked { background-color: var(--bcf-black); border-color: var(--bcf-black); }
+.bcf-form-card .form-check { min-height: 32px; }
+.bcf-form-card :focus-visible { outline: 2px solid var(--bcf-black); outline-offset: 2px; }
+.bcf-form-actions .bcf-btn-checkout, .bcf-form-actions .bcf-btn-continue { cursor: pointer; }
+@media (max-width: 575.98px) {
+  .bcf-form-card { padding: var(--bcf-space-3); }
+  .bcf-form-actions .bcf-btn-checkout { margin-top: var(--bcf-space-3); }
+}
+
+
+/* ---------- Login: sign-in and register cards ---------- */
+.bcf-login-card h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: var(--bcf-space-3); }
+.bcf-login-card label { font-weight: 600; }
+.bcf-login-card a:not([class]) { color: var(--bcf-text); text-decoration: underline; }
+.bcf .bcf-btn-solid, .bcf .bcf-btn-outline-dark {
+  display: inline-flex; align-items: center; justify-content: center; min-height: 52px; padding: 0 var(--bcf-space-5);
+  border: 2px solid #000; border-radius: var(--bcf-radius); font-weight: 700; text-transform: uppercase; text-decoration: none; cursor: pointer;
+}
+.bcf .bcf-btn-solid { background: var(--bcf-accent); border-color: var(--bcf-accent); color: var(--bcf-on-accent); }
+.bcf .bcf-btn-solid:hover { background: var(--bcf-accent-hover); border-color: var(--bcf-accent-hover); color: var(--bcf-on-accent); }
+.bcf .bcf-btn-outline-dark { background: #fff; color: #000; }
+.bcf .bcf-btn-outline-dark:hover { background: #000; color: #fff; }
+@media (max-width: 575.98px) { .bcf .bcf-btn-outline-dark, .bcf .bcf-btn-solid { width: 100%; } }

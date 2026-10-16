@@ -2,7 +2,7 @@
 <div id="checkout-cart" class="container bcf-cart-page">
   <ul class="breadcrumb">
     {% for breadcrumb in breadcrumbs %}
-      <li class="breadcrumb-item"><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+      <li class="breadcrumb-item"><a href="{{ breadcrumb.href }}">{% if loop.first %}<i class="fa-solid fa-house" aria-hidden="true"></i><span class="visually-hidden">{{ bcf_text_home }}</span>{% else %}{{ breadcrumb.text }}{% endif %}</a></li>
     {% endfor %}
   </ul>
   <div class="row">
