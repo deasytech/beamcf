@@ -3205,3 +3205,23 @@ html.bcf-qv-open {
   .bcf-contact-photo { min-height: 0; aspect-ratio: 4 / 3; }
   .bcf-contact-form h1 { font-size: 1.75rem; }
 }
+
+/* ---------- Account forms (returns): same side-label card style as checkout ---------- */
+.bcf-form-page { --bcf-cart-btn: var(--bcf-accent); --bcf-cart-btn-hover: var(--bcf-accent-hover); padding-bottom: var(--bcf-space-5); }
+.bcf-form-intro { max-width: 70ch; color: var(--bcf-text-muted); margin-bottom: var(--bcf-space-4); }
+.bcf-form-card { background: var(--bcf-white); border: 1px solid var(--bcf-border); padding: var(--bcf-space-5); }
+.bcf-form-card fieldset { margin-bottom: var(--bcf-space-4); }
+.bcf-form-card legend { font-size: 1.5rem; font-weight: 700; margin: 0 0 var(--bcf-space-3); padding: 0 0 var(--bcf-space-2); border-bottom: 1px solid var(--bcf-border); float: none; width: 100%; }
+.bcf-form-card .col-form-label { font-weight: 600; }
+.bcf-form-card .required > .col-form-label::before { content: "* "; color: var(--bcf-danger, #c0392b); }
+.bcf-form-card .form-control, .bcf-form-card .form-select { background: var(--bcf-bg-alt); border-radius: var(--bcf-radius); min-height: 44px; }
+.bcf-form-card .form-check-input { width: 1.15em; height: 1.15em; border-color: var(--bcf-black); }
+.bcf-form-card .form-check-input:checked { background-color: var(--bcf-black); border-color: var(--bcf-black); }
+.bcf-form-card .form-check { min-height: 32px; }
+.bcf-form-card :focus-visible { outline: 2px solid var(--bcf-black); outline-offset: 2px; }
+.bcf-form-actions .bcf-btn-checkout, .bcf-form-actions .bcf-btn-continue { cursor: pointer; }
+@media (max-width: 575.98px) {
+  .bcf-form-card { padding: var(--bcf-space-3); }
+  .bcf-form-actions .text-end { text-align: left !important; }
+  .bcf-form-actions .bcf-btn-checkout { margin-top: var(--bcf-space-3); }
+}
