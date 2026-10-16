@@ -47,10 +47,12 @@ foreach ($types as $type) {
     $job = $jobs[$type];
     $created = $skipped = 0;
 
-    // The manufacturer table has no language column; it is treated as language 1.
-    $language_column = $type === 'manufacturers' ? '1' : '`language_id`';
-
-    $items = $db->query("SELECT `" . $job['id'] . "` AS `id`, " . $language_column . " AS `language_id`, `name` FROM `" . DB_PREFIX . $job['table'] . "` ORDER BY `id`")->rows;
+    if ($type === 'manufacturers') {
+        // The manufacturer table has no language column, so pair every manufacturer with every installed language.
+        $items = $db->query("SELECT m.`manufacturer_id` AS `id`, l.`language_id`, m.`name` FROM `" . DB_PREFIX . "manufacturer` m CROSS JOIN `" . DB_PREFIX . "language` l ORDER BY `id`, l.`language_id`")->rows;
+    } else {
+        $items = $db->query("SELECT `" . $job['id'] . "` AS `id`, `language_id`, `name` FROM `" . DB_PREFIX . $job['table'] . "` ORDER BY `id`")->rows;
+    }
 
     foreach ($items as $item) {
         $id = (int)$item['id'];

@@ -40,7 +40,7 @@ function bcfSeoSlug(string $text, int $max = 64): string {
 }
 
 /**
- * First free keyword for $base: "base", then "base-2", "base-3", then the id as a last resort.
+ * First free keyword for $base: "base", then "base-2", "base-3", then "base-id" (and "base-id-2"...) as a last resort.
  *
  * @param string   $base
  * @param int      $id     Used as the final fallback suffix and when $base is empty.
@@ -62,8 +62,9 @@ function bcfSeoUnique(string $base, int $id, string $prefix, callable $exists, i
         $candidate = substr($base, 0, $max - strlen($suffix)) . $suffix;
     }
 
-    if ($exists($candidate)) {
-        $suffix = '-' . $id;
+    // Last resort: the id, then id plus a counter, until the keyword is free.
+    for ($i = 1; $i <= 1000 && $exists($candidate); $i++) {
+        $suffix = '-' . $id . ($i > 1 ? '-' . $i : '');
         $candidate = substr($base, 0, $max - strlen($suffix)) . $suffix;
     }
 
