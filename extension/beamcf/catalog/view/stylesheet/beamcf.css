@@ -2918,7 +2918,8 @@ html.bcf-qv-open {
   background: var(--bcf-black);
   color: var(--bcf-white);
 }
-.bcf-cart-drawer .offcanvas-title {
+.bcf-cart-drawer .offcanvas-header .offcanvas-title {
+  color: var(--bcf-white);
   margin: 0;
   font-size: 1.5rem;
   font-weight: 700;
@@ -3018,10 +3019,10 @@ html.bcf-qv-open {
   text-decoration: none;
   text-transform: uppercase;
 }
-.bcf-cart-edit { background: #f5b335; color: #111; }
-.bcf-cart-edit:hover { background: #e3a21f; color: #111; }
-.bcf-cart-checkout { background: var(--bcf-black); color: var(--bcf-white); }
-.bcf-cart-checkout:hover { background: #333; color: var(--bcf-white); }
+.bcf .bcf-cart-actions .bcf-cart-edit { background: #f5b335; color: #111; }
+.bcf .bcf-cart-actions .bcf-cart-edit:hover { background: #e3a21f; color: #111; }
+.bcf .bcf-cart-actions .bcf-cart-checkout { background: var(--bcf-black); color: var(--bcf-white); }
+.bcf .bcf-cart-actions .bcf-cart-checkout:hover { background: #333; color: var(--bcf-white); }
 .bcf-cart-empty {
   margin: 0;
   padding: var(--bcf-space-5) var(--bcf-space-4);
