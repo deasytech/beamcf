@@ -12,17 +12,17 @@
         {% if register or payment_address or shipping_address %}
           <div class="bcf-checkout-forms">
             {% if register %}
-              <div id="checkout-register" class="bcf-checkout-card">{{ register }}</div>
+              <div id="checkout-register" class="bcf-checkout-block">{{ register }}</div>
             {% endif %}
             {% if payment_address %}
-              <div id="checkout-payment-address" class="bcf-checkout-card">{{ payment_address }}</div>
+              <div id="checkout-payment-address" class="bcf-checkout-block">{{ payment_address }}</div>
             {% endif %}
             {% if shipping_address %}
-              <div id="checkout-shipping-address" class="bcf-checkout-card">{{ shipping_address }}</div>
+              <div id="checkout-shipping-address" class="bcf-checkout-block">{{ shipping_address }}</div>
             {% endif %}
           </div>
         {% endif %}
-        <div class="bcf-checkout-side">
+        <div class="bcf-checkout-side bcf-checkout-panel">
           {% if shipping_method %}
             <div id="checkout-shipping-method" class="bcf-checkout-card">{{ shipping_method }}</div>
           {% endif %}
