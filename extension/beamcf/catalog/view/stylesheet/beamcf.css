@@ -3226,5 +3226,5 @@ html.bcf-qv-open {
   .bcf-form-actions .bcf-btn-checkout { margin-top: var(--bcf-space-3); }
 }
 
-.bcf-form-actions .bcf-btn-checkout { background: var(--bcf-accent); color: var(--bcf-on-accent) !important; }
-.bcf-form-actions .bcf-btn-checkout:hover { background: var(--bcf-accent-hover); }
+.bcf-form-actions .bcf-btn-checkout { background: #fff; color: #000 !important; border: 2px solid #000 !important; }
+.bcf-form-actions .bcf-btn-checkout:hover { background: #000; color: #fff !important; }
