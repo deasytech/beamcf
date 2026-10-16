@@ -1,0 +1,94 @@
+{% if products %}
+  {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible" role="alert"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> {{ error_warning }} <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+  {% endif %}
+  {% if error_stock %}
+    <div class="alert alert-danger alert-dismissible" role="alert"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i> {{ error_stock }} <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+  {% endif %}
+  {% if success %}
+    <div class="alert alert-success alert-dismissible" role="status"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> {{ success }} <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+  {% endif %}
+  {% if attention %}
+    <div class="alert alert-info"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> {{ attention }} <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+  {% endif %}
+  <h1 class="bcf-page-title">{{ heading_title }}{% if weight %} <small class="bcf-cart-weight">({{ weight }})</small>{% endif %}</h1>
+  <div class="bcf-cart-layout">
+    <div class="bcf-cart-main">
+      <div id="output-cart" class="bcf-cart-table">
+        <div class="bcf-cart-head" aria-hidden="true">
+          <span>{{ column_name }}</span><span>{{ column_quantity }}</span><span class="text-end">{{ column_price }}</span><span class="text-end">{{ column_total }}</span>
+        </div>
+        {% for product in products %}
+          <div class="bcf-cart-row">
+            <div class="bcf-cart-product">
+              <div class="bcf-cart-row-thumb">{% if product.thumb %}<a href="{{ product.href }}"><img src="{{ product.thumb }}" alt="{{ product.name }}" width="96" height="96"/></a>{% endif %}</div>
+              <div class="bcf-cart-row-info">
+                <a href="{{ product.href }}" class="bcf-cart-row-name">{{ product.name }}</a>{% if not product.stock %} <span class="text-danger" title="{{ error_stock }}">***</span>{% endif %}
+                <ul class="list-unstyled bcf-cart-row-meta">
+                  <li>{{ text_model }}: {{ product.model }}</li>
+                  {% for option in product.option %}
+                    <li>{{ option.name }}: {{ option.value }}</li>
+                  {% endfor %}
+                  {% if product.subscription %}
+                    <li>{{ text_subscription }}: {{ product.subscription }}</li>
+                  {% endif %}
+                  {% if product.reward %}
+                    <li>{{ text_points }}: {{ product.reward }}</li>
+                  {% endif %}
+                </ul>
+              </div>
+            </div>
+            <div class="bcf-cart-row-qty" data-label="{{ column_quantity }}">
+              <form method="post" data-oc-target="#shopping-cart">
+                <div class="input-group">
+                  <input type="text" name="quantity" value="{{ product.quantity }}" size="2" inputmode="numeric" aria-label="{{ column_quantity }}: {{ product.name }}" class="form-control{% if product.minimum %} is-invalid{% endif %}"/>
+                  <input type="hidden" name="key" value="{{ product.cart_id }}"/>
+                  <button type="submit" formaction="{{ edit }}" title="{{ button_update }}" aria-label="{{ button_update }}: {{ product.name }}" class="btn btn-primary"><i class="fa-solid fa-rotate" aria-hidden="true"></i></button>
+                </div>
+              </form>
+              {% if product.minimum %}
+                <small class="invalid-feedback d-block">{{ product.minimum }}</small>
+              {% endif %}
+              <a href="{{ product.remove }}" class="bcf-cart-row-remove"><i class="fa-solid fa-trash-can" aria-hidden="true"></i> {{ button_remove }}<span class="visually-hidden">: {{ product.name }}</span></a>
+            </div>
+            <div class="bcf-cart-row-price" data-label="{{ column_price }}">{{ product.price }}</div>
+            <div class="bcf-cart-row-total" data-label="{{ column_total }}">{{ product.total }}</div>
+          </div>
+        {% endfor %}
+      </div>
+
+      {% if modules %}
+        <h2 class="bcf-cart-next">{{ text_next }}</h2>
+        <p class="bcf-cart-next-help">{{ text_next_choice }}</p>
+        <div id="accordion" class="accordion bcf-cart-modules">
+          {% for module in modules %}
+            {{ module }}
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+
+    <aside class="bcf-cart-summary" aria-labelledby="bcf-summary-title">
+      <h2 id="bcf-summary-title">{{ bcf_text_order_summary }}</h2>
+      <table id="checkout-total" class="bcf-summary-totals">
+        <tbody>
+          {% for total in totals %}
+            <tr{% if loop.last %} class="bcf-summary-final"{% endif %}>
+              <th scope="row">{{ total.title }}</th>
+              <td>{{ total.text }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <a href="{{ checkout }}" class="bcf-btn-checkout">{{ button_checkout }} <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+      <a href="{{ continue }}" class="bcf-btn-continue">{{ button_shopping }}</a>
+    </aside>
+  </div>
+{% else %}
+  <div class="bcf-cart-emptystate">
+    <i class="fa-solid fa-bag-shopping" aria-hidden="true"></i>
+    <h1 class="bcf-page-title">{{ heading_title }}</h1>
+    <p>{{ text_no_results }}</p>
+    <a href="{{ continue }}" class="bcf-btn-checkout">{{ button_continue }}</a>
+  </div>
+{% endif %}
