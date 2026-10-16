@@ -83,9 +83,9 @@
             </div>
           </div>
           <div class="row mb-3 required">
-            <label class="col-sm-2 col-form-label">{{ entry_reason }}</label>
+            <span class="col-sm-2 col-form-label" id="label-reason">{{ entry_reason }}</span>
             <div class="col-sm-10">
-              <div id="input-reason">
+              <div id="input-reason" role="radiogroup" aria-labelledby="label-reason">
                 {% for return_reason in return_reasons %}
                   <div class="form-check">
                     <input type="radio" name="return_reason_id" value="{{ return_reason.return_reason_id }}" id="input-return-reason-{{ return_reason.return_reason_id }}" class="form-check-input"/> <label for="input-return-reason-{{ return_reason.return_reason_id }}" class="form-check-label">{{ return_reason.name }}</label>
@@ -96,8 +96,8 @@
             </div>
           </div>
           <div class="row mb-3 required">
-            <label class="col-sm-2 col-form-label">{{ entry_opened }}</label>
-            <div class="col-sm-10">
+            <span class="col-sm-2 col-form-label" id="label-opened">{{ entry_opened }}</span>
+            <div class="col-sm-10" role="radiogroup" aria-labelledby="label-opened">
               <div class="form-check form-check-inline">
                 <input type="radio" name="opened" value="1" id="input-opened-yes" class="form-check-input" checked/>
                 <label for="input-opened-yes" class="form-check-label">{{ text_yes }}</label>
@@ -118,15 +118,15 @@
         </fieldset>
         <div class="row align-items-center bcf-form-actions">
           <div class="col-12 col-sm-3 mb-3 mb-sm-0"><a href="{{ back }}" class="bcf-btn-continue">{{ button_back }}</a></div>
-          <div class="col text-end">
+          <div class="col text-sm-end">
             {% if text_agree %}
               <div class="form-check form-switch form-switch-lg form-check-reverse form-check-inline">
-                <label class="form-check-label">{{ text_agree }}</label>
+                <label for="input-agree" class="form-check-label">{{ text_agree }}</label>
                 <input type="hidden" name="agree" value="0"/>
                 <input type="checkbox" name="agree" value="1" id="input-agree" class="form-check-input"/>
               </div>
             {% endif %}
-            <button type="submit" class="bcf-btn-checkout border-0">{{ button_submit }}</button>
+            <button type="submit" class="bcf-btn-outline-dark">{{ button_submit }}</button>
           </div>
         </div>
       </form>
