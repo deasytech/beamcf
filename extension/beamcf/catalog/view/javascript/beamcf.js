@@ -313,6 +313,10 @@
 
     var button = document.getElementById('bcf-qv-add');
 
+    // A response that arrives after the dialog was closed or reopened belongs to a dialog that no longer exists.
+    var id = request;
+    var current = function () { return id === request; };
+
     pending = true;
     button.disabled = true;
     button.setAttribute('aria-busy', 'true');
@@ -326,6 +330,11 @@
     })
       .then(function (response) { return response.json(); })
       .then(function (json) {
+        // The cart was changed on the server either way, so the header is always refreshed.
+        if (json.success) { cartRefresh(); }
+
+        if (!current()) { return; }
+
         if (typeof json.error === 'string') {
           message('danger', json.error);
         } else if (json.error) {
@@ -334,11 +343,12 @@
 
         if (json.success) {
           message('success', json.success);
-          cartRefresh();
         }
       })
-      .catch(function () { message('danger', text('failed')); })
+      .catch(function () { if (current()) { message('danger', text('failed')); } })
       .then(function () {
+        if (!current()) { return; }
+
         pending = false;
         button.disabled = false;
         button.removeAttribute('aria-busy');
@@ -354,7 +364,7 @@
 
       if (!file) { return; }
 
-      if (file.size / 1024 > parseInt(button.getAttribute('data-size-max'), 10)) {
+      if (file.size > parseInt(button.getAttribute('data-size-max'), 10)) {
         message('danger', button.getAttribute('data-size-error'));
         return;
       }

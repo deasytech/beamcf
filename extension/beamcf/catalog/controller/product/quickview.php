@@ -187,8 +187,8 @@ class Quickview extends \Opencart\System\Engine\Controller {
 		$show = $this->customer->isLogged() || !$this->config->get('config_customer_price');
 
 		$data['price'] = $show ? $this->currency->format($this->tax->calculate($product_info['price'], $tax_class_id, $this->config->get('config_tax')), $currency) : false;
-		$data['special'] = (float)$product_info['special'] ? $this->currency->format($this->tax->calculate($product_info['special'], $tax_class_id, $this->config->get('config_tax')), $currency) : false;
-		$data['tax'] = $this->config->get('config_tax') ? $this->currency->format((float)$product_info['special'] ? $product_info['special'] : $product_info['price'], $currency) : false;
+		$data['special'] = $show && (float)$product_info['special'] ? $this->currency->format($this->tax->calculate($product_info['special'], $tax_class_id, $this->config->get('config_tax')), $currency) : false;
+		$data['tax'] = $show && $this->config->get('config_tax') ? $this->currency->format((float)$product_info['special'] ? $product_info['special'] : $product_info['price'], $currency) : false;
 
 		$data['discount_percent'] = 0;
 
