@@ -96,6 +96,11 @@ class ProductImages extends \Opencart\System\Engine\Controller {
     private function inUse(string $image): bool {
         $escaped = $this->db->escape($image);
 
+        // The store logo and icon are settings, not table columns.
+        if ($this->db->query("SELECT 1 FROM `" . DB_PREFIX . "setting` WHERE `key` IN ('config_logo', 'config_icon') AND `value` = '" . $escaped . "' LIMIT 1")->num_rows) {
+            return true;
+        }
+
         foreach (['product', 'product_image', 'category', 'manufacturer', 'banner_image', 'option_value', 'information', 'product_option_value'] as $table) {
             // Not every table has an image column in every release, so skip the ones that do not.
             $column = $this->db->query("SHOW COLUMNS FROM `" . DB_PREFIX . $table . "` LIKE 'image'");
@@ -126,11 +131,18 @@ class ProductImages extends \Opencart\System\Engine\Controller {
             return;
         }
 
-        $pattern = DIR_IMAGE . 'cache/' . ($info['dirname'] !== '.' ? $info['dirname'] . '/' : '') . $info['filename'] . '-*.' . $info['extension'];
+        $folder = DIR_IMAGE . 'cache/' . ($info['dirname'] !== '.' ? $info['dirname'] . '/' : '');
 
-        foreach (glob($pattern) ?: [] as $cached) {
-            if (is_file($cached)) {
-                @unlink($cached);
+        if (!is_dir($folder)) {
+            return;
+        }
+
+        // Only name-WIDTHxHEIGHT.ext: a sibling such as name-2.ext or name-alt-100x100.ext belongs to another image.
+        $match = '/^' . preg_quote($info['filename'], '/') . '-\d+x\d+\.' . preg_quote($info['extension'], '/') . '$/i';
+
+        foreach (scandir($folder) ?: [] as $name) {
+            if (preg_match($match, $name) && is_file($folder . $name)) {
+                @unlink($folder . $name);
             }
         }
     }

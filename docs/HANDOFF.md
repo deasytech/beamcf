@@ -18,7 +18,7 @@ A separate OpenCart 4.x theme extension at `extension/beamcf/` (theme code `beam
 
 ## 3. Activation and rollback
 
-- **Activate:** Admin > Extensions > Extensions > Theme > install and enable "BeamCF Storefront Theme". Then Settings > Option > Theme > select BeamCF. Installing registers six events: theme view routing, product list and total, pagination, admin login logo, and product SEO keyword.
+- **Activate:** Admin > Extensions > Extensions > Theme > install and enable "BeamCF Storefront Theme". Then Settings > Option > Theme > select BeamCF. Installing registers eight events: theme view routing, product list, product total, pagination, admin login logo, product SEO keyword, and two that delete a product's image files when the product is deleted (`beamcf_product_images_collect` and `beamcf_product_images_remove`).
 - **Switch back to the default theme:** Settings > Option > Theme > select "Default". Nothing else is needed. The default theme files were never touched.
 - **Full removal:** uninstall the theme extension. This deletes its events, and the extension directory can then be removed.
 - **After changes:** clear the theme and Twig cache from Admin (Dashboard > gear icon). CSS and JS carry a `?v=` cache-buster.

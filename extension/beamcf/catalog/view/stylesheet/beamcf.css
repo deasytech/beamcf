@@ -3263,8 +3263,8 @@ html.bcf-qv-open {
 .bcf .bcf-btn-outline-dark:hover { background: #000; color: #fff; }
 @media (max-width: 575.98px) { .bcf .bcf-btn-outline-dark, .bcf .bcf-btn-solid { width: 100%; } }
 
-/* Product cards: the cart button shows its label only on wider screens (the icon alone on phones), so the
+/* Product cards: the cart button shows its label from 768px up (the icon alone below that), so the
    cart, quick view, wishlist and compare buttons stay on one row. */
-@media (min-width: 576px) {
+@media (min-width: 768px) {
   .bcf .product-thumb .bcf-card-cart i { display: none; }
 }
