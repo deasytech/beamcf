@@ -23,3 +23,6 @@
 
 # Local Herd/Valet helper, not for deployment
 /LocalValetDriver.php
+
+# Built deployment packages
+/deploy/
