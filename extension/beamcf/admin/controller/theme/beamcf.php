@@ -149,7 +149,9 @@ class Beamcf extends \Opencart\System\Engine\Controller {
 			'beamcf_catalog_total' => ['BeamCF theme: apply category filters to the product count.', 'catalog/model/catalog/product.getTotalProducts/before', 'extension/beamcf/event/catalog.products'],
 			'beamcf_catalog_pagination' => ['BeamCF theme: keep category filters in pagination links.', 'catalog/controller/common/pagination/before', 'extension/beamcf/event/catalog.pagination'],
 			'beamcf_admin_login' => ['BeamCF theme: show the company logo on the admin login screen.', 'admin/view/common/login/after', 'extension/beamcf/event/login'],
-			'beamcf_product_seo' => ['BeamCF theme: create an SEO keyword for new products saved without one.', 'admin/model/catalog/product.addProduct/after', 'extension/beamcf/event/seo.product']
+			'beamcf_product_seo' => ['BeamCF theme: create an SEO keyword for new products saved without one.', 'admin/model/catalog/product.addProduct/after', 'extension/beamcf/event/seo.product'],
+			'beamcf_product_images_collect' => ['BeamCF theme: remember a product\'s image files before it is deleted.', 'admin/model/catalog/product.deleteProduct/before', 'extension/beamcf/event/product_images.collect'],
+			'beamcf_product_images_remove' => ['BeamCF theme: delete the image files of a deleted product when nothing else uses them.', 'admin/model/catalog/product.deleteProduct/after', 'extension/beamcf/event/product_images.remove']
 		];
 	}
 

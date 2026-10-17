@@ -67,8 +67,7 @@
   {% if bcf.deal %}
     <section class="bcf-section container" aria-labelledby="bcf-deals-title">
       <h2 id="bcf-deals-title" class="bcf-title">{{ bcf_text_deals }}</h2>
-      <div class="bcf-deals{% if bcf.deal_tiles|length < 2 %} bcf-deals-solo{% endif %}">
-        {% if bcf.deal_tiles[0] %}{{ ui.tile(bcf.deal_tiles[0], 'bcf-tile-deal', bcf_text_shop_now) }}{% endif %}
+      <div class="bcf-deals{% if not bcf.deal_tiles %} bcf-deals-solo{% endif %}">
         <div class="bcf-deal-card">
           {{ bcf.deal.card }}
           {% if bcf.deal.end %}
@@ -78,7 +77,11 @@
             </div>
           {% endif %}
         </div>
-        {% if bcf.deal_tiles[1] %}{{ ui.tile(bcf.deal_tiles[1], 'bcf-tile-deal', bcf_text_shop_now) }}{% endif %}
+        {% if bcf.deal_tiles %}
+          <div class="bcf-deal-banners">
+            {% for banner in bcf.deal_tiles %}{{ ui.tile(banner, 'bcf-tile-deal', bcf_text_shop_now) }}{% endfor %}
+          </div>
+        {% endif %}
       </div>
     </section>
   {% endif %}

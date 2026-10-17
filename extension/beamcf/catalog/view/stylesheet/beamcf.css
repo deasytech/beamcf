@@ -821,7 +821,13 @@ body.bcf {
 /* ---------- Deals ---------- */
 .bcf-deals {
   display: grid;
-  grid-template-columns: 1fr 1.2fr 1fr;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: var(--bcf-space-3);
+}
+/* Banners (640x520 images) are stacked beside the deal card at their own proportions, so they are never cropped.
+   The deal card stretches to the height of the stack and its product image fills the space that is left. */
+.bcf-deal-banners {
+  display: grid;
   gap: var(--bcf-space-3);
 }
 .bcf-deals-solo {
@@ -1090,12 +1096,11 @@ body.bcf {
   }
 
   .bcf-deals {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
   }
 
-  .bcf-deals .bcf-deal-card {
-    grid-column: 1 / -1;
-    order: -1;
+  .bcf-deal-banners {
+    grid-template-columns: 1fr 1fr;
   }
 
   .bcf-cat-grid {
@@ -1127,8 +1132,8 @@ body.bcf {
     grid-template-columns: 1fr;
   }
 
-  .bcf-tile-deal {
-    min-height: 220px;
+  .bcf-deal-banners {
+    grid-template-columns: 1fr;
   }
 
   .bcf-cat-grid {
@@ -1189,6 +1194,22 @@ body.bcf {
 }
 .bcf-tile-deal {
   min-height: 0;
+  aspect-ratio: 640 / 520;
+}
+@media (min-width: 992px) {
+  .bcf-deals:not(.bcf-deals-solo) .bcf-deal-card .product-thumb .image {
+    flex: 1 1 0;
+    min-height: 260px;
+  }
+  .bcf-deals:not(.bcf-deals-solo) .bcf-deal-card .product-thumb .content {
+    flex: 0 0 auto;
+  }
+  .bcf-deals:not(.bcf-deals-solo) .bcf-deal-card .product-thumb .image img {
+    position: absolute;
+    inset: 0;
+    height: 100%;
+    aspect-ratio: auto;
+  }
 }
 .bcf-tile-deal .bcf-tile-img {
   position: absolute;
@@ -1258,7 +1279,7 @@ body.bcf {
 }
 .bcf-benefits {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: var(--bcf-space-3);
   margin: 0;
   border: 0;
@@ -1272,6 +1293,7 @@ body.bcf {
 }
 .bcf-benefits i {
   font-size: 2.25rem;
+  color: #f5b335;
 }
 .bcf-benefits strong {
   font-size: 1.25rem;
