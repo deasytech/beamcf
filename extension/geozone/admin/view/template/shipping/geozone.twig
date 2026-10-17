@@ -25,7 +25,7 @@
           <div class="tab-content">
             <div id="tab-general" class="tab-pane active">
               <div class="row mb-3">
-                <label class="col-sm-2 col-form-label">{{ entry_status }}</label>
+                <label for="input-status" class="col-sm-2 col-form-label">{{ entry_status }}</label>
                 <div class="col-sm-10">
                   <div class="form-check form-switch form-switch-lg">
                     <input type="hidden" name="shipping_geozone_status" value="0"/>
@@ -49,39 +49,39 @@
                       <div class="col-md-4">
                         {% for language in languages %}
                           <div class="mb-3 required">
-                            <label class="form-label">{{ entry_name }}</label>
+                            <label for="input-name-{{ row }}-{{ language.language_id }}" class="form-label">{{ entry_name }}</label>
                             <div class="input-group">
-                              <span class="input-group-text"><img src="{{ language.image }}" title="{{ language.name }}"/></span>
+                              <span class="input-group-text"><img src="{{ language.image }}" alt="{{ language.name }}" title="{{ language.name }}"/></span>
                               <input type="text" name="shipping_geozone_method[{{ row }}][name][{{ language.language_id }}]" value="{{ method.name[language.language_id] }}" id="input-name-{{ row }}-{{ language.language_id }}" class="form-control"/>
                             </div>
                             <div id="error-name-{{ row }}-{{ language.language_id }}" class="invalid-feedback"></div>
                           </div>
                           <div class="mb-3">
-                            <label class="form-label">{{ entry_instructions }}</label>
+                            <label for="input-instructions-{{ row }}-{{ language.language_id }}" class="form-label">{{ entry_instructions }}</label>
                             <div class="input-group">
-                              <span class="input-group-text"><img src="{{ language.image }}" title="{{ language.name }}"/></span>
-                              <textarea name="shipping_geozone_method[{{ row }}][instructions][{{ language.language_id }}]" rows="3" class="form-control">{{ method.instructions[language.language_id] }}</textarea>
+                              <span class="input-group-text"><img src="{{ language.image }}" alt="{{ language.name }}" title="{{ language.name }}"/></span>
+                              <textarea name="shipping_geozone_method[{{ row }}][instructions][{{ language.language_id }}]" id="input-instructions-{{ row }}-{{ language.language_id }}" rows="3" class="form-control">{{ method.instructions[language.language_id] }}</textarea>
                             </div>
                           </div>
                         {% endfor %}
                       </div>
                       <div class="col-md-4">
                         <div class="mb-3">
-                          <label class="form-label">{{ entry_status }}</label>
-                          <select name="shipping_geozone_method[{{ row }}][status]" class="form-select">
+                          <label for="input-method-status-{{ row }}" class="form-label">{{ entry_status }}</label>
+                          <select name="shipping_geozone_method[{{ row }}][status]" id="input-method-status-{{ row }}" class="form-select">
                             <option value="1"{% if method.status %} selected{% endif %}>{{ text_enabled }}</option>
                             <option value="0"{% if not method.status %} selected{% endif %}>{{ text_disabled }}</option>
                           </select>
                         </div>
                         <div class="mb-3">
-                          <label class="form-label">{{ entry_total }}</label>
+                          <label for="input-total-{{ row }}" class="form-label">{{ entry_total }}</label>
                           <input type="text" name="shipping_geozone_method[{{ row }}][total]" value="{{ method.total }}" id="input-total-{{ row }}" class="form-control"/>
                           <div class="form-text">{{ help_total }}</div>
                           <div id="error-total-{{ row }}" class="invalid-feedback"></div>
                         </div>
                         <div class="mb-3">
-                          <label class="form-label">{{ entry_geo_zone }}</label>
-                          <select name="shipping_geozone_method[{{ row }}][geo_zone_id]" class="form-select">
+                          <label for="input-geo-zone-{{ row }}" class="form-label">{{ entry_geo_zone }}</label>
+                          <select name="shipping_geozone_method[{{ row }}][geo_zone_id]" id="input-geo-zone-{{ row }}" class="form-select">
                             <option value="0">{{ text_all_zones }}</option>
                             {% for geo_zone in geo_zones %}
                               <option value="{{ geo_zone.geo_zone_id }}"{% if geo_zone.geo_zone_id == method.geo_zone_id %} selected{% endif %}>{{ geo_zone.name }}</option>
@@ -91,14 +91,14 @@
                       </div>
                       <div class="col-md-3">
                         <div class="mb-3">
-                          <label class="form-label">{{ entry_cost }}</label>
+                          <label for="input-cost-{{ row }}" class="form-label">{{ entry_cost }}</label>
                           <input type="text" name="shipping_geozone_method[{{ row }}][cost]" value="{{ method.cost }}" id="input-cost-{{ row }}" class="form-control"/>
                           <div class="form-text">{{ help_cost }}</div>
                           <div id="error-cost-{{ row }}" class="invalid-feedback"></div>
                         </div>
                         <div class="mb-3">
-                          <label class="form-label">{{ entry_tax_class }}</label>
-                          <select name="shipping_geozone_method[{{ row }}][tax_class_id]" class="form-select">
+                          <label for="input-tax-class-{{ row }}" class="form-label">{{ entry_tax_class }}</label>
+                          <select name="shipping_geozone_method[{{ row }}][tax_class_id]" id="input-tax-class-{{ row }}" class="form-select">
                             <option value="0">{{ text_none }}</option>
                             {% for tax_class in tax_classes %}
                               <option value="{{ tax_class.tax_class_id }}"{% if tax_class.tax_class_id == method.tax_class_id %} selected{% endif %}>{{ tax_class.title }}</option>
@@ -107,7 +107,7 @@
                         </div>
                       </div>
                       <div class="col-md-1 text-end">
-                        <button type="button" onclick="$('#method-row-{{ row }}').remove();" class="btn btn-danger"><i class="fa-solid fa-minus-circle"></i></button>
+                        <button type="button" onclick="$('#method-row-{{ row }}').remove();" class="btn btn-danger" aria-label="{{ button_remove }}"><i class="fa-solid fa-minus-circle" aria-hidden="true"></i></button>
                       </div>
                     </div>
                   </div>
@@ -115,7 +115,7 @@
                 {% endfor %}
               </div>
               <div class="text-end">
-                <button type="button" id="button-method-add" class="btn btn-primary"><i class="fa-solid fa-plus-circle"></i></button>
+                <button type="button" id="button-method-add" class="btn btn-primary" aria-label="{{ button_add }}"><i class="fa-solid fa-plus-circle" aria-hidden="true"></i></button>
               </div>
             </div>
           </div>
@@ -124,26 +124,26 @@
     </div>
   </div>
 </div>
-<script type="text/javascript"><!--
+<script type="text/javascript">
 var method_row = {{ shipping_geozone_methods|length }};
 
 $('#button-method-add').on('click', function () {
     var r = method_row++;
     var html = '<div id="method-row-' + r + '" class="border rounded p-3 mb-3"><div class="row"><div class="col-md-4">';
     {% for language in languages %}
-    html += '<div class="mb-3 required"><label class="form-label">{{ entry_name|escape('js') }}</label><div class="input-group"><span class="input-group-text"><img src="{{ language.image }}" title="{{ language.name|escape('js') }}"/></span><input type="text" name="shipping_geozone_method[' + r + '][name][{{ language.language_id }}]" value="" id="input-name-' + r + '-{{ language.language_id }}" class="form-control"/></div><div id="error-name-' + r + '-{{ language.language_id }}" class="invalid-feedback"></div></div>';
-    html += '<div class="mb-3"><label class="form-label">{{ entry_instructions|escape('js') }}</label><div class="input-group"><span class="input-group-text"><img src="{{ language.image }}" title="{{ language.name|escape('js') }}"/></span><textarea name="shipping_geozone_method[' + r + '][instructions][{{ language.language_id }}]" rows="3" class="form-control"></textarea></div></div>';
+    html += '<div class="mb-3 required"><label for="input-name-' + r + '-{{ language.language_id }}" class="form-label">{{ entry_name|escape('js') }}</label><div class="input-group"><span class="input-group-text"><img src="{{ language.image }}" alt="{{ language.name|escape('js') }}" title="{{ language.name|escape('js') }}"/></span><input type="text" name="shipping_geozone_method[' + r + '][name][{{ language.language_id }}]" value="" id="input-name-' + r + '-{{ language.language_id }}" class="form-control"/></div><div id="error-name-' + r + '-{{ language.language_id }}" class="invalid-feedback"></div></div>';
+    html += '<div class="mb-3"><label for="input-instructions-' + r + '-{{ language.language_id }}" class="form-label">{{ entry_instructions|escape('js') }}</label><div class="input-group"><span class="input-group-text"><img src="{{ language.image }}" alt="{{ language.name|escape('js') }}" title="{{ language.name|escape('js') }}"/></span><textarea name="shipping_geozone_method[' + r + '][instructions][{{ language.language_id }}]" id="input-instructions-' + r + '-{{ language.language_id }}" rows="3" class="form-control"></textarea></div></div>';
     {% endfor %}
     html += '</div><div class="col-md-4">';
-    html += '<div class="mb-3"><label class="form-label">{{ entry_status|escape('js') }}</label><select name="shipping_geozone_method[' + r + '][status]" class="form-select"><option value="1">{{ text_enabled|escape('js') }}</option><option value="0">{{ text_disabled|escape('js') }}</option></select></div>';
-    html += '<div class="mb-3"><label class="form-label">{{ entry_total|escape('js') }}</label><input type="text" name="shipping_geozone_method[' + r + '][total]" value="0" id="input-total-' + r + '" class="form-control"/><div class="form-text">{{ help_total|escape('js') }}</div><div id="error-total-' + r + '" class="invalid-feedback"></div></div>';
-    html += '<div class="mb-3"><label class="form-label">{{ entry_geo_zone|escape('js') }}</label><select name="shipping_geozone_method[' + r + '][geo_zone_id]" class="form-select"><option value="0">{{ text_all_zones|escape('js') }}</option>{% for geo_zone in geo_zones %}<option value="{{ geo_zone.geo_zone_id }}">{{ geo_zone.name|escape('js') }}</option>{% endfor %}</select></div>';
+    html += '<div class="mb-3"><label for="input-method-status-' + r + '" class="form-label">{{ entry_status|escape('js') }}</label><select name="shipping_geozone_method[' + r + '][status]" id="input-method-status-' + r + '" class="form-select"><option value="1">{{ text_enabled|escape('js') }}</option><option value="0">{{ text_disabled|escape('js') }}</option></select></div>';
+    html += '<div class="mb-3"><label for="input-total-' + r + '" class="form-label">{{ entry_total|escape('js') }}</label><input type="text" name="shipping_geozone_method[' + r + '][total]" value="0" id="input-total-' + r + '" class="form-control"/><div class="form-text">{{ help_total|escape('js') }}</div><div id="error-total-' + r + '" class="invalid-feedback"></div></div>';
+    html += '<div class="mb-3"><label for="input-geo-zone-' + r + '" class="form-label">{{ entry_geo_zone|escape('js') }}</label><select name="shipping_geozone_method[' + r + '][geo_zone_id]" id="input-geo-zone-' + r + '" class="form-select"><option value="0">{{ text_all_zones|escape('js') }}</option>{% for geo_zone in geo_zones %}<option value="{{ geo_zone.geo_zone_id }}">{{ geo_zone.name|escape('js') }}</option>{% endfor %}</select></div>';
     html += '</div><div class="col-md-3">';
-    html += '<div class="mb-3"><label class="form-label">{{ entry_cost|escape('js') }}</label><input type="text" name="shipping_geozone_method[' + r + '][cost]" value="0" id="input-cost-' + r + '" class="form-control"/><div class="form-text">{{ help_cost|escape('js') }}</div><div id="error-cost-' + r + '" class="invalid-feedback"></div></div>';
-    html += '<div class="mb-3"><label class="form-label">{{ entry_tax_class|escape('js') }}</label><select name="shipping_geozone_method[' + r + '][tax_class_id]" class="form-select"><option value="0">{{ text_none|escape('js') }}</option>{% for tax_class in tax_classes %}<option value="{{ tax_class.tax_class_id }}">{{ tax_class.title|escape('js') }}</option>{% endfor %}</select></div>';
-    html += '</div><div class="col-md-1 text-end"><button type="button" onclick="$(\'#method-row-' + r + '\').remove();" class="btn btn-danger"><i class="fa-solid fa-minus-circle"></i></button></div></div></div>';
+    html += '<div class="mb-3"><label for="input-cost-' + r + '" class="form-label">{{ entry_cost|escape('js') }}</label><input type="text" name="shipping_geozone_method[' + r + '][cost]" value="0" id="input-cost-' + r + '" class="form-control"/><div class="form-text">{{ help_cost|escape('js') }}</div><div id="error-cost-' + r + '" class="invalid-feedback"></div></div>';
+    html += '<div class="mb-3"><label for="input-tax-class-' + r + '" class="form-label">{{ entry_tax_class|escape('js') }}</label><select name="shipping_geozone_method[' + r + '][tax_class_id]" id="input-tax-class-' + r + '" class="form-select"><option value="0">{{ text_none|escape('js') }}</option>{% for tax_class in tax_classes %}<option value="{{ tax_class.tax_class_id }}">{{ tax_class.title|escape('js') }}</option>{% endfor %}</select></div>';
+    html += '</div><div class="col-md-1 text-end"><button type="button" onclick="$(\'#method-row-' + r + '\').remove();" class="btn btn-danger" aria-label="{{ button_remove|escape('js') }}"><i class="fa-solid fa-minus-circle" aria-hidden="true"></i></button></div></div></div>';
 
     $('#methods').append(html);
 });
-//--></script>
+</script>
 {{ footer }}

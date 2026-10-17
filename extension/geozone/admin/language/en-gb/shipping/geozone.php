@@ -13,6 +13,10 @@ $_['text_disabled']        = 'Disabled';
 $_['text_all_zones']       = 'All Zones';
 $_['text_none']            = '--- No Tax Class ---';
 
+// Button
+$_['button_add']          = 'Add method';
+$_['button_remove']       = 'Remove method';
+
 // Column
 $_['column_general']       = 'General';
 $_['column_availability']  = 'Availability';

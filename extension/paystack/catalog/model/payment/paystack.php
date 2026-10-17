@@ -8,119 +8,117 @@ namespace Opencart\Catalog\Model\Extension\Paystack\Payment;
  * @package Opencart\Catalog\Model\Extension\Paystack\Payment
  */
 class Paystack extends \Opencart\System\Engine\Model {
-	/**
-	 * Currencies Paystack can process (subject to what is enabled on the merchant account)
-	 *
-	 * @var array<int, string>
-	 */
-	private array $currencies = ['NGN', 'GHS', 'ZAR', 'KES', 'USD', 'XOF', 'EGP', 'RWF'];
+    /**
+     * Currencies Paystack can process (subject to what is enabled on the merchant account)
+     *
+     * @var array<int, string>
+     */
+    private const CURRENCIES = ['NGN', 'GHS', 'ZAR', 'KES', 'USD', 'XOF', 'EGP', 'RWF'];
 
-	/**
-	 * Get Methods
-	 *
-	 * @param array<string, mixed> $address array of data
-	 *
-	 * @return array<string, mixed>
-	 */
-	public function getMethods(array $address = []): array {
-		$this->load->language('extension/paystack/payment/paystack');
+    /**
+     * Get Methods
+     *
+     * @param array<string, mixed> $address array of data
+     *
+     * @return array<string, mixed>
+     */
+    public function getMethods(array $address = []): array {
+        if (!$this->isAvailable($address)) {
+            return [];
+        }
 
-		$currency = $this->session->data['currency'] ?? $this->config->get('config_currency');
+        $this->load->language('extension/paystack/payment/paystack');
 
-		if ($this->cart->hasSubscription() || !$this->config->get('payment_paystack_secret_key') || !in_array($currency, $this->currencies)) {
-			$status = false;
-		} elseif (!$this->config->get('config_checkout_payment_address')) {
-			$status = true;
-		} elseif (!$this->config->get('payment_paystack_geo_zone_id')) {
-			$status = true;
-		} else {
-			// Geo Zone
-			$this->load->model('localisation/geo_zone');
+        $name = $this->language->get('heading_title');
 
-			$results = $this->model_localisation_geo_zone->getGeoZone((int)$this->config->get('payment_paystack_geo_zone_id'), (int)$address['country_id'], (int)$address['zone_id']);
+        return [
+            'code'       => 'paystack',
+            'name'       => $name,
+            'option'     => ['paystack' => ['code' => 'paystack.paystack', 'name' => $name]],
+            'sort_order' => $this->config->get('payment_paystack_sort_order')
+        ];
+    }
 
-			if ($results) {
-				$status = true;
-			} else {
-				$status = false;
-			}
-		}
+    /**
+     * Amount to charge for an order, in the order's currency, in minor units (cents/kobo/pesewas)
+     *
+     * @param array<string, mixed> $order_info
+     *
+     * @return int
+     */
+    public function getAmount(array $order_info): int {
+        $total = $this->currency->format($order_info['total'], $order_info['currency_code'], $order_info['currency_value'], false);
 
-		$method_data = [];
+        return (int)round($total * 100);
+    }
 
-		if ($status) {
-			$option_data['paystack'] = [
-				'code' => 'paystack.paystack',
-				'name' => $this->language->get('heading_title')
-			];
+    /**
+     * Call the Paystack API
+     *
+     * @param string               $method GET or POST
+     * @param string               $path   e.g. /transaction/initialize
+     * @param array<string, mixed> $data
+     *
+     * @return array<string, mixed> decoded response, empty array on failure
+     */
+    public function request(string $method, string $path, array $data = []): array {
+        $curl = curl_init('https://api.paystack.co' . $path);
 
-			$method_data = [
-				'code'       => 'paystack',
-				'name'       => $this->language->get('heading_title'),
-				'option'     => $option_data,
-				'sort_order' => $this->config->get('payment_paystack_sort_order')
-			];
-		}
+        $options = [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT        => 30,
+            CURLOPT_CONNECTTIMEOUT => 10,
+            CURLOPT_SSL_VERIFYPEER => true,
+            CURLOPT_SSL_VERIFYHOST => 2,
+            CURLOPT_FOLLOWLOCATION => false,
+            CURLOPT_HTTPHEADER     => [
+                'Authorization: Bearer ' . $this->config->get('payment_paystack_secret_key'),
+                'Content-Type: application/json',
+                'Accept: application/json'
+            ]
+        ];
 
-		return $method_data;
-	}
+        if ($method == 'POST') {
+            $options[CURLOPT_POST] = true;
+            $options[CURLOPT_POSTFIELDS] = json_encode($data);
+        }
 
-	/**
-	 * Amount to charge for an order, in the order's currency, in minor units (cents/kobo/pesewas)
-	 *
-	 * @param array<string, mixed> $order_info
-	 *
-	 * @return int
-	 */
-	public function getAmount(array $order_info): int {
-		$total = $this->currency->format($order_info['total'], $order_info['currency_code'], $order_info['currency_value'], false);
+        curl_setopt_array($curl, $options);
 
-		return (int)round($total * 100);
-	}
+        $response = curl_exec($curl);
 
-	/**
-	 * Call the Paystack API
-	 *
-	 * @param string               $method GET or POST
-	 * @param string               $path   e.g. /transaction/initialize
-	 * @param array<string, mixed> $data
-	 *
-	 * @return array<string, mixed> decoded response, empty array on failure
-	 */
-	public function request(string $method, string $path, array $data = []): array {
-		$curl = curl_init('https://api.paystack.co' . $path);
+        if ($response === false) {
+            $this->log->write('Paystack cURL error: ' . curl_error($curl));
+        }
 
-		$options = [
-			CURLOPT_RETURNTRANSFER => true,
-			CURLOPT_TIMEOUT        => 30,
-			CURLOPT_CONNECTTIMEOUT => 10,
-			CURLOPT_SSL_VERIFYPEER => true,
-			CURLOPT_SSL_VERIFYHOST => 2,
-			CURLOPT_FOLLOWLOCATION => false,
-			CURLOPT_HTTPHEADER     => [
-				'Authorization: Bearer ' . $this->config->get('payment_paystack_secret_key'),
-				'Content-Type: application/json',
-				'Accept: application/json'
-			]
-		];
+        curl_close($curl);
 
-		if ($method == 'POST') {
-			$options[CURLOPT_POST] = true;
-			$options[CURLOPT_POSTFIELDS] = json_encode($data);
-		}
+        $result = $response ? json_decode($response, true) : [];
 
-		curl_setopt_array($curl, $options);
+        return is_array($result) ? $result : [];
+    }
 
-		$response = curl_exec($curl);
+    /**
+     * Whether the method can be offered: configured, supported currency, no subscriptions and, when the store
+     * asks for a payment address, inside the configured geo zone.
+     *
+     * @param array<string, mixed> $address
+     *
+     * @return bool
+     */
+    private function isAvailable(array $address): bool {
+        $currency = $this->session->data['currency'] ?? $this->config->get('config_currency');
 
-		if ($response === false) {
-			$this->log->write('Paystack cURL error: ' . curl_error($curl));
-		}
+        $usable = $this->config->get('payment_paystack_secret_key') && in_array($currency, self::CURRENCIES, true) && !$this->cart->hasSubscription();
 
-		curl_close($curl);
+        $zone_id = (int)$this->config->get('payment_paystack_geo_zone_id');
 
-		$result = $response ? json_decode($response, true) : [];
+        if (!$usable || !$zone_id || !$this->config->get('config_checkout_payment_address')) {
+            return (bool)$usable;
+        }
 
-		return is_array($result) ? $result : [];
-	}
+        $this->load->model('localisation/geo_zone');
+
+        return (bool)$this->model_localisation_geo_zone->getGeoZone($zone_id, (int)$address['country_id'], (int)$address['zone_id']);
+    }
 }

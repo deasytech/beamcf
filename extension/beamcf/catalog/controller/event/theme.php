@@ -493,19 +493,10 @@ class Theme extends \Opencart\System\Engine\Controller {
 	 * @return bool
 	 */
 	protected function checkoutReady(): bool {
-		if (!isset($this->session->data['customer'])) {
-			return false;
-		}
+		$payment_ok = !$this->config->get('config_checkout_payment_address') || isset($this->session->data['payment_address']);
+		$shipping_ok = !$this->cart->hasShipping() || isset($this->session->data['shipping_address']['address_id']);
 
-		if ($this->config->get('config_checkout_payment_address') && !isset($this->session->data['payment_address'])) {
-			return false;
-		}
-
-		if ($this->cart->hasShipping() && !isset($this->session->data['shipping_address']['address_id'])) {
-			return false;
-		}
-
-		return true;
+		return isset($this->session->data['customer']) && $payment_ok && $shipping_ok;
 	}
 
 	/**

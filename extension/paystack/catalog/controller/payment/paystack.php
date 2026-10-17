@@ -10,183 +10,252 @@ namespace Opencart\Catalog\Controller\Extension\Paystack\Payment;
  * @package Opencart\Catalog\Controller\Extension\Paystack\Payment
  */
 class Paystack extends \Opencart\System\Engine\Controller {
-	/**
-	 * Index
-	 *
-	 * @return string
-	 */
-	public function index(): string {
-		$this->load->language('extension/paystack/payment/paystack');
+    private const ROUTE = 'extension/paystack/payment/paystack';
+    private const MODEL = self::ROUTE;
 
-		$data['language'] = $this->config->get('config_language');
+    /**
+     * Index
+     *
+     * @return string
+     */
+    public function index(): string {
+        $this->load->language(self::ROUTE);
 
-		return $this->load->view('extension/paystack/payment/paystack', $data);
-	}
+        return $this->load->view(self::ROUTE, ['language' => $this->config->get('config_language')]);
+    }
 
-	/**
-	 * Confirm
-	 *
-	 * @return void
-	 */
-	public function confirm(): void {
-		$this->load->language('extension/paystack/payment/paystack');
+    /**
+     * Confirm
+     *
+     * @return void
+     */
+    public function confirm(): void {
+        $this->load->language(self::ROUTE);
+        $this->load->model('checkout/order');
 
-		$json = [];
+        $json = [];
 
-		$order_info = [];
+        $order_id = (int)($this->session->data['order_id'] ?? 0);
 
-		if (isset($this->session->data['order_id'])) {
-			$this->load->model('checkout/order');
+        $order_info = $this->model_checkout_order->getOrder($order_id);
 
-			$order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
+        if (!$order_info) {
+            $json['error'] = $this->language->get('error_order');
 
-			if (!$order_info) {
-				$json['redirect'] = $this->url->link('checkout/failure', 'language=' . $this->config->get('config_language'), true);
+            if ($order_id) {
+                $json['redirect'] = $this->url->link('checkout/failure', $this->languageQuery(), true);
 
-				unset($this->session->data['order_id']);
-			}
-		} else {
-			$json['error'] = $this->language->get('error_order');
-		}
+                unset($this->session->data['order_id']);
+            }
+        }
 
-		if (!isset($this->session->data['payment_method']) || $this->session->data['payment_method']['code'] != 'paystack.paystack') {
-			$json['error'] = $this->language->get('error_payment_method');
-		}
+        if (($this->session->data['payment_method']['code'] ?? '') != 'paystack.paystack') {
+            $json['error'] = $this->language->get('error_payment_method');
+        }
 
-		if (!$this->config->get('payment_paystack_secret_key')) {
-			$json['error'] = $this->language->get('error_config');
-		}
+        if (!$this->config->get('payment_paystack_secret_key')) {
+            $json['error'] = $this->language->get('error_config');
+        }
 
-		if (!$json) {
-			$this->load->model('extension/paystack/payment/paystack');
+        if (!$json) {
+            $json = $this->startTransaction($order_info);
+        }
 
-			$result = $this->model_extension_paystack_payment_paystack->request('POST', '/transaction/initialize', [
-				'email'        => $order_info['email'],
-				'amount'       => $this->model_extension_paystack_payment_paystack->getAmount($order_info),
-				'currency'     => $order_info['currency_code'],
-				'reference'    => 'OC' . (int)$order_info['order_id'] . '-' . bin2hex(random_bytes(8)),
-				'callback_url' => $this->url->link('extension/paystack/payment/paystack.callback', 'language=' . $this->config->get('config_language'), true),
-				'metadata'     => ['order_id' => (int)$order_info['order_id']]
-			]);
+        $this->response->addHeader('Content-Type: application/json');
+        $this->response->setOutput(json_encode($json));
+    }
 
-			if (!empty($result['status']) && !empty($result['data']['authorization_url'])) {
-				$json['redirect'] = $result['data']['authorization_url'];
-			} else {
-				$this->log->write('Paystack initialize failed: ' . ($result['message'] ?? 'no response'));
+    /**
+     * Callback: the customer returns from Paystack
+     *
+     * @return void
+     */
+    public function callback(): void {
+        $this->load->language(self::ROUTE);
 
-				$json['error'] = $this->language->get('error_init');
-			}
-		}
+        $reference = (string)($this->request->get['reference'] ?? $this->request->get['trxref'] ?? '');
 
-		$this->response->addHeader('Content-Type: application/json');
-		$this->response->setOutput(json_encode($json));
-	}
+        $result = $this->process($reference);
 
-	/**
-	 * Callback: the customer returns from Paystack
-	 *
-	 * @return void
-	 */
-	public function callback(): void {
-		$this->load->language('extension/paystack/payment/paystack');
+        if ($result == 'paid') {
+            $this->response->redirect($this->url->link('checkout/success', $this->languageQuery(), true));
+        } else {
+            $this->session->data['error'] = $this->language->get($result == 'failed' ? 'error_failed' : 'error_verify');
 
-		$language = 'language=' . $this->config->get('config_language');
+            $this->response->redirect($this->url->link('checkout/failure', $this->languageQuery(), true));
+        }
+    }
 
-		$reference = (string)($this->request->get['reference'] ?? $this->request->get['trxref'] ?? '');
+    /**
+     * Webhook: server to server notification from Paystack
+     *
+     * @return void
+     */
+    public function webhook(): void {
+        $payload = (string)file_get_contents('php://input');
+        $signature = (string)($this->request->server['HTTP_X_PAYSTACK_SIGNATURE'] ?? '');
+        $secret = (string)$this->config->get('payment_paystack_secret_key');
 
-		$result = $this->process($reference);
+        if (!$payload || !$signature || !$secret || !hash_equals(hash_hmac('sha512', $payload, $secret), $signature)) {
+            http_response_code(400);
 
-		if ($result == 'paid') {
-			$this->response->redirect($this->url->link('checkout/success', $language, true));
-		} else {
-			$this->session->data['error'] = $this->language->get($result == 'failed' ? 'error_failed' : 'error_verify');
+            exit();
+        }
 
-			$this->response->redirect($this->url->link('checkout/failure', $language, true));
-		}
-	}
+        $event = json_decode($payload, true);
 
-	/**
-	 * Webhook: server to server notification from Paystack
-	 *
-	 * @return void
-	 */
-	public function webhook(): void {
-		$payload = (string)file_get_contents('php://input');
-		$signature = (string)($this->request->server['HTTP_X_PAYSTACK_SIGNATURE'] ?? '');
-		$secret = (string)$this->config->get('payment_paystack_secret_key');
+        if (is_array($event) && ($event['event'] ?? '') == 'charge.success' && !empty($event['data']['reference'])) {
+            $this->process((string)$event['data']['reference']);
+        }
 
-		if (!$payload || !$signature || !$secret || !hash_equals(hash_hmac('sha512', $payload, $secret), $signature)) {
-			http_response_code(400);
+        // Acknowledge so Paystack does not retry
+        http_response_code(200);
 
-			exit();
-		}
+        exit();
+    }
 
-		$event = json_decode($payload, true);
+    /**
+     * @return string
+     */
+    private function languageQuery(): string {
+        return 'language=' . $this->config->get('config_language');
+    }
 
-		if (is_array($event) && ($event['event'] ?? '') == 'charge.success' && !empty($event['data']['reference'])) {
-			$this->process((string)$event['data']['reference']);
-		}
+    /**
+     * Ask Paystack to start a transaction for the order.
+     *
+     * @param array<string, mixed> $order_info
+     *
+     * @return array<string, string> redirect or error
+     */
+    private function startTransaction(array $order_info): array {
+        $this->load->model(self::MODEL);
 
-		// Acknowledge so Paystack does not retry
-		http_response_code(200);
+        $result = $this->model_extension_paystack_payment_paystack->request('POST', '/transaction/initialize', [
+            'email'        => $order_info['email'],
+            'amount'       => $this->model_extension_paystack_payment_paystack->getAmount($order_info),
+            'currency'     => $order_info['currency_code'],
+            'reference'    => 'OC' . (int)$order_info['order_id'] . '-' . bin2hex(random_bytes(8)),
+            'callback_url' => $this->url->link(self::ROUTE . '.callback', $this->languageQuery(), true),
+            'metadata'     => ['order_id' => (int)$order_info['order_id']]
+        ]);
 
-		exit();
-	}
+        if (!empty($result['status']) && !empty($result['data']['authorization_url'])) {
+            return ['redirect' => $result['data']['authorization_url']];
+        }
 
-	/**
-	 * Verify a transaction with Paystack and update the order. Safe to call more than once.
-	 *
-	 * @param string $reference
-	 *
-	 * @return string paid | failed | error
-	 */
-	private function process(string $reference): string {
-		if (!preg_match('/^OC\d+-[a-f0-9]{16}$/', $reference)) {
-			return 'error';
-		}
+        $this->log->write('Paystack initialize failed: ' . ($result['message'] ?? 'no response'));
 
-		$this->load->model('extension/paystack/payment/paystack');
-		$this->load->model('checkout/order');
+        return ['error' => $this->language->get('error_init')];
+    }
 
-		$result = $this->model_extension_paystack_payment_paystack->request('GET', '/transaction/verify/' . $reference);
+    /**
+     * Verify a transaction with Paystack and update the order. Safe to call more than once.
+     *
+     * @param string $reference
+     *
+     * @return string paid | failed | error
+     */
+    private function process(string $reference): string {
+        $order_info = [];
 
-		if (empty($result['status']) || empty($result['data']['reference']) || $result['data']['reference'] !== $reference) {
-			return 'error';
-		}
+        $transaction = $this->verified($reference, $order_info);
 
-		$transaction = $result['data'];
+        if (!$transaction) {
+            return 'error';
+        }
 
-		$order_id = (int)($transaction['metadata']['order_id'] ?? 0);
+        return $this->settle($transaction, $order_info, $reference);
+    }
 
-		$order_info = $this->model_checkout_order->getOrder($order_id);
+    /**
+     * Fetch the transaction from Paystack and make sure it belongs to one of our orders.
+     *
+     * @param string               $reference
+     * @param array<string, mixed> $order_info filled with the order the transaction belongs to
+     *
+     * @return array<string, mixed> the verified transaction, empty when it cannot be trusted
+     */
+    private function verified(string $reference, array &$order_info): array {
+        $transaction = [];
 
-		if (!$order_info || !str_starts_with($reference, 'OC' . $order_id . '-')) {
-			return 'error';
-		}
+        if (preg_match('/^OC\d+-[a-f0-9]{16}$/', $reference)) {
+            $this->load->model(self::MODEL);
+            $this->load->model('checkout/order');
 
-		$this->load->language('extension/paystack/payment/paystack');
+            $result = $this->model_extension_paystack_payment_paystack->request('GET', '/transaction/verify/' . $reference);
 
-		if ($transaction['status'] === 'success') {
-			// Amount and currency must match the order exactly
-			if ((int)$transaction['amount'] !== $this->model_extension_paystack_payment_paystack->getAmount($order_info) || $transaction['currency'] !== $order_info['currency_code']) {
-				$this->log->write('Paystack amount/currency mismatch for order ' . $order_id . ' reference ' . $reference);
+            $data = (array)($result['data'] ?? []);
 
-				return 'error';
-			}
+            $order_id = (int)($data['metadata']['order_id'] ?? 0);
 
-			$paid_statuses = array_merge((array)$this->config->get('config_processing_status'), (array)$this->config->get('config_complete_status'));
+            $order_info = $this->model_checkout_order->getOrder($order_id);
 
-			if (!in_array($order_info['order_status_id'], $paid_statuses)) {
-				$this->model_checkout_order->addHistory($order_id, (int)$this->config->get('payment_paystack_paid_status_id'), sprintf($this->language->get('text_paid'), $reference), true);
-			}
+            if (!empty($result['status']) && ($data['reference'] ?? '') === $reference && $order_info && str_starts_with($reference, 'OC' . $order_id . '-')) {
+                $transaction = $data;
+            }
+        }
 
-			return 'paid';
-		}
+        return $transaction;
+    }
 
-		if ($transaction['status'] === 'failed' && !$order_info['order_status_id']) {
-			$this->model_checkout_order->addHistory($order_id, (int)$this->config->get('payment_paystack_failed_status_id'), sprintf($this->language->get('text_failed'), $reference), false);
-		}
+    /**
+     * Apply a verified transaction to its order.
+     *
+     * @param array<string, mixed> $transaction
+     * @param array<string, mixed> $order_info
+     * @param string               $reference
+     *
+     * @return string paid | failed | error
+     */
+    private function settle(array $transaction, array $order_info, string $reference): string {
+        $this->load->language(self::ROUTE);
 
-		return 'failed';
-	}
+        $order_id = (int)$order_info['order_id'];
+
+        $result = 'failed';
+
+        if ($transaction['status'] === 'success') {
+            $result = $this->amountMatches($transaction, $order_info) ? 'paid' : 'error';
+
+            if ($result == 'paid' && !$this->isPaid($order_info)) {
+                $this->model_checkout_order->addHistory($order_id, (int)$this->config->get('payment_paystack_paid_status_id'), sprintf($this->language->get('text_paid'), $reference), true);
+            }
+        } elseif ($transaction['status'] === 'failed' && !$order_info['order_status_id']) {
+            $this->model_checkout_order->addHistory($order_id, (int)$this->config->get('payment_paystack_failed_status_id'), sprintf($this->language->get('text_failed'), $reference), false);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Amount and currency must match the order exactly.
+     *
+     * @param array<string, mixed> $transaction
+     * @param array<string, mixed> $order_info
+     *
+     * @return bool
+     */
+    private function amountMatches(array $transaction, array $order_info): bool {
+        $this->load->model(self::MODEL);
+
+        $matches = (int)$transaction['amount'] === $this->model_extension_paystack_payment_paystack->getAmount($order_info) && $transaction['currency'] === $order_info['currency_code'];
+
+        if (!$matches) {
+            $this->log->write('Paystack amount/currency mismatch for order ' . $order_info['order_id']);
+        }
+
+        return $matches;
+    }
+
+    /**
+     * @param array<string, mixed> $order_info
+     *
+     * @return bool whether the order already has a processing or complete status
+     */
+    private function isPaid(array $order_info): bool {
+        $paid_statuses = array_merge((array)$this->config->get('config_processing_status'), (array)$this->config->get('config_complete_status'));
+
+        return in_array($order_info['order_status_id'], $paid_statuses);
+    }
 }
