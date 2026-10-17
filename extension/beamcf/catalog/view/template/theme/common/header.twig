@@ -52,17 +52,17 @@
             <button type="button" class="bcf-topbar-toggle dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-user" aria-hidden="true"></i> <span class="d-none d-md-inline">{{ text_account }}</span></button>
             <ul class="dropdown-menu dropdown-menu-end">
               {% if not logged %}
-                <li><a href="{{ register }}" class="dropdown-item">{{ text_register }}</a></li>
-                <li><a href="{{ login }}" class="dropdown-item">{{ text_login }}</a></li>
+                <li><a href="{{ register }}" class="dropdown-item"><i class="fa-solid fa-user-plus" aria-hidden="true"></i><span>{{ text_register }}</span></a></li>
+                <li><a href="{{ login }}" class="dropdown-item"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i><span>{{ text_login }}</span></a></li>
               {% else %}
-                <li><a href="{{ account }}" class="dropdown-item">{{ text_account }}</a></li>
-                <li><a href="{{ order }}" class="dropdown-item">{{ text_order }}</a></li>
-                <li><a href="{{ transaction }}" class="dropdown-item">{{ text_transaction }}</a></li>
-                <li><a href="{{ download }}" class="dropdown-item">{{ text_download }}</a></li>
-                <li><a href="{{ logout }}" class="dropdown-item">{{ text_logout }}</a></li>
+                <li><a href="{{ account }}" class="dropdown-item"><i class="fa-solid fa-user" aria-hidden="true"></i><span>{{ text_account }}</span></a></li>
+                <li><a href="{{ order }}" class="dropdown-item"><i class="fa-solid fa-box" aria-hidden="true"></i><span>{{ text_order }}</span></a></li>
+                <li><a href="{{ transaction }}" class="dropdown-item"><i class="fa-solid fa-wallet" aria-hidden="true"></i><span>{{ text_transaction }}</span></a></li>
+                <li><a href="{{ download }}" class="dropdown-item"><i class="fa-solid fa-download" aria-hidden="true"></i><span>{{ text_download }}</span></a></li>
+                <li><a href="{{ logout }}" class="dropdown-item bcf-menu-logout"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i><span>{{ text_logout }}</span></a></li>
               {% endif %}
               <li><hr class="dropdown-divider"></li>
-              <li><a href="{{ checkout }}" class="dropdown-item">{{ text_checkout }}</a></li>
+              <li><a href="{{ checkout }}" class="dropdown-item"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i><span>{{ text_checkout }}</span></a></li>
             </ul>
           </div>
         </li>

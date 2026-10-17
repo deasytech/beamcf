@@ -1,0 +1,7 @@
+{
+  "name": "Paystack Payment",
+  "description": "Accept payments through Paystack (hosted checkout) with server-side verification and signed webhook.",
+  "version": "1.0",
+  "author": "BeamCF",
+  "link": "https://paystack.com"
+}

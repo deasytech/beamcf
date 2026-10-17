@@ -9,8 +9,10 @@
     <div id="content" class="col">{{ content_top }}
       <h1 class="bcf-page-title">{{ heading_title }}</h1>
       <div class="bcf-checkout-layout">
+        {% set bcf_locked = register and not bcf_checkout_ready %}
         {% if register or payment_address or shipping_address %}
           <div class="bcf-checkout-forms">
+            <span class="bcf-step-badge">{{ bcf_text_step|replace({'%s': 1}) }}</span>
             {% if register %}
               <div id="checkout-register" class="bcf-checkout-block">{{ register }}</div>
             {% endif %}
@@ -23,10 +25,17 @@
           </div>
         {% endif %}
         <div class="bcf-checkout-side bcf-checkout-panel">
-          {% if shipping_method %}
-            <div id="checkout-shipping-method" class="bcf-checkout-card">{{ shipping_method }}</div>
-          {% endif %}
-          <div id="checkout-payment-method" class="bcf-checkout-card">{{ payment_method }}</div>
+          <div id="bcf-lockable" class="bcf-lockable{% if bcf_locked %} is-locked{% endif %}">
+            <div class="bcf-lock-body"{% if bcf_locked %} inert{% endif %}>
+              {% if shipping_method %}
+                <div id="checkout-shipping-method" class="bcf-checkout-card"><span class="bcf-step-badge">{{ bcf_text_step|replace({'%s': 2}) }}</span>{{ shipping_method }}</div>
+              {% endif %}
+              <div id="checkout-payment-method" class="bcf-checkout-card"><span class="bcf-step-badge">{{ bcf_text_step|replace({'%s': shipping_method ? 3 : 2}) }}</span>{{ payment_method }}</div>
+            </div>
+            {% if bcf_locked %}
+              <button type="button" id="bcf-lock-cover" class="bcf-lock-cover" aria-label="{{ bcf_text_locked_go }}"><i class="fa-solid fa-lock" aria-hidden="true"></i><span id="bcf-lock-text">{{ bcf_text_locked_hint }}</span></button>
+            {% endif %}
+          </div>
           <div class="bcf-checkout-card bcf-checkout-summary"><h2 class="bcf-checkout-summary-title">{{ bcf_text_order_summary }}</h2><div id="checkout-confirm">{{ confirm }}</div></div>
         </div>
       </div>
@@ -39,6 +48,70 @@
 <script type="text/javascript"><!--
 $(document).ready(function() {
     $('#input-comment').val('');
+{% if register %}
+    var $lockable = $('#bcf-lockable');
+    var $register = $('#form-register');
+    var $continue = $('#button-register');
+    var hint_changed = '{{ bcf_text_locked_changed|escape('js') }}';
+    var hint_initial = '{{ bcf_text_locked_hint|escape('js') }}';
+    var locked = $lockable.hasClass('is-locked');
+
+    // The core button only says "Continue"; say what it unlocks.
+    $continue.text('{{ bcf_text_continue_label|escape('js') }}').addClass('bcf-continue-main');
+
+    function setLocked(state, text) {
+        locked = state;
+        $lockable.toggleClass('is-locked', state);
+        $lockable.find('.bcf-lock-body').prop('inert', state);
+
+        if (state) {
+            if (!$('#bcf-lock-cover').length) {
+                $lockable.append('<button type="button" id="bcf-lock-cover" class="bcf-lock-cover" aria-label="{{ bcf_text_locked_go|escape('js') }}"><i class="fa-solid fa-lock" aria-hidden="true"></i><span id="bcf-lock-text"></span></button>');
+            }
+
+            $('#bcf-lock-text').text(text || hint_initial);
+        } else {
+            $('#bcf-lock-cover').remove();
+        }
+    }
+
+    // Clicking the locked area takes the customer to the Continue button.
+    $lockable.on('click', '#bcf-lock-cover', function() {
+        var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        $continue[0].scrollIntoView({behavior: reduce ? 'auto' : 'smooth', block: 'center'});
+        $continue.trigger('focus').removeClass('bcf-pulse');
+        void $continue[0].offsetWidth;
+        $continue.addClass('bcf-pulse');
+    });
+
+    // Editing the details after saving makes the saved copy stale, so ask for Continue again.
+    $register.on('input change', ':input', function(e) {
+        // Only real user input: core scripts trigger synthetic change events while loading zones.
+        if (!locked && e.originalEvent && e.originalEvent.isTrusted) {
+            setLocked(true, hint_changed);
+        }
+    });
+
+    // Unlock as soon as the core register request reports success.
+    $(document).ajaxSuccess(function(event, xhr, settings) {
+        if (!settings.url || settings.url.indexOf('checkout/register.save') === -1) {
+            return;
+        }
+
+        var json = xhr.responseJSON;
+
+        if (json && json['success']) {
+            setLocked(false);
+
+            var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            var $target = $('#checkout-shipping-method').length ? $('#checkout-shipping-method') : $('#checkout-payment-method');
+
+            $target[0].scrollIntoView({behavior: reduce ? 'auto' : 'smooth', block: 'start'});
+            $target.find('.btn-primary').first().trigger('focus', {preventScroll: true});
+        }
+    });
+{% endif %}
 });
 //--></script>
 

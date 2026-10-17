@@ -65,6 +65,9 @@ class Theme extends \Opencart\System\Engine\Controller {
 			case self::ROUTE_PRODUCT:
 				$this->product($args);
 				break;
+			case 'checkout/checkout':
+				$args['bcf_checkout_ready'] = $this->checkoutReady();
+				break;
 			case 'information/contact':
 				$args['bcf_email'] = trim((string)$this->config->get('config_email'));
 				break;
@@ -483,6 +486,29 @@ class Theme extends \Opencart\System\Engine\Controller {
 	}
 
 	/**
+	 * Whether the customer details (and shipping address when needed) are already saved in the session.
+	 * Mirrors the checks the core shipping and payment method controllers make, so the locked state of the
+	 * checkout side panel never disagrees with what those controllers will accept.
+	 *
+	 * @return bool
+	 */
+	protected function checkoutReady(): bool {
+		if (!isset($this->session->data['customer'])) {
+			return false;
+		}
+
+		if ($this->config->get('config_checkout_payment_address') && !isset($this->session->data['payment_address'])) {
+			return false;
+		}
+
+		if ($this->cart->hasShipping() && !isset($this->session->data['shipping_address']['address_id'])) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
 	 * Copies the theme language strings into the template data.
 	 *
 	 * @param array<string, mixed> $args
@@ -490,7 +516,7 @@ class Theme extends \Opencart\System\Engine\Controller {
 	 * @return void
 	 */
 	protected function text(array &$args): void {
-		foreach (['skip', 'shop_by_category', 'categories', 'menu', 'close', 'home', 'special', 'products', 'blog', 'contact', 'compare', 'search', 'cart', 'items', 'all', 'my_account', 'quick_links', 'information', 'brands', 'address', 'call_us', 'email_us', 'follow', 'back_to_top', 'shop_now', 'prev', 'next', 'slide', 'shop_by_category_title', 'view_all', 'latest', 'featured', 'bestseller', 'deals', 'deal_ends', 'days', 'hours', 'minutes', 'seconds', 'special_products', 'best_sellers', 'from_blog', 'read_more', 'brands_title', 'sale', 'new', 'out_of_stock', 'our_products', 'testimonials', 'view_more', 'filters', 'filter_by', 'price', 'price_min', 'price_max', 'brand', 'availability', 'in_stock', 'on_sale', 'rating', 'rating_up', 'apply', 'reset', 'clear_all', 'active_filters', 'remove_filter', 'showing', 'showing_one', 'sort_by', 'show', 'grid_view', 'list_view', 'no_match', 'no_match_help', 'no_filters', 'category_empty', 'subcategories', 'filter_open', 'search_label', 'search_placeholder', 'filter_title', 'to', 'show_sub', 'pre_order', 'color', 'size', 'discount', 'discount_up', 'quick_view', 'qv_loading', 'qv_failed', 'qv_retry', 'qv_wishlist_failed', 'pd_zoom', 'pd_buy_now', 'pd_compare', 'qty_less', 'qty_more', 'order_summary'] as $key) {
+		foreach (['skip', 'shop_by_category', 'categories', 'menu', 'close', 'home', 'special', 'products', 'blog', 'contact', 'compare', 'search', 'cart', 'items', 'all', 'my_account', 'quick_links', 'information', 'brands', 'address', 'call_us', 'email_us', 'follow', 'back_to_top', 'shop_now', 'prev', 'next', 'slide', 'shop_by_category_title', 'view_all', 'latest', 'featured', 'bestseller', 'deals', 'deal_ends', 'days', 'hours', 'minutes', 'seconds', 'special_products', 'best_sellers', 'from_blog', 'read_more', 'brands_title', 'sale', 'new', 'out_of_stock', 'our_products', 'testimonials', 'view_more', 'filters', 'filter_by', 'price', 'price_min', 'price_max', 'brand', 'availability', 'in_stock', 'on_sale', 'rating', 'rating_up', 'apply', 'reset', 'clear_all', 'active_filters', 'remove_filter', 'showing', 'showing_one', 'sort_by', 'show', 'grid_view', 'list_view', 'no_match', 'no_match_help', 'no_filters', 'category_empty', 'subcategories', 'filter_open', 'search_label', 'search_placeholder', 'filter_title', 'to', 'show_sub', 'pre_order', 'color', 'size', 'discount', 'discount_up', 'quick_view', 'qv_loading', 'qv_failed', 'qv_retry', 'qv_wishlist_failed', 'pd_zoom', 'pd_buy_now', 'pd_compare', 'qty_less', 'qty_more', 'order_summary', 'step', 'continue_label', 'locked_hint', 'locked_changed', 'locked_go'] as $key) {
 			$args['bcf_text_' . $key] = $this->language->get('bcf_' . $key);
 		}
 	}

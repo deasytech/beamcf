@@ -1,0 +1,7 @@
+{
+  "name": "Geo Zone Shipping",
+  "description": "Several named delivery methods, each with its own geo zone, minimum order total, flat cost and tax class.",
+  "version": "1.0",
+  "author": "BeamCF",
+  "link": ""
+}
