@@ -1,0 +1,65 @@
+{{ header }}
+<div id="account-account" class="container bcf-account-page">
+  <ul class="breadcrumb">
+    {% for breadcrumb in breadcrumbs %}
+      <li class="breadcrumb-item"><a href="{{ breadcrumb.href }}">{% if loop.first %}<i class="fa-solid fa-house" aria-hidden="true"></i><span class="visually-hidden">{{ bcf_text_home }}</span>{% else %}{{ breadcrumb.text }}{% endif %}</a></li>
+    {% endfor %}
+  </ul>
+  {% if success %}
+    <output class="alert alert-success alert-dismissible d-block"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> {{ success }} <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ bcf_text_close }}"></button></output>
+  {% endif %}
+  <div class="row">
+    {{ column_left }}
+    <div id="content" class="col">
+      {{ content_top }}
+      <h1 class="bcf-page-title">{{ text_my_account }}</h1>
+      <div class="bcf-acc-grid">
+        <section class="bcf-acc-group" aria-labelledby="acc-h-account">
+          <h2 id="acc-h-account">{{ text_my_account }}</h2>
+          <ul class="bcf-acc-links">
+            <li><a href="{{ edit }}"><i class="fa-regular fa-user" aria-hidden="true"></i><span>{{ text_edit }}</span></a></li>
+            <li><a href="{{ password }}"><i class="fa-solid fa-lock" aria-hidden="true"></i><span>{{ text_password }}</span></a></li>
+            <li><a href="{{ payment_method }}"><i class="fa-regular fa-credit-card" aria-hidden="true"></i><span>{{ text_payment_method }}</span></a></li>
+            <li><a href="{{ address }}"><i class="fa-solid fa-location-dot" aria-hidden="true"></i><span>{{ text_address }}</span></a></li>
+            <li><a href="{{ wishlist }}"><i class="fa-regular fa-heart" aria-hidden="true"></i><span>{{ text_wishlist }}</span></a></li>
+          </ul>
+        </section>
+        <section class="bcf-acc-group" aria-labelledby="acc-h-orders">
+          <h2 id="acc-h-orders">{{ text_my_orders }}</h2>
+          <ul class="bcf-acc-links">
+            <li><a href="{{ order }}"><i class="fa-solid fa-box" aria-hidden="true"></i><span>{{ text_order }}</span></a></li>
+            <li><a href="{{ subscription }}"><i class="fa-solid fa-rotate" aria-hidden="true"></i><span>{{ text_subscription }}</span></a></li>
+            <li><a href="{{ download }}"><i class="fa-solid fa-download" aria-hidden="true"></i><span>{{ text_download }}</span></a></li>
+            {% if reward %}
+              <li><a href="{{ reward }}"><i class="fa-solid fa-star" aria-hidden="true"></i><span>{{ text_reward }}</span></a></li>
+            {% endif %}
+            <li><a href="{{ return }}"><i class="fa-solid fa-arrow-rotate-left" aria-hidden="true"></i><span>{{ text_return }}</span></a></li>
+            <li><a href="{{ transaction }}"><i class="fa-solid fa-wallet" aria-hidden="true"></i><span>{{ text_transaction }}</span></a></li>
+          </ul>
+        </section>
+        {% if affiliate %}
+          <section class="bcf-acc-group" aria-labelledby="acc-h-affiliate">
+            <h2 id="acc-h-affiliate">{{ text_my_affiliate }}</h2>
+            <ul class="bcf-acc-links">
+              {% if not tracking %}
+                <li><a href="{{ affiliate }}"><i class="fa-solid fa-handshake" aria-hidden="true"></i><span>{{ text_affiliate_add }}</span></a></li>
+              {% else %}
+                <li><a href="{{ affiliate }}"><i class="fa-solid fa-handshake" aria-hidden="true"></i><span>{{ text_affiliate_edit }}</span></a></li>
+                <li><a href="{{ tracking }}"><i class="fa-solid fa-link" aria-hidden="true"></i><span>{{ text_tracking }}</span></a></li>
+              {% endif %}
+            </ul>
+          </section>
+        {% endif %}
+        <section class="bcf-acc-group" aria-labelledby="acc-h-newsletter">
+          <h2 id="acc-h-newsletter">{{ text_my_newsletter }}</h2>
+          <ul class="bcf-acc-links">
+            <li><a href="{{ newsletter }}"><i class="fa-regular fa-envelope" aria-hidden="true"></i><span>{{ text_newsletter }}</span></a></li>
+          </ul>
+        </section>
+      </div>
+      {{ content_bottom }}
+    </div>
+    {{ column_right }}
+  </div>
+</div>
+{{ footer }}

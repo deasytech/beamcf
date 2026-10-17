@@ -1,0 +1,27 @@
+<nav class="bcf-acc-nav mb-3" aria-label="{{ text_account }}">
+  <div class="list-group">
+    {% if not logged %}
+      <a href="{{ login }}" class="list-group-item"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i><span>{{ text_login }}</span></a>
+      <a href="{{ register }}" class="list-group-item"><i class="fa-solid fa-user-plus" aria-hidden="true"></i><span>{{ text_register }}</span></a>
+      <a href="{{ forgotten }}" class="list-group-item"><i class="fa-solid fa-key" aria-hidden="true"></i><span>{{ text_forgotten }}</span></a>
+    {% endif %}
+    <a href="{{ account }}" class="list-group-item"><i class="fa-solid fa-gauge" aria-hidden="true"></i><span>{{ text_account }}</span></a>
+    {% if logged %}
+      <a href="{{ edit }}" class="list-group-item"><i class="fa-regular fa-user" aria-hidden="true"></i><span>{{ text_edit }}</span></a>
+      <a href="{{ password }}" class="list-group-item"><i class="fa-solid fa-lock" aria-hidden="true"></i><span>{{ text_password }}</span></a>
+    {% endif %}
+    <a href="{{ payment_method }}" class="list-group-item"><i class="fa-regular fa-credit-card" aria-hidden="true"></i><span>{{ text_payment_method }}</span></a>
+    <a href="{{ address }}" class="list-group-item"><i class="fa-solid fa-location-dot" aria-hidden="true"></i><span>{{ text_address }}</span></a>
+    <a href="{{ wishlist }}" class="list-group-item"><i class="fa-regular fa-heart" aria-hidden="true"></i><span>{{ text_wishlist }}</span></a>
+    <a href="{{ order }}" class="list-group-item"><i class="fa-solid fa-box" aria-hidden="true"></i><span>{{ text_order }}</span></a>
+    <a href="{{ download }}" class="list-group-item"><i class="fa-solid fa-download" aria-hidden="true"></i><span>{{ text_download }}</span></a>
+    <a href="{{ subscription }}" class="list-group-item"><i class="fa-solid fa-rotate" aria-hidden="true"></i><span>{{ text_subscription }}</span></a>
+    <a href="{{ reward }}" class="list-group-item"><i class="fa-solid fa-star" aria-hidden="true"></i><span>{{ text_reward }}</span></a>
+    <a href="{{ return }}" class="list-group-item"><i class="fa-solid fa-arrow-rotate-left" aria-hidden="true"></i><span>{{ text_return }}</span></a>
+    <a href="{{ transaction }}" class="list-group-item"><i class="fa-solid fa-wallet" aria-hidden="true"></i><span>{{ text_transaction }}</span></a>
+    <a href="{{ newsletter }}" class="list-group-item"><i class="fa-regular fa-envelope" aria-hidden="true"></i><span>{{ text_newsletter }}</span></a>
+    {% if logged %}
+      <a href="{{ logout }}" class="list-group-item bcf-acc-logout"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i><span>{{ text_logout }}</span></a>
+    {% endif %}
+  </div>
+</nav>

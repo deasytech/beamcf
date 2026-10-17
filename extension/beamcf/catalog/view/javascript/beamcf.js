@@ -505,3 +505,19 @@
     if (drawer.classList.contains('show')) { fill(); }
   }).observe(cart, {childList: true});
 })();
+
+/* Account sidebar: mark the link for the current page. */
+(function () {
+  var links = document.querySelectorAll('.bcf-acc-nav a');
+  var route = new URLSearchParams(window.location.search).get('route');
+  if (!route) { return; }
+  route = route.split('|')[0];
+  var best = null;
+  links.forEach(function (a) {
+    try {
+      var r = (new URL(a.href, window.location.href).searchParams.get('route') || '').split('|')[0];
+      if (r === route) { best = a; }
+    } catch (e) { /* ignore malformed links */ }
+  });
+  if (best) { best.setAttribute('aria-current', 'page'); }
+})();

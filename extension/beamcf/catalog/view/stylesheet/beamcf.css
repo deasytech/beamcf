@@ -3349,3 +3349,102 @@ html.bcf-qv-open {
 .bcf .bcf-topbar .dropdown > span.dropdown-toggle .fa-caret-down { transition: transform .15s; }
 .bcf .bcf-topbar .dropdown > span.dropdown-toggle.show .fa-caret-down { transform: rotate(180deg); }
 #checkout-confirm.is-stale { opacity: .45; filter: grayscale(1); pointer-events: none; user-select: none; }
+
+/* ---------- Customer account area (dashboard, sidebar and the default account pages) ---------- */
+.bcf [id^="account-"]:not(.bcf-form-page) { padding-bottom: var(--bcf-space-5); }
+.bcf [id^="account-"]:not(.bcf-form-page) > .row { --bs-gutter-x: var(--bcf-space-4); row-gap: var(--bcf-space-3); }
+.bcf [id^="account-"]:not(.bcf-form-page) > .row > #content { min-width: 0; }
+.bcf [id^="account-"]:not(.bcf-form-page) > .row > #column-right { display: block !important; order: -1; flex: 0 0 auto; width: 100%; }
+.bcf [id^="account-"]:not(.bcf-form-page) h1 { font-size: 1.75rem; font-weight: 700; margin: 0 0 var(--bcf-space-4); }
+.bcf [id^="account-"]:not(.bcf-form-page) #content h2 { font-size: 1.25rem; font-weight: 700; margin: var(--bcf-space-4) 0 var(--bcf-space-3); }
+.bcf [id^="account-"]:not(.bcf-form-page) #content h3 { font-size: 1.05rem; font-weight: 700; }
+
+/* Sidebar navigation */
+.bcf-acc-nav .list-group { border: 1px solid var(--bcf-border); border-radius: var(--bcf-radius); overflow: hidden; background: var(--bcf-white); }
+.bcf-acc-nav .list-group-item { display: flex; align-items: center; gap: var(--bcf-space-3); min-height: 46px; padding: 0 var(--bcf-space-3); border: 0; border-bottom: 1px solid var(--bcf-border); border-left: 3px solid transparent; border-radius: 0; color: var(--bcf-text); font-weight: 500; transition: background .15s, border-color .15s; }
+.bcf-acc-nav .list-group-item:last-child { border-bottom: 0; }
+.bcf-acc-nav .list-group-item i { width: 18px; text-align: center; color: var(--bcf-text-muted); flex: none; }
+.bcf-acc-nav .list-group-item:hover { background: var(--bcf-bg-alt); color: var(--bcf-text); border-left-color: var(--bcf-border); }
+.bcf-acc-nav .list-group-item:focus-visible { outline: 2px solid var(--bcf-black); outline-offset: -2px; }
+.bcf-acc-nav .list-group-item.active, .bcf-acc-nav .list-group-item[aria-current="page"] { background: var(--bcf-black); color: var(--bcf-white); border-left-color: var(--bcf-black); }
+.bcf-acc-nav .list-group-item.active i, .bcf-acc-nav .list-group-item[aria-current="page"] i { color: var(--bcf-white); }
+.bcf-acc-nav .bcf-acc-logout, .bcf-acc-nav .bcf-acc-logout i { color: var(--bcf-error); }
+.bcf-acc-nav .bcf-acc-logout:hover { background: #fdecec; }
+
+@media (max-width: 767.98px) {
+  /* Sidebar becomes a horizontally scrollable pill bar above the content. */
+  .bcf-acc-nav { margin: 0 calc(var(--bcf-gutter) * -1) !important; padding: 0 var(--bcf-gutter); overflow-x: auto; scrollbar-width: thin; }
+  .bcf-acc-nav .list-group { flex-direction: row; gap: var(--bcf-space-2); border: 0; background: none; overflow: visible; width: max-content; }
+  .bcf-acc-nav .list-group-item { min-height: 44px; padding: 0 var(--bcf-space-3); border: 1px solid var(--bcf-border); border-radius: var(--bcf-radius-pill); white-space: nowrap; gap: var(--bcf-space-2); background: var(--bcf-white); }
+  .bcf-acc-nav .list-group-item:last-child { border-bottom: 1px solid var(--bcf-border); }
+  .bcf-acc-nav .list-group-item.active, .bcf-acc-nav .list-group-item[aria-current="page"] { border-color: var(--bcf-black); }
+}
+@media (min-width: 768px) {
+  .bcf [id^="account-"]:not(.bcf-form-page) > .row > #column-right { width: 260px; }
+}
+
+/* Dashboard */
+.bcf-acc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: var(--bcf-space-4); align-items: start; }
+.bcf-acc-group { background: var(--bcf-white); border: 1px solid var(--bcf-border); border-radius: var(--bcf-radius); padding: var(--bcf-space-3) var(--bcf-space-4) var(--bcf-space-2); }
+.bcf [id^="account-"] .bcf-acc-group h2 { font-size: 0.8125rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--bcf-text-muted); margin: 0 0 var(--bcf-space-2); padding-bottom: var(--bcf-space-2); border-bottom: 1px solid var(--bcf-border); }
+.bcf-acc-links { list-style: none; margin: 0; padding: 0; }
+.bcf-acc-links a { display: flex; align-items: center; gap: var(--bcf-space-3); min-height: 48px; color: var(--bcf-text); font-weight: 500; border-radius: var(--bcf-radius); }
+.bcf-acc-links a i { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; flex: none; border-radius: 50%; background: var(--bcf-bg-alt); color: var(--bcf-text); transition: background .15s, color .15s; }
+.bcf-acc-links a:hover { color: var(--bcf-text); }
+.bcf-acc-links a:hover i, .bcf-acc-links a:focus-visible i { background: var(--bcf-black); color: var(--bcf-white); }
+.bcf-acc-links a:focus-visible { outline: 2px solid var(--bcf-black); outline-offset: 2px; }
+.bcf-acc-links li + li { border-top: 1px solid var(--bcf-bg-alt); }
+
+/* Tables (orders, wish list, downloads, rewards, transactions, returns, subscriptions, addresses) */
+.bcf [id^="account-"]:not(.bcf-form-page) .table-responsive { border: 1px solid var(--bcf-border); border-radius: var(--bcf-radius); background: var(--bcf-white); }
+.bcf [id^="account-"]:not(.bcf-form-page) .table { --bs-table-bg: transparent; --bs-table-hover-bg: var(--bcf-bg-alt); margin: 0; border-color: var(--bcf-border); vertical-align: middle; }
+.bcf [id^="account-"]:not(.bcf-form-page) .table > :not(caption) > * > * { padding: 0.9rem var(--bcf-space-3); border-width: 0 0 1px; }
+.bcf [id^="account-"]:not(.bcf-form-page) .table > tbody > tr:last-child > *, .bcf [id^="account-"]:not(.bcf-form-page) .table > tr:last-child > * { border-bottom: 0; }
+.bcf [id^="account-"]:not(.bcf-form-page) .table thead th { background: var(--bcf-bg-alt); font-size: var(--bcf-fs-sm); font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--bcf-text-muted); white-space: nowrap; }
+.bcf [id^="account-"]:not(.bcf-form-page) .table tfoot td { font-weight: 600; }
+.bcf [id^="account-"]:not(.bcf-form-page) .table img { max-width: 72px; height: auto; border: 1px solid var(--bcf-border); background: var(--bcf-white); }
+.bcf [id^="account-"]:not(.bcf-form-page) .table a:not(.btn) { color: var(--bcf-text); font-weight: 600; }
+.bcf [id^="account-"]:not(.bcf-form-page) .table a:not(.btn):hover { text-decoration: underline; }
+.bcf [id^="account-"]:not(.bcf-form-page) .table-responsive + .row { margin-top: var(--bcf-space-3); align-items: center; }
+
+/* Buttons */
+.bcf [id^="account-"]:not(.bcf-form-page) .btn { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: var(--bcf-space-2); padding: 0 var(--bcf-space-4); border-radius: var(--bcf-radius); font-weight: 700; }
+.bcf [id^="account-"]:not(.bcf-form-page) td .btn { min-height: 38px; min-width: 38px; padding: 0 var(--bcf-space-3); }
+.bcf [id^="account-"]:not(.bcf-form-page) .btn-primary { --bs-btn-bg: var(--bcf-accent); --bs-btn-border-color: var(--bcf-accent); --bs-btn-color: var(--bcf-on-accent); --bs-btn-hover-bg: var(--bcf-accent-hover); --bs-btn-hover-border-color: var(--bcf-accent-hover); --bs-btn-hover-color: var(--bcf-on-accent); --bs-btn-active-bg: var(--bcf-accent-hover); --bs-btn-active-border-color: var(--bcf-accent-hover); --bs-btn-active-color: var(--bcf-on-accent); --bs-btn-disabled-bg: var(--bcf-accent); --bs-btn-disabled-border-color: var(--bcf-accent); --bs-btn-focus-shadow-rgb: 5, 5, 5; text-transform: uppercase; letter-spacing: .02em; }
+.bcf [id^="account-"]:not(.bcf-form-page) .btn-info, .bcf [id^="account-"]:not(.bcf-form-page) .btn-light { --bs-btn-bg: var(--bcf-white); --bs-btn-border-color: var(--bcf-black); --bs-btn-color: var(--bcf-black); --bs-btn-hover-bg: var(--bcf-black); --bs-btn-hover-border-color: var(--bcf-black); --bs-btn-hover-color: var(--bcf-white); --bs-btn-active-bg: var(--bcf-black); --bs-btn-active-border-color: var(--bcf-black); --bs-btn-active-color: var(--bcf-white); }
+.bcf [id^="account-"]:not(.bcf-form-page) .btn-danger { --bs-btn-bg: var(--bcf-white); --bs-btn-border-color: var(--bcf-error); --bs-btn-color: var(--bcf-error); --bs-btn-hover-bg: var(--bcf-error); --bs-btn-hover-border-color: var(--bcf-error); --bs-btn-hover-color: var(--bcf-white); --bs-btn-active-bg: var(--bcf-error); --bs-btn-active-border-color: var(--bcf-error); --bs-btn-active-color: var(--bcf-white); }
+.bcf [id^="account-"]:not(.bcf-form-page) .btn:focus-visible { outline: 2px solid var(--bcf-black); outline-offset: 2px; box-shadow: none; }
+
+/* Forms */
+.bcf [id^="account-"]:not(.bcf-form-page) form > fieldset, .bcf [id^="account-"]:not(.bcf-form-page) #content > form fieldset { background: var(--bcf-white); border: 1px solid var(--bcf-border); border-radius: var(--bcf-radius); padding: var(--bcf-space-4); margin-bottom: var(--bcf-space-4); }
+.bcf [id^="account-"]:not(.bcf-form-page) legend { float: none; width: 100%; font-size: 1.15rem; font-weight: 700; margin: 0 0 var(--bcf-space-3); padding-bottom: var(--bcf-space-2); border-bottom: 1px solid var(--bcf-border); }
+.bcf [id^="account-"]:not(.bcf-form-page) .col-form-label { font-weight: 600; }
+.bcf [id^="account-"]:not(.bcf-form-page) .required > .col-form-label::before, .bcf [id^="account-"]:not(.bcf-form-page) .required > label::before { content: "* "; color: var(--bcf-error); }
+.bcf [id^="account-"]:not(.bcf-form-page) .form-control, .bcf [id^="account-"]:not(.bcf-form-page) .form-select { min-height: 44px; background-color: var(--bcf-bg-alt); border-radius: var(--bcf-radius); }
+.bcf [id^="account-"]:not(.bcf-form-page) .form-control:focus, .bcf [id^="account-"]:not(.bcf-form-page) .form-select:focus { background-color: var(--bcf-white); border-color: var(--bcf-black); box-shadow: 0 0 0 2px rgba(5, 5, 5, .12); }
+.bcf [id^="account-"]:not(.bcf-form-page) textarea.form-control { min-height: 120px; }
+.bcf [id^="account-"]:not(.bcf-form-page) .form-check-input { width: 1.15em; height: 1.15em; border-color: var(--bcf-black); }
+.bcf [id^="account-"]:not(.bcf-form-page) .form-check-input:checked { background-color: var(--bcf-black); border-color: var(--bcf-black); }
+.bcf [id^="account-"]:not(.bcf-form-page) .row:has(> .col > .btn, > .col-auto > .btn, > .col-6 > .btn) { margin-top: var(--bcf-space-3); }
+
+/* Order detail, addresses, alerts, pagination */
+.bcf [id^="account-"]:not(.bcf-form-page) #content .alert { border-radius: var(--bcf-radius); }
+.bcf [id^="account-"]:not(.bcf-form-page) .pagination { --bs-pagination-color: var(--bcf-text); --bs-pagination-active-bg: var(--bcf-black); --bs-pagination-active-border-color: var(--bcf-black); --bs-pagination-hover-color: var(--bcf-text); --bs-pagination-focus-color: var(--bcf-text); --bs-pagination-border-radius: var(--bcf-radius); }
+.bcf [id^="account-"]:not(.bcf-form-page) #content > p:not(.alert), .bcf [id^="account-"]:not(.bcf-form-page) #content > .text-end { margin-top: var(--bcf-space-3); }
+.bcf [id^="account-"]:not(.bcf-form-page) .card { border-color: var(--bcf-border); border-radius: var(--bcf-radius); }
+
+@media (max-width: 575.98px) {
+  .bcf [id^="account-"]:not(.bcf-form-page) h1 { font-size: 1.4rem; }
+  .bcf [id^="account-"]:not(.bcf-form-page) form > fieldset { padding: var(--bcf-space-3); }
+  .bcf-acc-grid { grid-template-columns: 1fr; gap: var(--bcf-space-3); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bcf-acc-nav .list-group-item, .bcf-acc-links a i { transition: none; }
+}
+
+/* `.bcf a` colours links, which beat Bootstrap's .btn colour on anchor buttons; set the button text colours explicitly. */
+.bcf [id^="account-"]:not(.bcf-form-page) .btn-primary, .bcf [id^="account-"]:not(.bcf-form-page) .btn-primary:hover, .bcf [id^="account-"]:not(.bcf-form-page) .btn-primary:focus, .bcf [id^="account-"]:not(.bcf-form-page) .btn-primary:active { color: var(--bcf-on-accent); }
+.bcf [id^="account-"]:not(.bcf-form-page) .btn-info, .bcf [id^="account-"]:not(.bcf-form-page) .btn-light { color: var(--bcf-black); }
+.bcf [id^="account-"]:not(.bcf-form-page) .btn-info:hover, .bcf [id^="account-"]:not(.bcf-form-page) .btn-info:focus-visible, .bcf [id^="account-"]:not(.bcf-form-page) .btn-light:hover, .bcf [id^="account-"]:not(.bcf-form-page) .btn-light:focus-visible { color: var(--bcf-white); }
+.bcf [id^="account-"]:not(.bcf-form-page) .btn-danger { color: var(--bcf-error); }
+.bcf [id^="account-"]:not(.bcf-form-page) .btn-danger:hover, .bcf [id^="account-"]:not(.bcf-form-page) .btn-danger:focus-visible { color: var(--bcf-white); }
