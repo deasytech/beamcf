@@ -41,6 +41,7 @@
                   <option value="{{ order_status.order_status_id }}"{% if order_status.order_status_id == payment_paystack_paid_status_id %} selected{% endif %}>{{ order_status.name }}</option>
                 {% endfor %}
               </select>
+              <div id="error-paid-status" class="invalid-feedback"></div>
             </div>
           </div>
           <div class="row mb-3">

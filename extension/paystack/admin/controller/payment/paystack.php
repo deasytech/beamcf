@@ -42,9 +42,13 @@ class Paystack extends \Opencart\System\Engine\Controller {
             'geo_zones'      => $this->model_localisation_geo_zone->getGeoZones()
         ];
 
-        foreach (['paid_status_id', 'failed_status_id', 'geo_zone_id', 'status', 'sort_order'] as $name) {
+        foreach (['geo_zone_id', 'status', 'sort_order'] as $name) {
             $data[self::PREFIX . $name] = $this->config->get(self::PREFIX . $name);
         }
+
+        // Until saved, default to the store's own processing and default order statuses
+        $data[self::PREFIX . 'paid_status_id'] = (int)$this->config->get(self::PREFIX . 'paid_status_id') ?: (int)(((array)$this->config->get('config_processing_status'))[0] ?? 0);
+        $data[self::PREFIX . 'failed_status_id'] = (int)$this->config->get(self::PREFIX . 'failed_status_id') ?: (int)$this->config->get('config_order_status_id');
 
         $this->renderPage($data);
     }
@@ -68,6 +72,10 @@ class Paystack extends \Opencart\System\Engine\Controller {
 
         if (!preg_match('/^sk_(test|live)_[A-Za-z0-9]+$/', $secret_key)) {
             $json['error']['secret_key'] = $this->language->get('error_secret_key');
+        }
+
+        if ((int)($this->request->post[self::PREFIX . 'paid_status_id'] ?? 0) <= 0) {
+            $json['error']['paid_status'] = $this->language->get('error_paid_status');
         }
 
         $this->saveSettings('payment_paystack', [self::PREFIX . 'secret_key' => $secret_key] + $this->request->post, $json);

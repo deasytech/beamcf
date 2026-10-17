@@ -218,7 +218,7 @@ class Paystack extends \Opencart\System\Engine\Controller {
         if ($transaction['status'] === 'success') {
             $result = $this->amountMatches($transaction, $order_info) ? 'paid' : 'error';
 
-            if ($result == 'paid' && !$this->isPaid($order_info)) {
+            if ($result == 'paid' && $this->canMarkPaid($order_info)) {
                 $this->model_checkout_order->addHistory($order_id, (int)$this->config->get('payment_paystack_paid_status_id'), sprintf($this->language->get('text_paid'), $reference), true);
             }
         } elseif ($transaction['status'] === 'failed' && !$order_info['order_status_id']) {
@@ -249,13 +249,16 @@ class Paystack extends \Opencart\System\Engine\Controller {
     }
 
     /**
+     * Only an order that has not been touched (status 0) or that this gateway marked failed may become paid, so
+     * a late notification can never revive a cancelled or refunded order or repeat the paid history entry.
+     *
      * @param array<string, mixed> $order_info
      *
-     * @return bool whether the order already has a processing or complete status
+     * @return bool
      */
-    private function isPaid(array $order_info): bool {
-        $paid_statuses = array_merge((array)$this->config->get('config_processing_status'), (array)$this->config->get('config_complete_status'));
+    private function canMarkPaid(array $order_info): bool {
+        $status_id = (int)$order_info['order_status_id'];
 
-        return in_array($order_info['order_status_id'], $paid_statuses);
+        return $status_id === 0 || $status_id === (int)$this->config->get('payment_paystack_failed_status_id');
     }
 }

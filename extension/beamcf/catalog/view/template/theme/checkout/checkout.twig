@@ -54,7 +54,14 @@ $(document).ready(function() {
     var $continue = $('#button-register');
     var hint_changed = '{{ bcf_text_locked_changed|escape('js') }}';
     var hint_initial = '{{ bcf_text_locked_hint|escape('js') }}';
+    var $confirm = $('#checkout-confirm');
     var locked = $lockable.hasClass('is-locked');
+
+    // After an edit the pay button would act on the old saved details: keep it unavailable until Continue has
+    // saved the edit and the confirmation has been refreshed.
+    function setConfirmStale(state) {
+        $confirm.toggleClass('is-stale', state).prop('inert', state);
+    }
 
     // The core button only says "Continue"; say what it unlocks.
     $continue.text('{{ bcf_text_continue_label|escape('js') }}').addClass('bcf-continue-main');
@@ -85,11 +92,28 @@ $(document).ready(function() {
         $continue.addClass('bcf-pulse');
     });
 
-    // Editing the details after saving makes the saved copy stale, so ask for Continue again.
+    // Editing the details after saving makes the saved copy stale, so ask for Continue again. The form is compared
+    // with a snapshot of what was last saved, so moving focus (which also fires a real change event) is not an edit.
+    var snapshot = null;
+
+    $register.on('focusin', function(e) {
+        if (snapshot === null && e.originalEvent && e.originalEvent.isTrusted) {
+            snapshot = $register.serialize();
+        }
+    });
+
     $register.on('input change', ':input', function(e) {
         // Only real user input: core scripts trigger synthetic change events while loading zones.
-        if (!locked && e.originalEvent && e.originalEvent.isTrusted) {
+        if (!locked && e.originalEvent && e.originalEvent.isTrusted && snapshot !== null && $register.serialize() !== snapshot) {
+            setConfirmStale(true);
             setLocked(true, hint_changed);
+        }
+    });
+
+    // The confirmation refresh that follows a successful save is what makes it current again.
+    $(document).ajaxComplete(function(event, xhr, settings) {
+        if (settings.url && settings.url.indexOf('checkout/confirm.confirm') !== -1 && xhr.status === 200) {
+            setConfirmStale(false);
         }
     });
 
@@ -102,6 +126,7 @@ $(document).ready(function() {
         var json = xhr.responseJSON;
 
         if (json && json['success']) {
+            snapshot = $register.serialize();
             setLocked(false);
 
             var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;

@@ -22,4 +22,5 @@ $_['help_secret_key']        = 'Starts with sk_test_ (test mode) or sk_live_ (li
 
 // Error
 $_['error_permission']       = 'Warning: You do not have permission to modify Paystack payments!';
+$_['error_paid_status']      = 'A paid order status is required!';
 $_['error_secret_key']       = 'A valid Paystack secret key (sk_test_... or sk_live_...) is required!';

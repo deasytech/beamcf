@@ -3348,3 +3348,4 @@ html.bcf-qv-open {
 .bcf .bcf-topbar .dropdown > span.dropdown-toggle::after { display: none; }
 .bcf .bcf-topbar .dropdown > span.dropdown-toggle .fa-caret-down { transition: transform .15s; }
 .bcf .bcf-topbar .dropdown > span.dropdown-toggle.show .fa-caret-down { transform: rotate(180deg); }
+#checkout-confirm.is-stale { opacity: .45; filter: grayscale(1); pointer-events: none; user-select: none; }
